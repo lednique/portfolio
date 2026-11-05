@@ -229,9 +229,9 @@ b,strong{font-weight:600}
 .car__progress{position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--lime);z-index:3}
 .hero--arvid{padding-bottom:20px}
 .hero--arvid .car--video{margin-top:-60px;position:relative;z-index:2;flex:none;min-height:300px}
-.hero--arvid .car__scroller{height:100%;padding-block:0}
+.hero--arvid .car__scroller{position:relative;height:100%;padding-block:0;scroll-padding-inline:0}
 .hero--arvid .car__nav{position:absolute;right:calc((100% - 1280px)/2);bottom:8px;z-index:6;flex-direction:column;align-items:flex-end;gap:12px;width:auto}
-.aboutglass{position:absolute;z-index:5;left:calc((100% - 1280px)/2 - 80px);top:50%;transform:translateY(-50%);width:470px;max-height:calc(100% - 20px);overflow:auto;padding:24px;border-radius:36px;background:rgba(255,255,255,.5);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:var(--shadow-frame);display:flex;flex-direction:column;gap:12px;scrollbar-width:none}
+.aboutglass{position:absolute;z-index:5;left:calc((100% - 1280px)/2 - 80px);top:50%;transform:translateY(-50%);width:470px;max-height:calc(100% - 20px);overflow:auto;padding:24px;border-radius:36px;background:rgba(255,255,255,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:var(--shadow-frame);display:flex;flex-direction:column;gap:12px;scrollbar-width:none}
 .aboutglass::-webkit-scrollbar{display:none}
 .aboutglass p{font-size:16px;line-height:1.5;color:#1c1c1c}
 .aboutglass .label{margin:6px 0 0;color:#444}
@@ -374,14 +374,14 @@ b,strong{font-weight:600}
   .pinstage{position:static;height:auto;overflow:visible}
   .pinstage__in{height:auto;padding-block:0}
   .pin__grid{display:flex;flex-direction:column}
-  .pin__panel{position:sticky;top:70px;height:220px;z-index:2}
+  .pin__panel{display:none}
   .pin__steps{overflow:visible;height:auto}
   .pin__list{padding-block:0}
-  .step{min-height:0}
+  .step{min-height:0;opacity:1}
 
   html{zoom:1;scroll-padding-top:70px}
   :root{--pad:20px;--sec:60px}
-  .logo img{height:84px}
+  .logo img{width:100%;height:auto}
   .hero{padding-top:110px}
   .h1{font-size:64px}
   .h1--fit{white-space:normal;padding-inline:20px;line-height:.95}
@@ -403,7 +403,8 @@ b,strong{font-weight:600}
   .pin__num{font-size:110px}
   .pin__cap{font-size:30px !important}
   .step{padding:24px;border-radius:30px}
-  .formcard{padding:28px 18px;border-radius:36px}
+  .formsec > .wrap{padding-inline:0}
+  .formcard{padding:32px 20px;border-radius:0;box-shadow:none}
   .formcard__title{font-size:36px;overflow-wrap:anywhere}.formcard__title--2{font-size:34px}
   .lead,.hero__lines--b{text-align:left;hyphens:manual}
   .glass{padding:18px;border-radius:28px}
@@ -413,8 +414,14 @@ b,strong{font-weight:600}
   .crow span{grid-column:1/-1}
   .foot__top{grid-template-columns:1fr}
   .svc,.feat__card,.cmp__card{border-radius:30px;padding:24px}
-  .svc__body{padding-right:56px}
+  .svc__body{padding-right:0;margin-top:32px;padding-bottom:54px}
   .bigcase .btn{bottom:4%}
+  .beh{flex-direction:column;align-items:center}
+  .crow b{min-width:0;overflow-wrap:anywhere}
+  .lform__actions .btn,.contacts .btn{width:100%;white-space:normal;text-align:center}
+  .row input[type=date]{max-width:100%;min-width:0}
+  .h1{font-size:clamp(40px,10vw,64px);overflow-wrap:anywhere}
+  .h2{font-size:clamp(36px,10vw,48px);overflow-wrap:anywhere}
 }
 
 .mail{position:fixed;inset:0;z-index:300;display:grid;place-items:center;padding:20px;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);opacity:0;visibility:hidden;transition:opacity .25s,visibility .25s}
@@ -449,4 +456,6 @@ b,strong{font-weight:600}
 @media (max-width:720px){
   .nav__back{position:static;margin:0 8px 0 0;flex:none}
   .foot{min-height:0;display:block}
+  .mail__box{padding:24px 20px;border-radius:30px}
+  .mail__btns > *{width:100%}
 }

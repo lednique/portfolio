@@ -287,7 +287,7 @@
         lastProg = performance.now(); hold = lastProg + 1100;
         sc.scrollTo({ left: clamp(target(i), 0, Math.max(0, maxL())), behavior: smooth && !reduce ? 'smooth' : 'auto' });
       },
-      go(i) { i = loop ? i : clamp(i, 0, all.length - 1); paint(i); api.scrollTo(i); hooks.go && hooks.go(i); arm(); },
+      go(i, smooth = true) { i = loop ? i : clamp(i, 0, all.length - 1); paint(i); api.scrollTo(i, smooth); hooks.go && hooks.go(i); arm(); },
       userGo(i) { hooks.user ? hooks.user(i) : api.go(i); },
       next() { const i = idx + 1; if (!loop && i > all.length - 1) return api.userGo(0); api.userGo(i); },
       prev() { api.userGo(loop ? idx - 1 : Math.max(0, idx - 1)); },
@@ -315,12 +315,13 @@
     sc.addEventListener('scroll', () => {
       clearTimeout(idle); idle = setTimeout(settle, 120);
       if (ticking) return; ticking = true;
-      requestAnimationFrame(() => { ticking = false; paint(nearest()); });
+      requestAnimationFrame(() => { ticking = false; if (performance.now() > hold) paint(nearest()); });
     }, { passive: true });
 
     /* перетаскивание мышью */
     let drag = null, suppress = false;
     sc.addEventListener('pointerdown', (e) => {
+      hold = 0; lastProg = 0;
       if (e.pointerType !== 'mouse' || e.button !== 0) return;
       drag = { x: e.clientX, l: sc.scrollLeft, moved: false, i: nearest() }; dragging = true;
     });
@@ -350,7 +351,8 @@
 
     const start = base + parseInt(root.dataset.start || '0', 10);
     const init = () => { paint(start); sc.classList.add('no-snap'); sc.scrollLeft = clamp(target(start), 0, Math.max(0, maxL())); sc.classList.remove('no-snap'); };
-    init(); addEventListener('load', init);
+    init();
+    addEventListener('load', () => api.scrollTo(idx, false));
     addEventListener('resize', () => api.scrollTo(idx, false));
     if ('ResizeObserver' in window) new ResizeObserver(() => { if (!dragging) api.scrollTo(idx, false); }).observe(all[base]);
     if ('IntersectionObserver' in window) {
@@ -399,6 +401,7 @@
     function play(i, isManual) {
       i = car.loop ? i : at(i);
       clearTimeout(timer);
+      const curWasPlaying = cur >= 0;
       if (cur >= 0 && cur !== i) reset(cur);
       cur = i; manual = !!isManual;
       all.forEach((it, k) => it.classList.toggle('is-active', k === i));
@@ -406,7 +409,7 @@
       load(v); load(vids[at(i + 1)]); load(vids[at(i - 1)]);
       try { v.currentTime = 0; } catch (e) {}
       const p = v.play(); if (p && p.catch) p.catch(() => {});
-      car.go(i);
+      car.go(i, curWasPlaying);
       arm();
     }
     vids.forEach((v, k) => {
