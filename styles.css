@@ -20,7 +20,7 @@
      inner shadow 0/1/0.5  #fff 45 % · inner shadow 0/0.5/0.5 #fff 60 % · inner shadow 0/-1/1 #fff 30 %
      drop shadow -1/0/0  #000 30 % · drop shadow 1/0/1  #000 30 %
      inner shadow 0/2/3  #000 30 % · drop shadow 0/4/4  #000 25 % */
-  /* белые блики вынесены в отдельный слой ::after с наложением lighten
+  /* белые блики вынесены в отдельный слой ::after с наложением plus-lighter
      (см. блок «БЕЛЫЕ ТЕНИ» в конце файла) – здесь остаются только тёмные */
   --fx-light:inset 0 1px .5px rgba(255,255,255,.45),
        inset 0 .5px .5px rgba(255,255,255,.6),
@@ -101,7 +101,7 @@ b,strong{font-weight:600}
   height:36px;padding:6px 14px;border:0;border-radius:36px;font:600 11px/1 var(--font-b);letter-spacing:.066em;text-transform:uppercase;white-space:nowrap;
   text-decoration:none;cursor:pointer;color:#000;transition:transform .15s var(--ease-back),box-shadow .15s var(--ease-back);-webkit-tap-highlight-color:transparent;user-select:none}
 .btn::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;background:linear-gradient(90deg,#ffffff4d,#fff9);opacity:0;transition:opacity .15s var(--ease-back)}
-.btn::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:0 -3px 1px #ffffff26 inset,0 2px 2px #fff inset;mix-blend-mode:lighten}
+.btn::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:0 -3px 1px #ffffff26 inset,0 2px 2px #fff inset;mix-blend-mode:plus-lighter}
 @media (hover:hover){.btn:hover{transform:scale(var(--hs))}.btn:hover::before{opacity:1}}
 .btn:focus-visible{transform:scale(var(--hs));outline:2px solid #000;outline-offset:3px}
 .btn:active{transform:scale(1.03)}
@@ -496,9 +496,12 @@ b,strong{font-weight:600}
   .hero--design .hero__fishes{display:none}
   .hero--design .heroimg__in{position:static}
   .hero--design .pfish{opacity:1;z-index:3;left:auto !important;right:auto !important;top:auto !important;bottom:auto !important}
-  .hero--design .pfish--1{width:300px !important;left:-16% !important;top:calc(var(--vh,100vh) * .17) !important}
-  .hero--design .pfish--2{width:328px !important;right:-18% !important;top:calc(var(--vh,100vh) * .25) !important}
-  .hero--design .pfish--3{width:268px !important;left:-14% !important;top:calc(var(--vh,100vh) * .65) !important}
+  /* левая рыба: 60 px влево, 20 px вниз */
+  .hero--design .pfish--1{width:300px !important;left:calc(-16% - 60px) !important;top:calc(var(--vh,100vh) * .17 + 20px) !important}
+  /* правая рыба: 20 px вправо */
+  .hero--design .pfish--2{width:328px !important;right:calc(-18% - 20px) !important;top:calc(var(--vh,100vh) * .25) !important}
+  /* нижняя рыба: на 60 px выше */
+  .hero--design .pfish--3{width:268px !important;left:-14% !important;top:calc(var(--vh,100vh) * .65 - 60px) !important}
   .car--wide,.hero--arvid .car--video{height:auto !important;margin-top:0;display:block}
   .car--wide .car__item{height:auto;width:86vw}
   .hero--arvid .car--video .car__item{height:auto;width:62vw}
@@ -698,7 +701,7 @@ body.lb-open{overflow:hidden}
 .car__item,.bigcase{border-radius:24px;background:var(--glass);border:1px solid var(--glass-b);box-shadow:var(--fx)}
 .car__item::after,.bigcase::after{
   content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:2;
-  box-shadow:var(--fx-light);mix-blend-mode:lighten}
+  box-shadow:var(--fx-light);mix-blend-mode:plus-lighter}
 
 .bigcase{overflow:hidden}
 .car__tag{z-index:3}
@@ -717,9 +720,9 @@ body.lb-open{overflow:hidden}
 }
 
 /* ==========================================================================
-   БЕЛЫЕ ТЕНИ = СЛОЙ С НАЛОЖЕНИЕМ lighten (по всему сайту)
+   БЕЛЫЕ ТЕНИ = СЛОЙ С НАЛОЖЕНИЕМ plus-lighter (по всему сайту)
    Белые inset-блики больше не лежат в box-shadow элемента: они вынесены
-   в отдельный слой ::after с mix-blend-mode:lighten (фолбэк lighten).
+   в отдельный слой ::after с mix-blend-mode:plus-lighter (фолбэк lighten).
    На тёмном фоне блик складывается и светится, а не даёт серую вуаль.
    ========================================================================== */
 /* кнопки-пилюли (кнопочный стек) */
@@ -728,12 +731,12 @@ body.lb-open{overflow:hidden}
 .car__tag::after,.cv__meta::after,.cv .chip::after,.cv__cta::after{
   content:"";display:block;position:absolute;inset:0;border-radius:inherit;
   pointer-events:none;z-index:2;
-  box-shadow:var(--btn-light);mix-blend-mode:lighten}
+  box-shadow:var(--btn-light);mix-blend-mode:plus-lighter}
 
 /* пункты меню: наложение обычное (normal), но белый блик – «HDR»,
    то есть максимально плотный, без серой полупрозрачности */
 .nav .btn--nav::after,.nav__links a::after,.nav .opt::after{
-  mix-blend-mode:lighten;
+  mix-blend-mode:plus-lighter;
   box-shadow:
     inset 0 1px .5px var(--hdr-white),
     inset 0 .5px .5px var(--hdr-white),
@@ -748,25 +751,25 @@ body.lb-open{overflow:hidden}
 .cv__head::after,.car__btn::after,.ico::after,.lang__menu::after{
   content:"";display:block;position:absolute;inset:0;border-radius:inherit;
   pointer-events:none;z-index:2;
-  box-shadow:var(--fx-light);mix-blend-mode:lighten}
+  box-shadow:var(--fx-light);mix-blend-mode:plus-lighter}
 
 /* белая кнопка «назад»: белый блик – отдельным слоем */
 .nav__back::after{
   content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
-  box-shadow:inset 0 1px .5px rgba(255,255,255,.75);mix-blend-mode:lighten}
+  box-shadow:inset 0 1px .5px rgba(255,255,255,.75);mix-blend-mode:plus-lighter}
 .nav__back{box-shadow:0 2px 6px rgba(0,0,0,.12),0 8px 18px rgba(0,0,0,.06)!important}
 
 /* поля ввода – псевдоэлементы не рендерятся, поэтому белый блик остаётся в тени */
 .row input[type=date],.row input[type=date]:hover{box-shadow:var(--btn-fx),var(--btn-light)}
 
-/* браузеры без mix-blend-mode:lighten */
-@supports not (mix-blend-mode:lighten){
+/* браузеры без mix-blend-mode:plus-lighter */
+@supports not (mix-blend-mode:plus-lighter){
   .btn--nav::after,.opt::after,.btn--lime::after,.nav__links a::after,.car__tag::after,
   .cv__meta::after,.cv .chip::after,.cv__cta::after,.svc::after,.svc__arrow::after,
   .feat__card::after,.pin__panel::after,.step::after,.cmp__card::after,.glass::after,
   .crow::after,.cv__head::after,.car__btn::after,.ico::after,.lang__menu::after,
   .cv__block::after,.nav__back::after{
-    mix-blend-mode:lighten}
+    mix-blend-mode:plus-lighter}
 }
 
 /* «Клиенты»: снизу ровно 60 px до блока «Что именно делается» */
