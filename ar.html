@@ -11,18 +11,19 @@
 var n=(navigator.languages||[navigator.language||'ru']).map(function(x){return String(x).toLowerCase().slice(0,2)});
 var l=(s&&L.indexOf(s)>-1)?s:(n.filter(function(x){return L.indexOf(x)>-1})[0]||'ru');
 document.documentElement.lang=l;document.documentElement.dataset.lang=l;document.documentElement.dir=(l==='ar'?'rtl':'ltr');
-if(l!=='ru'){document.write('<script src="lang/'+l+'.js?v=20261107p"><\/script>');}}catch(e){}})();
+if(l!=='ru'){document.write('<script src="lang/'+l+'.js?v=20261107q"><\/script>');}}catch(e){}})();
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&family=Roboto+Condensed:wght@500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20261107p">
+<link rel="stylesheet" href="styles.css?v=20261107q">
+<link rel="stylesheet" href="assets/vendor/glisse.css?v=20261107q">
 </head>
 <body class="page-ar">
 <header class="nav" id="nav">
   <div class="nav__in">
     <a class="nav__back" href="https://lednique.ru/" aria-label="Перейти на основной сайт lednique.ru" title="lednique.ru"><span>←</span></a>
-    <a class="logo" href="index.html" aria-label="LEDNIQUE – главная"><img src="assets/logo.png?v=20261107p" alt="LEDNIQUE" width="200" height="140"></a>
+    <a class="logo" href="index.html" aria-label="LEDNIQUE – главная"><img src="assets/logo.png?v=20261107q" alt="LEDNIQUE" width="200" height="140"></a>
     <a class="btn btn--lime nav__cta" href="#request">Обсудить проект</a>
     <nav class="nav__links" aria-label="Основное меню">
       <a class="btn btn--nav" href="index.html" data-nav="index.html"><span>Главная</span></a><a class="btn btn--nav" href="index.html#process" data-nav="index.html#process"><span>Процесс</span></a><a class="btn btn--nav" href="index.html#about" data-nav="index.html#about"><span>Обо мне</span></a><span class="nav__sep" aria-hidden="true"></span><a class="btn btn--nav nav__dir" href="graphic.html" data-nav="graphic.html"><span>Графика</span></a><a class="btn btn--nav nav__dir is-active" href="ar.html" data-nav="ar.html"><span>AR-эффекты</span></a><a class="btn btn--nav nav__dir" href="ai.html" data-nav="ai.html"><span>AI-продакшн</span></a>
@@ -36,19 +37,19 @@ if(l!=='ru'){document.write('<script src="lang/'+l+'.js?v=20261107p"><\/script>'
   <h1 class="h1 h1--fit" data-fit=".79"><span>AR-эффекты в соцсетях</span></h1>
   <div class="car car--video car--center" data-car data-vcar data-loop data-start="0" data-fitbox>
     <div class="car__scroller">
-    <div class="car__item"><img src="assets/poster/anime3d.jpg" alt="" loading="lazy" draggable="false"><div class="car__frame" data-frame="https://kinescope.io/embed/t4rhwEP9ePCa7be7WNT5cB?autoplay=1&amp;muted=1&amp;loop=1&amp;playsinline=1&amp;controls=0"></div><span class="car__tag"><span>BODY TRACKING</span></span><div class="car__cap"><b>Mobile Legends</b><span>Layla – Prismatic Rhythm</span></div><i class="car__progress"></i></div>
-    <div class="car__item"><img src="assets/poster/oscar_frank.jpg" alt="" loading="lazy" draggable="false"><div class="car__frame" data-frame="https://kinescope.io/embed/2vexMSN135PUYEy26jZRRG?autoplay=1&amp;muted=1&amp;loop=1&amp;playsinline=1&amp;controls=0"></div><span class="car__tag"><span>AR TRY-ON</span></span><div class="car__cap"><b>OSCAR&amp;FRANK</b><span>КОЛЛЕКЦИЯ ОЧКОВ</span></div><i class="car__progress"></i></div>
-    <div class="car__item"><img src="assets/poster/glass_orbit.jpg" alt="" loading="lazy" draggable="false"><div class="car__frame" data-frame="https://kinescope.io/embed/88wQ4Qxr5WSg4bz5D6Vyto?autoplay=1&amp;muted=1&amp;loop=1&amp;playsinline=1&amp;controls=0"></div><span class="car__tag"><span>GLASSMORPHISM</span></span><div class="car__cap"><b>ACRYL – Reflection</b><span>АРТ-РАБОТА</span></div><i class="car__progress"></i></div>
-    <div class="car__item"><img src="assets/poster/cdcase.jpg" alt="" loading="lazy" draggable="false"><div class="car__frame" data-frame="https://kinescope.io/embed/sgpmA3GXmtwQ1nd3hP9dt1?autoplay=1&amp;muted=1&amp;loop=1&amp;playsinline=1&amp;controls=0"></div><span class="car__tag"><span>3D MOTION</span></span><div class="car__cap"><b>platinum</b><span>ВИЗУАЛЬНЫЙ ЭФФЕКТ</span></div><i class="car__progress"></i></div>
-    <div class="car__item"><img src="assets/poster/cyber_glam.jpg" alt="" loading="lazy" draggable="false"><div class="car__frame" data-frame="https://kinescope.io/embed/nj6uKqAoUJfBXHVPWypooh?autoplay=1&amp;muted=1&amp;loop=1&amp;playsinline=1&amp;controls=0"></div><span class="car__tag"><span>DIGITAL MUA</span></span><div class="car__cap"><b>Witch Glam</b><span>HALLOWEEN SPECIAL</span></div><i class="car__progress"></i></div>
-    <div class="car__item"><img src="assets/poster/bt21.jpg" alt="" loading="lazy" draggable="false"><div class="car__frame" data-frame="https://kinescope.io/embed/peGQcshuduEhCYB9GPkqfp?autoplay=1&amp;muted=1&amp;loop=1&amp;playsinline=1&amp;controls=0"></div><span class="car__tag"><span>ВИЗУАЛЬНЫЕ РЕШЕНИЯ</span></span><div class="car__cap"><b>dreamcore!</b><span>СТИЛЬ Y2K</span></div><i class="car__progress"></i></div>
-    <div class="car__item"><img src="assets/poster/lash_tryon.jpg" alt="" loading="lazy" draggable="false"><div class="car__frame" data-frame="https://kinescope.io/embed/31UvTNa93c5cCw2yLMvN5b?autoplay=1&amp;muted=1&amp;loop=1&amp;playsinline=1&amp;controls=0"></div><span class="car__tag"><span>BEAUTY</span></span><div class="car__cap"><b>GLAMNETIC</b><span>9 ВАРИАНТОВ ПРОДУКТА</span></div><i class="car__progress"></i></div>
-    <div class="car__item"><img src="assets/poster/balaclava.jpg" alt="" loading="lazy" draggable="false"><div class="car__frame" data-frame="https://kinescope.io/embed/jrreAATqHYoq9jMMV4cH4h?autoplay=1&amp;muted=1&amp;loop=1&amp;playsinline=1&amp;controls=0"></div><span class="car__tag"><span>FASHION</span></span><div class="car__cap"><b>Balaclava</b><span>3D + BEAUTY</span></div><i class="car__progress"></i></div>
-    <div class="car__item"><img src="assets/poster/atomic_heart.jpg" alt="" loading="lazy" draggable="false"><div class="car__frame" data-frame="https://kinescope.io/embed/w82r6UQsc9KFyWQz5vMKyo?autoplay=1&amp;muted=1&amp;loop=1&amp;playsinline=1&amp;controls=0"></div><span class="car__tag"><span>ГЕЙМИНГ</span></span><div class="car__cap"><b>Atomic Heart</b><span>3D-МАСКА</span></div><i class="car__progress"></i></div>
-    <div class="car__item"><img src="assets/poster/gummybear.jpg" alt="" loading="lazy" draggable="false"><div class="car__frame" data-frame="https://kinescope.io/embed/mmed7FN7rxSbajkkZCEDoe?autoplay=1&amp;muted=1&amp;loop=1&amp;playsinline=1&amp;controls=0"></div><span class="car__tag"><span>PHYGITAL</span></span><div class="car__cap"><b>Gummy Bear</b><span>TARGET-TRACKING</span></div><i class="car__progress"></i></div>
-    <div class="car__item"><img src="assets/poster/newjeans.jpg" alt="" loading="lazy" draggable="false"><div class="car__frame" data-frame="https://kinescope.io/embed/i6rwVfm3wYJBg16gVC83bu?autoplay=1&amp;muted=1&amp;loop=1&amp;playsinline=1&amp;controls=0"></div><span class="car__tag"><span>FAN FILTER</span></span><div class="car__cap"><b>NewJeans</b><span>HALFTONE</span></div><i class="car__progress"></i></div>
+    <div class="car__item"><img src="assets/poster/anime3d.jpg" alt="" loading="lazy" draggable="false"><video class="car__frame" data-src="assets/vid/anime3d_web.mp4" poster="assets/poster/anime3d.jpg" muted playsinline loop preload="none"></video><span class="car__tag"><span>BODY TRACKING</span></span><div class="car__cap"><b>Mobile Legends</b><span>Layla – Prismatic Rhythm</span></div><i class="car__progress"></i></div>
+    <div class="car__item"><img src="assets/poster/oscar_frank.jpg" alt="" loading="lazy" draggable="false"><video class="car__frame" data-src="assets/vid/oscar_frank_web.mp4" poster="assets/poster/oscar_frank.jpg" muted playsinline loop preload="none"></video><span class="car__tag"><span>AR TRY-ON</span></span><div class="car__cap"><b>OSCAR&amp;FRANK</b><span>КОЛЛЕКЦИЯ ОЧКОВ</span></div><i class="car__progress"></i></div>
+    <div class="car__item"><img src="assets/poster/glass_orbit.jpg" alt="" loading="lazy" draggable="false"><video class="car__frame" data-src="assets/vid/glass_orbit_web.mp4" poster="assets/poster/glass_orbit.jpg" muted playsinline loop preload="none"></video><span class="car__tag"><span>GLASSMORPHISM</span></span><div class="car__cap"><b>ACRYL – Reflection</b><span>АРТ-РАБОТА</span></div><i class="car__progress"></i></div>
+    <div class="car__item"><img src="assets/poster/cdcase.jpg" alt="" loading="lazy" draggable="false"><video class="car__frame" data-src="assets/vid/cdcase_web.mp4" poster="assets/poster/cdcase.jpg" muted playsinline loop preload="none"></video><span class="car__tag"><span>3D MOTION</span></span><div class="car__cap"><b>platinum</b><span>ВИЗУАЛЬНЫЙ ЭФФЕКТ</span></div><i class="car__progress"></i></div>
+    <div class="car__item"><img src="assets/poster/cyber_glam.jpg" alt="" loading="lazy" draggable="false"><video class="car__frame" data-src="assets/vid/cyber_glam_web.mp4" poster="assets/poster/cyber_glam.jpg" muted playsinline loop preload="none"></video><span class="car__tag"><span>DIGITAL MUA</span></span><div class="car__cap"><b>Witch Glam</b><span>HALLOWEEN SPECIAL</span></div><i class="car__progress"></i></div>
+    <div class="car__item"><img src="assets/poster/bt21.jpg" alt="" loading="lazy" draggable="false"><video class="car__frame" data-src="assets/vid/bt21_web.mp4" poster="assets/poster/bt21.jpg" muted playsinline loop preload="none"></video><span class="car__tag"><span>ВИЗУАЛЬНЫЕ РЕШЕНИЯ</span></span><div class="car__cap"><b>dreamcore!</b><span>СТИЛЬ Y2K</span></div><i class="car__progress"></i></div>
+    <div class="car__item"><img src="assets/poster/lash_tryon.jpg" alt="" loading="lazy" draggable="false"><video class="car__frame" data-src="assets/vid/lash_tryon_web.mp4" poster="assets/poster/lash_tryon.jpg" muted playsinline loop preload="none"></video><span class="car__tag"><span>BEAUTY</span></span><div class="car__cap"><b>GLAMNETIC</b><span>9 ВАРИАНТОВ ПРОДУКТА</span></div><i class="car__progress"></i></div>
+    <div class="car__item"><img src="assets/poster/balaclava.jpg" alt="" loading="lazy" draggable="false"><video class="car__frame" data-src="assets/vid/balaclava_web.mp4" poster="assets/poster/balaclava.jpg" muted playsinline loop preload="none"></video><span class="car__tag"><span>FASHION</span></span><div class="car__cap"><b>Balaclava</b><span>3D + BEAUTY</span></div><i class="car__progress"></i></div>
+    <div class="car__item"><img src="assets/poster/atomic_heart.jpg" alt="" loading="lazy" draggable="false"><video class="car__frame" data-src="assets/vid/atomic_heart_web.mp4" poster="assets/poster/atomic_heart.jpg" muted playsinline loop preload="none"></video><span class="car__tag"><span>ГЕЙМИНГ</span></span><div class="car__cap"><b>Atomic Heart</b><span>3D-МАСКА</span></div><i class="car__progress"></i></div>
+    <div class="car__item"><img src="assets/poster/gummybear.jpg" alt="" loading="lazy" draggable="false"><video class="car__frame" data-src="assets/vid/gummybear_web.mp4" poster="assets/poster/gummybear.jpg" muted playsinline loop preload="none"></video><span class="car__tag"><span>PHYGITAL</span></span><div class="car__cap"><b>Gummy Bear</b><span>TARGET-TRACKING</span></div><i class="car__progress"></i></div>
+    <div class="car__item"><img src="assets/poster/newjeans.jpg" alt="" loading="lazy" draggable="false"><video class="car__frame" data-src="assets/vid/newjeans_web.mp4" poster="assets/poster/newjeans.jpg" muted playsinline loop preload="none"></video><span class="car__tag"><span>FAN FILTER</span></span><div class="car__cap"><b>NewJeans</b><span>HALFTONE</span></div><i class="car__progress"></i></div>
     </div>
-    <div class="aboutglass">
+    <div class="aboutglass" data-glisse data-glisse-class="aboutglass__glass">
       <p>Создаю цифровую эстетику с технологическим бэкграундом. Специализируюсь на разработке AR-эффектов, которые объединяют дополненную реальность и физический продукт в единый покупательский опыт.</p>
       <p>Проектирую всё: от высокоточных виртуальных примерок (Try-on) до сложных 3D-аватаров и Digital MUA. Мои решения помогают брендам выделяться в ленте и выстраивать глубокую эмоциональную связь с аудиторией.</p>
       <span class="label">Перечень выполняемых работ</span><div class="chips "><span class="chip">face-tracking</span><span class="chip">try-on</span><span class="chip">digital MUA</span><span class="chip">target-tracking</span><span class="chip">3D-моделирование</span><span class="chip">анимация</span><span class="chip">TikTok / Snapchat</span><span class="chip">phygital</span></div>
@@ -113,7 +114,7 @@ if(l!=='ru'){document.write('<script src="lang/'+l+'.js?v=20261107p"><\/script>'
     <div class="foot__top">
       <div class="foot__brand">
         <p>Виктор, LEDNIQUE. Графический дизайн, AR-эффекты и AI-продакшн для брендов.</p>
-        <img src="assets/logo.png?v=20261107p" alt="LEDNIQUE" width="200" height="140">
+        <img src="assets/logo.png?v=20261107q" alt="LEDNIQUE" width="200" height="140">
       </div>
       <div class="lang" data-lang>
   <button class="btn btn--nav is-active lang__btn" type="button" aria-haspopup="listbox" aria-expanded="false" data-lang-toggle aria-label="Язык сайта"><span data-lang-code>RU</span></button>
@@ -134,10 +135,11 @@ if(l!=='ru'){document.write('<script src="lang/'+l+'.js?v=20261107p"><\/script>'
       <div><h4>Соцсети</h4><div class="foot__soc"><a href="https://t.me/lednique" target="_blank" rel="noopener">Telegram</a><a href="https://www.behance.net/lednique" target="_blank" rel="noopener">Behance</a><a href="https://www.instagram.com/lednique" target="_blank" rel="noopener">Instagram</a><a href="https://kwork.ru/user/lednique" target="_blank" rel="noopener">Kwork</a><a href="https://boosty.to/lednique" target="_blank" rel="noopener">Boosty</a></div></div>
     </div>
   </div>
-  <div class="foot__word" aria-hidden="true"><div class="foot__fish"><img src="assets/fish/group3.svg?v=20261107p" alt=""></div><b><span class="fw-word"><span>l</span><span>e</span><span class="fw-front">d</span><span>n</span><span class="fw-front">i</span><span>q</span><span>u</span><span>e</span></span></b></div>
+  <div class="foot__word" aria-hidden="true"><div class="foot__fish"><img src="assets/fish/group3.svg?v=20261107q" alt=""></div><b><span class="fw-word"><span>l</span><span>e</span><span class="fw-front">d</span><span>n</span><span class="fw-front">i</span><span>q</span><span>u</span><span>e</span></span></b></div>
   <div class="wrap"><div class="foot__bar"><span>© LEDNIQUE – 2026. All Rights Reserved.</span><a href="https://www.lednique.ru/privacy" target="_blank" rel="noopener">Политика конфиденциальности</a></div></div>
 </footer>
-<script src="i18n.js?v=20261107p" defer></script>
-<script src="app.js?v=20261107p" defer></script>
+<script src="i18n.js?v=20261107q" defer></script>
+<script src="assets/vendor/glisse.js?v=20261107q" defer></script>
+<script src="app.js?v=20261107q" defer></script>
 </body>
 </html>

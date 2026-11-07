@@ -455,38 +455,49 @@
   }
   $$('[data-car]').forEach(initCar);
 
-  /* ---------- AR: видео из Kinescope – активный слайд проигрывает, остальные держат постер ---------- */
+  /* ---------- AR: видео файлами – активный играет, остальные буферизуются в фоне ---------- */
   $$('[data-vcar]').forEach((root) => {
     const car = cars.get(root), all = car.all, n = car.n;
-    const frames = all.map(it => $('[data-frame]', it));
+    const vids = all.map(it => $('video', it));
     const bars = all.map(it => $('.car__progress', it));
     const AUTO_MS = 8000;
-    let cur = -1, visible = false, timer = 0, manual = false;
+    const PRELOAD_NEXT = 2;                     /* сколько роликов держим «наготове» */
+    let cur = -1, visible = false, timer = 0, manual = false, idle = 0;
 
     const at = (i) => ((i % all.length) + all.length) % all.length;
-    /* кадр Kinescope грузится только у активного слайда */
-    const mount = (k) => {
-      const f = frames[k];
-      if (!f || f.dataset.live === '1') return;
-      const src = f.dataset.frame; if (!src) return;
-      const fr = document.createElement('iframe');
-      fr.src = src;
-      fr.setAttribute('frameborder', '0');
-      fr.setAttribute('allowfullscreen', '');
-      fr.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture; encrypted-media; gyroscope; accelerometer; clipboard-write; screen-wake-lock;');
-      fr.setAttribute('title', 'AR-видео');
-      f.appendChild(fr);
-      f.dataset.live = '1'; f.classList.add('is-live');
+
+    const attach = (k, auto) => {
+      const v = vids[k]; if (!v || v.getAttribute('src')) return;
+      if (auto) v.preload = 'auto';
+      v.src = v.dataset.src;
     };
-    const unmount = (k) => {
-      const f = frames[k]; if (!f) return;
-      $$('iframe', f).forEach(x => x.remove());
-      f.dataset.live = ''; f.classList.remove('is-live');
+    const playV = (k) => {
+      const v = vids[k]; if (!v) return;
+      attach(k, true);
+      if (!v.dataset.hook) {
+        v.dataset.hook = '1';
+        /* показываем video только с первым кадром – никаких чёрных/белых полос при загрузке */
+        v.addEventListener('playing', () => v.classList.add('is-live'));
+        v.addEventListener('emptied', () => v.classList.remove('is-live'));
+      }
+      const p = v.play(); if (p && p.catch) p.catch(() => {});
+      if (v.readyState >= 3) v.classList.add('is-live');
     };
-    const stopBar = (k) => {
-      const b = bars[k]; if (!b) return;
-      b.style.transition = 'none'; b.style.width = '0';
+    const pauseV = (k) => {
+      const v = vids[k]; if (!v) return;
+      v.pause(); v.classList.remove('is-live');
     };
+    /* фоновый буфер: следующие ролики качаются, пока играет текущий */
+    const prefetch = (k) => {
+      if (window.cancelIdleCallback) cancelIdleCallback(idle);
+      const run = () => {
+        for (let d = 1; d <= PRELOAD_NEXT; d++) attach(at(k + d), true);
+        attach(at(k - 1), true);
+      };
+      idle = (window.requestIdleCallback || ((f) => setTimeout(f, 400)))(run, { timeout: 2500 });
+    };
+
+    const stopBar = (k) => { const b = bars[k]; if (!b) return; b.style.transition = 'none'; b.style.width = '0'; };
     const runBar = (k) => {
       const b = bars[k]; if (!b) return;
       b.style.transition = 'none'; b.style.width = '0';
@@ -498,11 +509,12 @@
       i = car.loop ? i : at(i);
       clearTimeout(timer);
       const wasPlaying = cur >= 0;
-      if (cur >= 0 && at(cur) !== at(i)) { unmount(at(cur)); stopBar(at(cur)); }
+      if (cur >= 0 && at(cur) !== at(i)) { pauseV(at(cur)); stopBar(at(cur)); }
       cur = i; manual = !!isManual;
       all.forEach((it, k) => it.classList.toggle('is-active', k === i));
-      mount(at(i)); runBar(at(i));
+      playV(at(i)); runBar(at(i));
       car.go(i, wasPlaying);
+      prefetch(at(i));
       arm();
     }
     const arm = () => {
@@ -512,27 +524,31 @@
     all.forEach((it, k) => it.addEventListener('click', () => { if (k !== cur) play(k, true); }));
     car.hook({
       user: (i) => play(i, true),
-      settle: (i, user) => { if (i !== cur) play(i, !!user); },   /* играет всегда тот слайд, что в центре */
-      shift: (delta) => {                       /* бесшовный ре-центр: тот же слайд в другом клоне */
+      settle: (i, user) => { if (i !== cur) play(i, !!user); },
+      shift: (delta) => {
         if (cur < 0) return;
         const o = cur, nn = cur + delta;
-        unmount(at(o)); stopBar(at(o));
+        pauseV(at(o)); stopBar(at(o));
         all[o].classList.remove('is-active'); all[nn].classList.add('is-active');
-        cur = nn; mount(at(nn)); runBar(at(nn));
+        cur = nn; playV(at(nn)); runBar(at(nn));
       }
     });
+    /* первый ролик и его соседей грузим сразу после загрузки страницы */
+    const kick = () => {
+      const i = car.base + parseInt(root.dataset.start || '0', 10);
+      attach(at(i), true); prefetch(at(i));
+    };
+    addEventListener('load', () => setTimeout(kick, 200));
     if ('IntersectionObserver' in window) {
       new IntersectionObserver((es) => es.forEach(e => {
         visible = e.isIntersecting;
         if (visible) {
           if (cur < 0) {
             play(car.base + parseInt(root.dataset.start || '0', 10), false);
-            /* после доводки скролла включаем именно центральный слайд */
             setTimeout(() => { const nn = car.nearest ? car.nearest() : cur; if (nn !== cur) play(nn, false); }, 520);
             setTimeout(() => { const nn = car.nearest ? car.nearest() : cur; if (nn !== cur) play(nn, false); }, 1200);
-          }
-          else { mount(at(cur)); runBar(at(cur)); arm(); }
-        } else { clearTimeout(timer); }
+          } else { playV(at(cur)); runBar(at(cur)); arm(); }
+        } else { clearTimeout(timer); if (cur >= 0) pauseV(at(cur)); }
       }), { threshold: .25 }).observe(root);
     } else { visible = true; play(car.base, false); }
   });
@@ -767,27 +783,6 @@
     addEventListener('keydown', (e) => { if (e.key === 'Escape' && !lb.hidden) close(); });
   })();
 
-
-  /* ---------- стекло: внутрь кладём искажённую копию того, что за блоком ---------- */
-  (() => {
-    const pick = (el) => el && el.src;
-    const pinOn = () => { const a = $('.pin__img.is-on'); return pick(a); };
-    const vidOn = () => { const a = $('.car--video .car__item.is-active > img'); return pick(a); };
-    const map = [];
-    $$('.sec--dark .step').forEach(el => map.push({ el, src: pinOn }));
-    $$('.aboutglass').forEach(el => map.push({ el, src: vidOn }));
-    if (!map.length) return;
-    map.forEach(({ el }) => {
-      let i = [...el.children].find(x => x.classList && x.classList.contains('bendfx'));
-      if (!i) { i = document.createElement('i'); i.className = 'bendfx'; i.setAttribute('aria-hidden', 'true'); el.prepend(i); }
-    });
-    const sync = () => map.forEach(({ el, src }) => {
-      const s = src(); if (!s) return;
-      const v = 'url("' + s + '")';
-      if (el.style.getPropertyValue('--bend') !== v) el.style.setProperty('--bend', v);
-    });
-    sync(); setInterval(sync, 900);
-  })();
 
   /* ==========================================================================
      ФУТЕР: «lednique» на всю ширину + рыбка
