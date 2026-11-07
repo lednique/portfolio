@@ -489,12 +489,12 @@
       idle = (window.requestIdleCallback || ((f) => setTimeout(f, 400)))(run, { timeout: 2500 });
     };
 
-    const stopBar = (k) => { const b = bars[k]; if (!b) return; b.style.transition = 'none'; b.style.width = '0'; };
+    const stopBar = (k) => { const b = bars[k]; if (!b) return; b.style.transition = 'none'; b.style.transform = 'scaleX(0)'; };
     const runBar = (k) => {
       const b = bars[k]; if (!b) return;
-      b.style.transition = 'none'; b.style.width = '0';
+      b.style.transition = 'none'; b.style.transform = 'scaleX(0)';
       void b.offsetWidth;
-      b.style.transition = `width ${AUTO_MS}ms linear`; b.style.width = '100%';
+      b.style.transition = `transform ${AUTO_MS}ms linear`; b.style.transform = 'scaleX(1)';
     };
 
     function play(i, isManual) {
