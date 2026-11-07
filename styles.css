@@ -703,8 +703,8 @@ html[lang="ar"] body{font-family:"Montserrat","Noto Sans Arabic",system-ui,"Sego
 .home-hero__cta .btn,.home-hero__cta .btn *,
 .btn--lime,.btn--lime *{text-transform:uppercase!important}
 
-/* ---------- аватарка на главной: на 60 px выше ---------- */
-@media (min-width:721px){.home-hero__pic{position:relative;top:-60px}}
+/* ---------- аватарка на главной: на 60 px выше (только мобильная версия) ---------- */
+@media (max-width:720px){.home-hero__pic{position:relative;top:-60px}}
 
 /* ---------- лайтбокс превью кейса ---------- */
 .lb{position:fixed;inset:0;z-index:400;display:flex;flex-direction:column;
