@@ -629,57 +629,72 @@ html[lang="ar"] body{font-family:"Montserrat","Noto Sans Arabic",system-ui,"Sego
 /* ==========================================================================
    РЕЗЮМЕ (resume.html)
    ========================================================================== */
-/* ---------- резюме: та же пластика, что на сайте ---------- */
-.cv{position:relative;padding:120px 0 90px;background:#fff}
-.cv__head{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:14px;margin-bottom:var(--gap);
-  padding:46px;border-radius:44px;
-  background:linear-gradient(172deg,#ffffff 0%,#f3fae6 46%,#e6f6cf 100%);
-  border:1px solid rgba(0,0,0,.07);box-shadow:var(--fx)}
-.cv__head .h1{margin:2px 0 0;font-size:clamp(52px,7.4vw,104px);line-height:.9;letter-spacing:-.04em}
-.cv__head .eyebrow{margin:0}
-.cv__fish{position:absolute;right:-26px;bottom:-18px;width:min(300px,36%);opacity:.92;pointer-events:none}
-.cv__role{font:600 17px/1.32 var(--font-b);text-transform:uppercase;letter-spacing:.015em;color:#111;max-width:640px}
-.cv__meta{width:max-content;max-width:100%;min-height:36px;display:inline-flex;align-items:center;
-  padding:6px 14px;border-radius:36px;background:var(--glass-fill);box-shadow:var(--btn-fx);
-  font:600 14px/17.6px var(--font-b);letter-spacing:.66px;color:#0a0a0a;text-shadow:0 0 10px rgba(255,255,255,.55)}
-.cv__btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-.cv__hint{font-size:12.5px;color:#8a8a8a}
-.cv__grid{display:grid;grid-template-columns:1.4fr .85fr;gap:var(--gap);align-items:start}
-.cv__main,.cv__side{display:flex;flex-direction:column;gap:var(--gap)}
-/* карточки – как стеклянные кнопки: мягкая подложка, скругление 44, внутренние блики */
-.cv__block{position:relative;display:flex;flex-direction:column;gap:14px;padding:32px;border-radius:44px;
-  background:#fff;border:1px solid rgba(0,0,0,.07);box-shadow:var(--fx);overflow:hidden}
-.cv__block::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
-  box-shadow:inset 0 1px .5px rgba(255,255,255,.55),inset 0 -1px 1px rgba(255,255,255,.30)}
-.cv__block > *{position:relative;z-index:1}
-.cv__block--card{background:linear-gradient(180deg,#ffffff 0%,#f7f8f3 100%)}
-.cv__block .h3{margin:0;display:flex;align-items:center;gap:10px}
-.cv__block .h3::before{content:"";flex:none;width:10px;height:10px;border-radius:50%;background:var(--lime)}
-.cv__block p{font-size:15px;line-height:1.58;color:#333}
-.cv__item{display:grid;grid-template-columns:132px 1fr;gap:6px 18px;padding-top:16px;border-top:1px solid rgba(0,0,0,.09)}
-.cv__item:first-of-type{border-top:0;padding-top:0}
-.cv__years{grid-row:span 2;font:600 10px/1.5 var(--font-b);letter-spacing:.16em;text-transform:uppercase;color:#8a8a8a;padding-top:4px}
-.cv__item b{font:600 16px/1.3 var(--font-b)}
-.cv__item p{grid-column:2;font-size:14.5px;color:#4a4a4a}
-.cv__list{display:flex;flex-direction:column;gap:12px;font-size:14px}
-.cv__list li{display:flex;flex-direction:column;gap:2px}
-.cv__list span{font:600 10px/1.4 var(--font-b);letter-spacing:.16em;text-transform:uppercase;color:#8a8a8a}
-.cv__list b{font:600 14px/1.35 var(--font-b);color:#111}
-.cv__list a{color:#111;text-decoration:none;border-bottom:1px solid rgba(0,0,0,.2);width:max-content;transition:border-color .2s,color .2s}
-.cv__list a:hover{color:#000;border-color:#000}
-.cv__list--plain li{flex-direction:row;align-items:baseline;gap:8px;color:#333}
-.cv__list--plain li::before{content:"";flex:none;width:5px;height:5px;border-radius:50%;background:#111;margin-top:7px}
-.cv__note{font-size:13px;line-height:1.5;color:var(--muted)}
-/* навыки и инструменты – те же пилюли, что кнопки меню */
-.cv .chip{height:36px;padding:6px 14px;border:0;border-radius:36px;background:var(--glass-fill);box-shadow:var(--btn-fx);
-  font:600 14px/17.6px var(--font-b);letter-spacing:.66px;color:#0a0a0a;text-shadow:0 0 10px rgba(255,255,255,.55)}
-.cv__cta{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:24px;margin-top:var(--gap);
-  padding:38px 40px;border-radius:44px;background:var(--lime);box-shadow:var(--btn-fx)}
-.cv__cta .h2{margin:0}
-.cv__cta .lead{color:#2a3312;text-align:left}
-.cv__cta .cv__btns{margin:0;flex:none}
-.cv__hint{font-size:12.5px;color:#8a8a8a}
-.cv__hint a{color:#111;border-bottom:1px solid rgba(0,0,0,.25);text-decoration:none}
+/* ---------- резюме: типографика, акцент и кнопки сайта; контент — в ATS-понятной иерархии ---------- */
+.cv{position:relative;padding:calc(var(--navh,80px) + 56px) 0 90px;background:#fff}
+.cv__head{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,360px);gap:40px;align-items:end;
+  margin-bottom:42px;padding:42px 46px;border-radius:44px;background:linear-gradient(160deg,#fff 0%,#f7faef 55%,#eaf7d8 100%);
+  border:1px solid rgba(0,0,0,.07);box-shadow:var(--fx);overflow:hidden}
+.cv__identity,.cv__head-actions{position:relative;z-index:1}
+.cv__identity{display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+.cv__identity .eyebrow{margin:0}
+.cv__head .h1{margin:0;text-align:left;font-size:clamp(64px,8vw,112px);line-height:.88;letter-spacing:-.055em}
+.cv__role{font:600 clamp(16px,1.5vw,20px)/1.3 var(--font-b);color:#111}
+.cv__role span{color:#7a9c34}
+.cv__location{font-size:14px;color:var(--muted)}
+.cv__head-actions{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:10px}
+.cv__contact-links{display:flex;flex-wrap:wrap;gap:8px 16px;width:100%;margin-top:6px}
+.cv__contact-links a{font-size:13px;color:#222;text-decoration:none;border-bottom:1px solid rgba(0,0,0,.22);transition:border-color .2s}
+.cv__contact-links a:hover{border-color:#111}
+.cv__content{max-width:1080px;margin-inline:auto;padding-inline:12px}
+.cv__section{display:grid;grid-template-columns:minmax(170px,220px) minmax(0,1fr);gap:34px;padding:27px 0;border-bottom:1px solid rgba(0,0,0,.11)}
+.cv__section > .h3{position:relative;align-self:start;margin:0;padding-top:2px;font-size:24px;line-height:1.05;letter-spacing:-.02em}
+.cv__section > .h3::before{content:"";display:block;width:26px;height:4px;margin-bottom:12px;border-radius:4px;background:var(--lime)}
+.cv__section-body{display:flex;flex-direction:column;gap:9px;min-width:0}
+.cv__section-body p{font-size:15px;line-height:1.58;color:#303030}
+.cv__note{font-size:13px!important;color:var(--muted)!important}
+.cv__job{display:flex;flex-direction:column;gap:12px}
+.cv__job-head{display:flex;align-items:baseline;justify-content:space-between;gap:18px;padding-bottom:10px;border-bottom:1px solid rgba(0,0,0,.08)}
+.cv__job-head h3{font:600 16px/1.35 var(--font-b);color:#111}
+.cv__job-head p{flex:none;font:600 11px/1.3 var(--font-b);letter-spacing:.08em;color:#747474;text-transform:uppercase}
+.cv__bullets{display:flex;flex-direction:column;gap:8px}
+.cv__bullets li{position:relative;padding-left:18px;font-size:14px;line-height:1.55;color:#333}
+.cv__bullets li::before{content:"";position:absolute;left:2px;top:.62em;width:6px;height:6px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 1px rgba(0,0,0,.12)}
+.cv__skill-groups{display:flex;flex-direction:column;gap:12px}
+.cv__skill-groups > div{display:grid;grid-template-columns:150px minmax(0,1fr);gap:18px;padding-bottom:10px;border-bottom:1px solid rgba(0,0,0,.06)}
+.cv__skill-groups > div:last-child{padding-bottom:0;border-bottom:0}
+.cv__skill-groups dt{font:600 12px/1.5 var(--font-b);letter-spacing:.04em;color:#111}
+.cv__skill-groups dd{font-size:14px;line-height:1.55;color:#444}
+.cv__section-body b{font-weight:600;color:#111}
+.cv__section--last{border-bottom:0}
+.cv__details{gap:8px}
+.cv__cta{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:24px;margin-top:34px;
+  padding:34px 40px;border-radius:44px;background:var(--lime);box-shadow:var(--btn-fx)}
+.cv__cta .eyebrow{margin:0 0 10px;color:#4e641e}
+.cv__cta .h2{margin:0;font-size:clamp(34px,4vw,52px)}
+.cv__cta .lead{max-width:580px;margin-top:8px;color:#2a3312;text-align:left}
+.cv__cta .cv__btns{display:flex;flex-wrap:wrap;gap:8px;margin:0;flex:none}
+
+@media (max-width:900px){
+  .cv__head{grid-template-columns:1fr;gap:24px}
+  .cv__head-actions{max-width:640px}
+  .cv__cta{align-items:flex-start;flex-direction:column}
+}
+@media (max-width:720px){
+  .cv{padding:calc(var(--navh,80px) + 30px) 0 56px}
+  .cv__head{gap:22px;margin-bottom:20px;padding:28px 22px;border-radius:30px}
+  .cv__head .h1{font-size:clamp(56px,16vw,82px)}
+  .cv__contact-links{gap:8px 14px}
+  .cv__content{padding-inline:10px}
+  .cv__section{grid-template-columns:1fr;gap:14px;padding:22px 0}
+  .cv__section > .h3{font-size:22px}
+  .cv__section > .h3::before{display:inline-block;vertical-align:middle;margin:0 9px 3px 0}
+  .cv__section-body p{font-size:14px}
+  .cv__job-head{align-items:flex-start;flex-direction:column;gap:4px}
+  .cv__skill-groups > div{grid-template-columns:1fr;gap:3px}
+  .cv__cta{gap:18px;margin-top:20px;padding:28px 22px;border-radius:30px}
+  .cv__cta .cv__btns,.cv__cta .btn{width:100%}
+  .cv__cta .btn{text-align:center}
+}
 
 /* ==========================================================================
    ВЕРХНИЙ РЕГИСТР: пункты меню, кнопки в герое, «Скачать резюме», «Обсудить проект»
