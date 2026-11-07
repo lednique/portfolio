@@ -22,9 +22,10 @@
      inner shadow 0/2/3  #000 30 % · drop shadow 0/4/4  #000 25 % */
   /* белые блики вынесены в отдельный слой ::after с наложением plus-lighter
      (см. блок «БЕЛЫЕ ТЕНИ» в конце файла) – здесь остаются только тёмные */
-  --fx-light:inset 0 1px .5px rgba(255,255,255,.45),
-       inset 0 .5px .5px rgba(255,255,255,.6),
-       inset 0 -1px 1px rgba(255,255,255,.3);
+  --fx-light:inset 0 1px .5px rgba(255,255,255,.92),
+       inset 0 .5px .5px #fff,
+       inset 0 2px 12px -2px rgba(255,255,255,.72),
+       inset 0 -1px 1px rgba(255,255,255,.5);
   --fx:-1px 0 0 rgba(0,0,0,.3),
        1px 0 1px rgba(0,0,0,.3),
        inset 0 2px 3px rgba(0,0,0,.3),
@@ -32,9 +33,10 @@
   --glass-fill:rgba(255,255,255,.42);  /* беловатая заливка неактивных пунктов меню/заявок */
   --off-fill:rgba(0,0,0,.5);           /* неактивные кнопки вне меню */
   /* «кнопочный» стеклянный стиль (не путать с --fx у контейнеров) */
-  --btn-light:inset 0 8px .5px -5px rgba(255,255,255,.75),
+  --btn-light:inset 0 8px .5px -5px rgba(255,255,255,.98),
            inset 0 8px 6px -5px #fff,
-           inset 0 -8px 1px -5px rgba(255,255,255,.3);
+           inset 0 10px 18px -8px rgba(255,255,255,.85),
+           inset 0 -8px 1px -5px rgba(255,255,255,.42);
   --btn-fx:-2px 0 2px rgba(0,0,0,.3),
            2px 0 2px rgba(0,0,0,.3),
            0 6px 10px rgba(0,0,0,.2),
@@ -324,8 +326,9 @@ b,strong{font-weight:600}
   box-shadow:
     inset 1.5px 0 0 rgba(255,48,96,.30),
     inset -1.5px 0 0 rgba(48,196,255,.30),
-    inset 0 1.5px 0 rgba(255,255,255,.60),
-    inset 0 -1.5px 0 rgba(255,255,255,.28);
+    inset 0 1.5px 0 rgba(255,255,255,.95),
+    inset 0 8px 22px -10px rgba(255,255,255,.9),
+    inset 0 -1.5px 0 rgba(255,255,255,.45);
   mix-blend-mode:plus-lighter}
 .aboutglass > *{position:relative;z-index:1}
 .aboutglass::-webkit-scrollbar{display:none}
@@ -761,7 +764,8 @@ body.lb-open{overflow:hidden}
 .btn--nav,.opt,.btn--lime,.nav__links a,.car__tag,.cv__meta,.cv .chip,.cv__cta{position:relative}
 .btn--nav::after,.opt::after,.btn--lime::after,.nav__links a::after,
 .car__tag::after,.cv__meta::after,.cv .chip::after,.cv__cta::after{
-  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:2;
+  content:"";display:block;position:absolute;inset:0;border-radius:inherit;
+  pointer-events:none;z-index:2;
   box-shadow:var(--btn-light);mix-blend-mode:plus-lighter}
 
 /* контейнеры и круглые кнопки (стек из Figma) */
@@ -770,13 +774,14 @@ body.lb-open{overflow:hidden}
 .svc::after,.svc__arrow::after,.feat__card::after,.pin__panel::after,
 .step::after,.cmp__card::after,.glass::after,.crow::after,
 .cv__head::after,.car__btn::after,.ico::after,.lang__menu::after{
-  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:2;
+  content:"";display:block;position:absolute;inset:0;border-radius:inherit;
+  pointer-events:none;z-index:2;
   box-shadow:var(--fx-light);mix-blend-mode:plus-lighter}
 
 /* белая кнопка «назад»: белый блик – отдельным слоем */
 .nav__back::after{
   content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
-  box-shadow:inset 0 1px .5px rgba(255,255,255,.75);mix-blend-mode:plus-lighter}
+  box-shadow:inset 0 1px .5px #fff,inset 0 2px 10px -1px rgba(255,255,255,.8);mix-blend-mode:plus-lighter}
 .nav__back{box-shadow:0 2px 6px rgba(0,0,0,.12),0 8px 18px rgba(0,0,0,.06)!important}
 
 /* поля ввода – псевдоэлементы не рендерятся, поэтому белый блик остаётся в тени */
@@ -790,4 +795,18 @@ body.lb-open{overflow:hidden}
   .crow::after,.cv__head::after,.car__btn::after,.ico::after,.lang__menu::after,
   .car__item::after,.bigcase::after,.cv__block::after,.aboutglass::after,.nav__back::after{
     mix-blend-mode:lighten}
+}
+
+/* на HDR-экранах (dynamic-range: high) белые блики светятся сильнее –
+   plus-lighter выводит их за пределы обычного белого */
+@media (dynamic-range:high){
+  :root{
+    --fx-light:inset 0 1px .5px #fff,
+         inset 0 .5px .5px #fff,
+         inset 0 3px 16px -2px rgba(255,255,255,.9),
+         inset 0 -1px 1px rgba(255,255,255,.6);
+    --btn-light:inset 0 8px .5px -5px #fff,
+           inset 0 8px 6px -5px #fff,
+           inset 0 12px 24px -8px rgba(255,255,255,1),
+           inset 0 -8px 1px -5px rgba(255,255,255,.5)}
 }
