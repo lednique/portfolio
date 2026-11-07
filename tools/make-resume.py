@@ -21,7 +21,7 @@ M = 34
 GAP = 16
 RIGHT_W = 178
 LEFT_W = W - 2 * M - GAP - RIGHT_W
-TOP_H = 106
+TOP_H = 112
 INK = (0.06, 0.06, 0.06)
 MUT = (0.45, 0.45, 0.45)
 LIME = (0.792, 0.973, 0.396)
@@ -65,14 +65,12 @@ class Flow:
         self.space(height)
         c, x, w, y = self.c, self.x, self.w, self.y
         c.setFillColorRGB(*CARD)
-        c.roundRect(x, y - height, w, height, 16, stroke=0, fill=1)
-        # заголовок
-        c.setFillColorRGB(*INK)
-        c.setFont("DJB", 10)
-        c.drawString(x + self.pad, y - self.pad - 9, title[0].upper() + title[1:])
+        c.roundRect(x, y - height, w, height, 20, stroke=0, fill=1)
+        # заголовок – капсом с разрядкой
+        spaced(c, x + self.pad, y - self.pad - 9, title.upper(), "DJB", 9.2, INK, 1.1)
         c.setStrokeColorRGB(*LIME)
-        c.setLineWidth(1.6)
-        c.line(x + self.pad, y - self.pad - 15, x + self.pad + 22, y - self.pad - 15)
+        c.setLineWidth(2)
+        c.line(x + self.pad, y - self.pad - 15, x + self.pad + 26, y - self.pad - 15)
         gaps(x + self.pad, y - self.pad - 30, w - 2 * self.pad)
         self.y = y - height - 10
 
@@ -123,17 +121,29 @@ def text_height(text, font, size, width, lead):
 
 
 def header(c, d):
+    """Шапка как герой сайта: градиентная карточка, лаймовая пилюля, имя капсом."""
     top = H - M
-    c.setFillColorRGB(*BG)
-    c.roundRect(M, top - TOP_H, W - 2 * M, TOP_H, 24, stroke=0, fill=1)
-    # лаймовая плашка слева
+    # градиент внутри скруглённой карточки
+    c.saveState()
+    path = c.beginPath()
+    path.roundRect(M, top - TOP_H, W - 2 * M, TOP_H, 28)
+    c.clipPath(path, stroke=0, fill=0)
+    c.linearGradient(M, top, W, top - TOP_H, [(1, 1, 1), (0.902, 0.965, 0.796)], extend=True)
+    c.restoreState()
+    c.setStrokeColorRGB(0.85, 0.86, 0.82)
+    c.setLineWidth(0.6)
+    c.roundRect(M, top - TOP_H, W - 2 * M, TOP_H, 28, stroke=1, fill=0)
+    # лаймовая пилюля с брендом
+    pw = pdfmetrics.stringWidth("LEDNIQUE", "DJB", 7.4) + 22
     c.setFillColorRGB(*LIME)
-    c.roundRect(M + 18, top - 32, 34, 12, 6, stroke=0, fill=1)
-    txt(c, M + 57, top - 30, "LEDNIQUE", "DJB", 7.6, MUT)
-    txt(c, M + 18, top - 62, d["name"], "DJB", 30)
-    txt(c, M + 18, top - 80, d["role"], "DJ", 10.6, (0.13, 0.13, 0.13))
-    txt(c, M + 18, top - 97, d["meta"], "DJ", 8.2, MUT)
-    txt(c, M + W - 2 * M - 18 - pdfmetrics.stringWidth(d["site"], "DJ", 8.2), top - 30, d["site"], "DJ", 8.2, MUT)
+    c.roundRect(M + 18, top - 34, pw, 16, 8, stroke=0, fill=1)
+    txt(c, M + 29, top - 29.5, "LEDNIQUE", "DJB", 7.4, INK)
+    txt(c, M + 18 + pw + 10, top - 29.5, "резюме · 2026", "DJ", 7.4, MUT)
+    # имя – крупно капсом, как h1 на сайте
+    txt(c, M + 18, top - 66, d["name"].upper(), "DJB", 31)
+    spaced(c, M + 18, top - 84, d["role"].upper(), "DJ", 8.6, (0.13, 0.13, 0.13), 0.7)
+    txt(c, M + 18, top - 100, d["meta"], "DJ", 8.2, MUT)
+    txt(c, M + W - 2 * M - 18 - pdfmetrics.stringWidth(d["site"], "DJ", 8.2), top - 29.5, d["site"], "DJ", 8.2, MUT)
     return top - TOP_H - 16
 
 
@@ -168,12 +178,10 @@ def chips(c, x, y, width, items, size=7.6, h=15):
 
 
 def section_title(c, x, y, title):
-    c.setFillColorRGB(*INK)
-    c.setFont("DJB", 10)
-    c.drawString(x, y, title)
+    spaced(c, x, y, title.upper(), "DJB", 9.4, INK, 1.2)
     c.setStrokeColorRGB(*LIME)
-    c.setLineWidth(1.6)
-    c.line(x, y - 6, x + 22, y - 6)
+    c.setLineWidth(2)
+    c.line(x, y - 6, x + 26, y - 6)
 
 
 def left_col(c, y, d):

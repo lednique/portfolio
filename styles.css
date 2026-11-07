@@ -272,7 +272,7 @@ b,strong{font-weight:600}
 .car--flow .car__scroller,.car--flow .car__scroller.no-snap{scroll-snap-type:none !important}
 
 /* видео-карусель */
-.car--video .car__item{height:100%;width:auto;aspect-ratio:9/16;background:#111;transform:scale(.88);opacity:1;transition:transform .5s var(--ease-link),opacity .5s;cursor:pointer;scroll-snap-align:center}
+.car--video .car__item{height:100%;width:auto;aspect-ratio:9/16;border-radius:24px;background:#111;transform:scale(.88);opacity:1;transition:transform .5s var(--ease-link),opacity .5s;cursor:pointer;scroll-snap-align:center}
 .car--video .car__item.is-active{transform:none;opacity:1}
 .car--video video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .car--video .car__frame{position:absolute;inset:0;z-index:1;background:transparent}
@@ -648,17 +648,32 @@ html[lang="ar"] body{font-family:"Montserrat","Noto Sans Arabic",system-ui,"Sego
 /* ==========================================================================
    РЕЗЮМЕ (resume.html)
    ========================================================================== */
-.cv{position:relative;padding:132px 0 90px;background:var(--gray-sec)}
-.cv__head{display:flex;flex-direction:column;gap:14px;margin-bottom:40px;max-width:900px}
-.cv__head .h1{margin:0}
-.cv__role{font:600 22px/1.25 var(--font-b);color:#111}
-.cv__meta{color:var(--muted);font-size:15px}
-.cv__btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+/* ---------- резюме: та же пластика, что на сайте ---------- */
+.cv{position:relative;padding:120px 0 90px;background:#fff}
+.cv__head{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:14px;margin-bottom:var(--gap);
+  padding:46px;border-radius:44px;
+  background:linear-gradient(172deg,#ffffff 0%,#f3fae6 46%,#e6f6cf 100%);
+  border:1px solid rgba(0,0,0,.07);box-shadow:var(--fx)}
+.cv__head .h1{margin:2px 0 0;font-size:clamp(52px,7.4vw,104px);line-height:.9;letter-spacing:-.04em}
+.cv__head .eyebrow{margin:0}
+.cv__fish{position:absolute;right:-26px;bottom:-18px;width:min(300px,36%);opacity:.92;pointer-events:none}
+.cv__role{font:600 17px/1.32 var(--font-b);text-transform:uppercase;letter-spacing:.015em;color:#111;max-width:640px}
+.cv__meta{width:max-content;max-width:100%;min-height:34px;display:inline-flex;align-items:center;
+  padding:8px 16px;border-radius:34px;background:var(--glass-fill);box-shadow:var(--btn-fx);
+  font:600 12px/1.2 var(--font-b);letter-spacing:.02em;color:#0a0a0a;text-shadow:0 0 10px rgba(255,255,255,.55)}
+.cv__btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.cv__hint{font-size:12.5px;color:#8a8a8a}
 .cv__grid{display:grid;grid-template-columns:1.4fr .85fr;gap:var(--gap);align-items:start}
 .cv__main,.cv__side{display:flex;flex-direction:column;gap:var(--gap)}
-.cv__block{display:flex;flex-direction:column;gap:14px;padding:30px;border-radius:36px;background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.8);box-shadow:var(--fx)}
-.cv__block--card{background:#fff}
-.cv__block .h3{margin:0}
+/* карточки – как стеклянные кнопки: мягкая подложка, скругление 44, внутренние блики */
+.cv__block{position:relative;display:flex;flex-direction:column;gap:14px;padding:32px;border-radius:44px;
+  background:#fff;border:1px solid rgba(0,0,0,.07);box-shadow:var(--fx);overflow:hidden}
+.cv__block::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  box-shadow:inset 0 1px .5px rgba(255,255,255,.55),inset 0 -1px 1px rgba(255,255,255,.35),inset 0 2px 12px rgba(0,0,0,.05)}
+.cv__block > *{position:relative;z-index:1}
+.cv__block--card{background:linear-gradient(180deg,#ffffff 0%,#f7f8f3 100%)}
+.cv__block .h3{margin:0;display:flex;align-items:center;gap:10px}
+.cv__block .h3::before{content:"";flex:none;width:10px;height:10px;border-radius:50%;background:var(--lime)}
 .cv__block p{font-size:15px;line-height:1.58;color:#333}
 .cv__item{display:grid;grid-template-columns:132px 1fr;gap:6px 18px;padding-top:16px;border-top:1px solid rgba(0,0,0,.09)}
 .cv__item:first-of-type{border-top:0;padding-top:0}
@@ -674,24 +689,14 @@ html[lang="ar"] body{font-family:"Montserrat","Noto Sans Arabic",system-ui,"Sego
 .cv__list--plain li{flex-direction:row;align-items:baseline;gap:8px;color:#333}
 .cv__list--plain li::before{content:"";flex:none;width:5px;height:5px;border-radius:50%;background:#111;margin-top:7px}
 .cv__note{font-size:13px;line-height:1.5;color:var(--muted)}
-.cv__cta{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-top:var(--gap);padding:34px 36px;border-radius:40px;background:var(--lime)}
+/* навыки и инструменты – те же пилюли, что кнопки меню */
+.cv .chip{height:32px;padding:0 14px;border:0;background:var(--glass-fill);box-shadow:var(--btn-fx);
+  font:600 12px/1 var(--font-b);letter-spacing:.02em;color:#0a0a0a;text-shadow:0 0 10px rgba(255,255,255,.55)}
+.cv__cta{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:24px;margin-top:var(--gap);
+  padding:38px 40px;border-radius:44px;background:var(--lime);box-shadow:var(--btn-fx)}
 .cv__cta .h2{margin:0}
 .cv__cta .lead{color:#2a3312;text-align:left}
 .cv__cta .cv__btns{margin:0;flex:none}
-
-@media (max-width:1100px){
-  .cv{padding:120px 0 70px}
-  .cv__grid{grid-template-columns:1fr}
-  .cv__cta{flex-direction:column;align-items:flex-start;padding:26px;border-radius:32px}
-}
-@media (max-width:640px){
-  .cv__block{padding:22px;border-radius:28px}
-  .cv__role{font-size:18px}
-  .cv__item{grid-template-columns:1fr;gap:4px}
-  .cv__item p{grid-column:1}
-  .cv__years{grid-row:auto;padding-top:0}
-  .cv__btns .btn{width:100%;justify-content:center}
-}
 .cv__hint{font-size:12.5px;color:#8a8a8a}
 .cv__hint a{color:#111;border-bottom:1px solid rgba(0,0,0,.25);text-decoration:none}
 
@@ -717,3 +722,36 @@ html[lang="ar"] body{font-family:"Montserrat","Noto Sans Arabic",system-ui,"Sego
   padding:66px 16px 28px;text-align:center;scrollbar-width:thin}
 .lb__img{width:min(1200px,100%);height:auto;border-radius:44px;box-shadow:0 24px 60px rgba(0,0,0,.45);display:inline-block}
 body.lb-open{overflow:hidden}
+
+/* ---------- внутренние тени у картинок и видео (как у стеклянных кнопок) ---------- */
+.car__item::after,.bigcase::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:2;
+  box-shadow:
+    inset 0 1.5px 1px rgba(255,255,255,.42),
+    inset 0 -2px 6px rgba(0,0,0,.20),
+    inset 0 2px 10px rgba(0,0,0,.16),
+    inset 1.5px 0 3px rgba(255,255,255,.16),
+    inset -1.5px 0 3px rgba(0,0,0,.16)}
+
+/* ==========================================================================
+   GLISSE: искривления на максимум (Bend max) – сильная дисперсия по кромке,
+   усиленный blur/saturation и SVG-смещение на слое зерна
+   ========================================================================== */
+.aboutglass,.sec--dark .step{
+  -webkit-backdrop-filter:blur(2px) saturate(220%) brightness(1.18) contrast(1.12);
+  backdrop-filter:blur(2px) saturate(220%) brightness(1.18) contrast(1.12);
+  -webkit-backdrop-filter:blur(2px) saturate(220%) brightness(1.18) contrast(1.12) url(#glisse-bend);
+  backdrop-filter:blur(2px) saturate(220%) brightness(1.18) contrast(1.12) url(#glisse-bend)}
+.aboutglass::after,.sec--dark .step::after{
+  box-shadow:
+    inset 5px 0 0 rgba(255,48,96,.52),
+    inset -5px 0 0 rgba(48,196,255,.52),
+    inset 0 5px 0 rgba(255,255,255,.72),
+    inset 0 -5px 0 rgba(255,255,255,.34),
+    inset 0 0 26px rgba(255,255,255,.16);
+  mix-blend-mode:screen;filter:blur(1.5px)}
+.aboutglass::before,.sec--dark .step::before{opacity:.26;filter:url(#glisse-bend)}
+
+/* превью крайней работы – скругление как у кнопок, тени внутри */
+.bigcase{border-radius:44px;overflow:hidden}
+.car__tag{z-index:3}
