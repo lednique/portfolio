@@ -1,5 +1,5 @@
 /* ==========================================================================
-   LEDNIQUE — app.js (v2)
+   LEDNIQUE – app.js (v2)
    карусели (один движок, бесконечный режим) · AR-видео по очереди ·
    герои: фон ×3, рыбы + инерция · pinned-шаги · форма → письмо · футер
    ========================================================================== */
@@ -18,16 +18,32 @@
   const getZ = () => innerWidth / (document.documentElement.offsetWidth || innerWidth) || 1;
   const setVh = () => document.documentElement.style.setProperty('--vh', (innerHeight / getZ()).toFixed(1) + 'px');
   setVh();
-  const nav = $('#nav'), mm = $('#mmenu'), burger = $('#burger');
-  if (burger) {
-    const toggle = (f) => {
-      const open = f ?? !nav.classList.contains('is-open');
-      nav.classList.toggle('is-open', open); mm.classList.toggle('is-open', open);
-      burger.setAttribute('aria-expanded', open);
+  const nav = $('#nav');
+  /* мобильная шапка: пункты меню – горизонтальная карусель, по краям градиент,
+     пока список не прокручен до начала / до конца */
+  (() => {
+    const box = $('[data-navscroll]'); if (!box) return;
+    const links = $('.nav__links', box); if (!links) return;
+    const upd = () => {
+      const max = links.scrollWidth - links.clientWidth;
+      const x = links.scrollLeft;
+      box.classList.toggle('is-start', max <= 2 || x <= 2);
+      box.classList.toggle('is-end', max <= 2 || x >= max - 2);
     };
-    burger.addEventListener('click', () => toggle());
-    $$('a', mm).forEach(a => a.addEventListener('click', () => toggle(false)));
-  }
+    links.addEventListener('scroll', upd, { passive: true });
+    addEventListener('resize', upd); addEventListener('load', upd);
+    if ('ResizeObserver' in window) new ResizeObserver(upd).observe(links);
+    upd();
+    /* активный пункт сразу виден */
+    const act = $('.is-active', links);
+    if (act && matchMedia('(max-width:1100px)').matches) {
+      setTimeout(() => {
+        const r = act.getBoundingClientRect(), lr = links.getBoundingClientRect();
+        links.scrollLeft += (r.left - lr.left) - 16;
+        upd();
+      }, 80);
+    }
+  })();
   /* меню прячется, когда долистали до футера */
   (() => {
     const f = $('.foot'); if (!f || !nav) return;
@@ -75,6 +91,8 @@
     $$('[data-hero]').forEach((hero) => {
       const box = $('[data-fitbox]', hero);
       if (!box) return;
+      /* фиксированная ширина + адаптивная высота (например, главное изображение «Графики») */
+      if (box.hasAttribute('data-fixed')) { box.style.height = ''; box.style.minHeight = ''; return; }
       if (small()) { box.style.height = ''; box.style.minHeight = ''; hero.style.minHeight = ''; return; }
       const LH = innerHeight / getZ();
       hero.style.minHeight = '0px'; box.style.minHeight = '0px'; box.style.height = '0px';
@@ -102,8 +120,8 @@
         const r = p.getBoundingClientRect(), h = r.height;
         if (r.bottom < -H || r.top > 2 * H) return;
         const cands = [];
-        if (h <= H) cands.push(r.top - (H - h) / 2);                            // блок помещается — по центру экрана
-        else {                                                                   // длинный блок — только у краёв
+        if (h <= H) cands.push(r.top - (H - h) / 2);                            // блок помещается – по центру экрана
+        else {                                                                   // длинный блок – только у краёв
           if (Math.abs(r.top) < H * .45) cands.push(r.top);
           if (Math.abs(r.bottom - H) < H * .45) cands.push(r.bottom - H);
         }
@@ -135,14 +153,14 @@
   })();
 
   /* ==========================================================================
-     КАРУСЕЛИ — один движок
+     КАРУСЕЛИ – один движок
      режимы: data-loop (бесконечная, клоны ×3) · car--center · по умолчанию «старт»
      ========================================================================== */
   const cars = new Map();
 
   /* ==========================================================================
      ГАЛЕРЕИ: непрерывное линейное движение справа налево (transform, 60 fps,
-     не зависит от прокрутки страницы). Стрелки/точки/перетаскивание — поверх.
+     не зависит от прокрутки страницы). Стрелки/точки/перетаскивание – поверх.
      ========================================================================== */
   function initFlow(root) {
     const sc = $('.car__scroller', root);
@@ -383,61 +401,79 @@
   }
   $$('[data-car]').forEach(initCar);
 
-  /* ---------- AR: видео проигрываются по очереди, центральное — активное ---------- */
+  /* ---------- AR: видео из Kinescope – активный слайд проигрывает, остальные держат постер ---------- */
   $$('[data-vcar]').forEach((root) => {
     const car = cars.get(root), all = car.all, n = car.n;
-    const vids = all.map(it => $('video', it));
+    const frames = all.map(it => $('[data-frame]', it));
     const bars = all.map(it => $('.car__progress', it));
-    const AUTO_MS = 7000;
+    const AUTO_MS = 8000;
     let cur = -1, visible = false, timer = 0, manual = false;
 
-    const load = (v) => { if (v && !v.getAttribute('src') && v.dataset.src) { v.src = v.dataset.src; v.load(); } };
     const at = (i) => ((i % all.length) + all.length) % all.length;
-    const reset = (k) => { const v = vids[k]; v.pause(); try { v.currentTime = 0; } catch (e) {} bars[k].style.width = '0'; };
+    /* кадр Kinescope грузится только у активного слайда */
+    const mount = (k) => {
+      const f = frames[k];
+      if (!f || f.dataset.live === '1') return;
+      const src = f.dataset.frame; if (!src) return;
+      const fr = document.createElement('iframe');
+      fr.src = src;
+      fr.setAttribute('frameborder', '0');
+      fr.setAttribute('allowfullscreen', '');
+      fr.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture; encrypted-media; gyroscope; accelerometer; clipboard-write; screen-wake-lock;');
+      fr.setAttribute('title', 'AR-видео');
+      f.appendChild(fr);
+      f.dataset.live = '1'; f.classList.add('is-live');
+    };
+    const unmount = (k) => {
+      const f = frames[k]; if (!f) return;
+      $$('iframe', f).forEach(x => x.remove());
+      f.dataset.live = ''; f.classList.remove('is-live');
+    };
+    const stopBar = (k) => {
+      const b = bars[k]; if (!b) return;
+      b.style.transition = 'none'; b.style.width = '0';
+    };
+    const runBar = (k) => {
+      const b = bars[k]; if (!b) return;
+      b.style.transition = 'none'; b.style.width = '0';
+      void b.offsetWidth;
+      b.style.transition = `width ${AUTO_MS}ms linear`; b.style.width = '100%';
+    };
+
+    function play(i, isManual) {
+      i = car.loop ? i : at(i);
+      clearTimeout(timer);
+      const wasPlaying = cur >= 0;
+      if (cur >= 0 && at(cur) !== at(i)) { unmount(at(cur)); stopBar(at(cur)); }
+      cur = i; manual = !!isManual;
+      all.forEach((it, k) => it.classList.toggle('is-active', k === i));
+      mount(at(i)); runBar(at(i));
+      car.go(i, wasPlaying);
+      arm();
+    }
     const arm = () => {
       clearTimeout(timer);
       if (!manual && visible) timer = setTimeout(() => play(cur + 1, false), AUTO_MS);
     };
-    function play(i, isManual) {
-      i = car.loop ? i : at(i);
-      clearTimeout(timer);
-      const curWasPlaying = cur >= 0;
-      if (cur >= 0 && cur !== i) reset(cur);
-      cur = i; manual = !!isManual;
-      all.forEach((it, k) => it.classList.toggle('is-active', k === i));
-      const v = vids[at(i)];
-      load(v); load(vids[at(i + 1)]); load(vids[at(i - 1)]);
-      try { v.currentTime = 0; } catch (e) {}
-      const p = v.play(); if (p && p.catch) p.catch(() => {});
-      car.go(i, curWasPlaying);
-      arm();
-    }
-    vids.forEach((v, k) => {
-      v.addEventListener('ended', () => { if (cur === k) play(k + 1, false); });
-      v.addEventListener('timeupdate', () => { if (cur === k && v.duration) bars[k].style.width = (v.currentTime / v.duration * 100) + '%'; });
-      v.addEventListener('error', () => { if (cur === k) setTimeout(() => play(k + 1, false), 800); });
-      all[k].addEventListener('click', () => { if (k !== cur) play(k, true); });
-    });
+    all.forEach((it, k) => it.addEventListener('click', () => { if (k !== cur) play(k, true); }));
     car.hook({
       user: (i) => play(i, true),
       settle: (i, user) => { if (user && i !== cur) play(i, true); },
-      shift: (delta) => {            /* бесшовный ре-центр: играем тот же ролик в другом клоне */
+      shift: (delta) => {                       /* бесшовный ре-центр: тот же слайд в другом клоне */
         if (cur < 0) return;
-        const o = cur, nn = cur + delta, ov = vids[o], nv = vids[nn];
-        load(nv);
-        const t = ov.currentTime;
-        const go = () => { try { nv.currentTime = t; } catch (e) {} const p = nv.play(); p && p.catch && p.catch(() => {}); };
-        nv.readyState >= 1 ? go() : nv.addEventListener('loadedmetadata', go, { once: true });
-        ov.pause(); bars[o].style.width = '0';
+        const o = cur, nn = cur + delta;
+        unmount(at(o)); stopBar(at(o));
         all[o].classList.remove('is-active'); all[nn].classList.add('is-active');
-        cur = nn;
+        cur = nn; mount(at(nn)); runBar(at(nn));
       }
     });
     if ('IntersectionObserver' in window) {
       new IntersectionObserver((es) => es.forEach(e => {
         visible = e.isIntersecting;
-        if (visible) { cur < 0 ? play(car.base + parseInt(root.dataset.start || '0', 10), false) : (vids[at(cur)].play().catch(() => {}), arm()); }
-        else if (cur >= 0) { vids[at(cur)].pause(); clearTimeout(timer); }
+        if (visible) {
+          if (cur < 0) play(car.base + parseInt(root.dataset.start || '0', 10), false);
+          else { mount(at(cur)); runBar(at(cur)); arm(); }
+        } else { clearTimeout(timer); }
       }), { threshold: .25 }).observe(root);
     } else { visible = true; play(car.base, false); }
   });
@@ -510,7 +546,7 @@
     };
     bgs.forEach((b, k) => { if (imgs[k]) b.style.backgroundImage = `url("${imgs[k].getAttribute('src')}")`; });
     set(0);
-    /* мобильный режим: обычный список, активный пункт — по центру экрана */
+    /* мобильный режим: обычный список, активный пункт – по центру экрана */
     if ('IntersectionObserver' in window) {
       const io = new IntersectionObserver((es) => es.forEach(e => { if (small() && e.isIntersecting) set(steps.indexOf(e.target)); }),
         { rootMargin: '-46% 0px -46% 0px' });
@@ -550,7 +586,7 @@
         <a class="btn btn--ink btn--lg" data-gm target="_blank" rel="noopener" href="#">Gmail</a>
         <button class="btn btn--ink btn--lg" type="button" data-copy>Скопировать</button>
       </div>
-      <p class="mail__note">Если почтовая программа не открылась сама — выберите вариант выше или скопируйте текст и отправьте на ${MAIL_TO}.</p>
+      <p class="mail__note">Если почтовая программа не открылась сама – выберите вариант выше или скопируйте текст и отправьте на ${MAIL_TO}.</p>
     </div>`;
   document.body.appendChild(mail);
   const closeMail = () => mail.classList.remove('is-open');
@@ -569,11 +605,24 @@
       const date = $('input[type=date]', g);
       g.addEventListener('click', (e) => {
         const b = e.target.closest('.opt'); if (!b) return;
-        if (b.hasAttribute('data-none')) { b.classList.toggle('is-on'); if (date && b.classList.contains('is-on')) date.value = ''; return; }
+        if (b.tagName === 'INPUT') return;                 // дата живёт своими событиями
+        if (b.hasAttribute('data-none')) {
+          b.classList.toggle('is-on');
+          if (date && b.classList.contains('is-on')) { date.value = ''; date.classList.remove('is-on'); }
+          return;
+        }
         if (multi) b.classList.toggle('is-on');
         else { const was = b.classList.contains('is-on'); $$('.opt', g).forEach(x => x.classList.remove('is-on')); b.classList.toggle('is-on', !was); }
       });
-      if (date) date.addEventListener('input', () => { const nb = $('[data-none]', g); nb && nb.classList.remove('is-on'); });
+      /* «Срок выполнения»: выбрана дата → кнопка активна (#CAF865), иначе – как неактивная */
+      if (date) {
+        const sync = () => date.classList.toggle('is-on', !!date.value);
+        ['input', 'change'].forEach(ev => date.addEventListener(ev, () => {
+          sync();
+          const nb = $('[data-none]', g); if (date.value && nb) nb.classList.remove('is-on');
+        }));
+        sync();
+      }
     });
     $$('input,textarea', form).forEach(i => i.addEventListener('input', () => i.closest('.row')?.classList.remove('is-err')));
 
@@ -594,21 +643,21 @@
         if (row.hasAttribute('data-required') && !val) { row.classList.add('is-err'); bad = bad || row; }
         if (!val) return;
         if (grp === 'comment') data.comment = val;
-        else data[grp === 'contact' ? 'contact' : 'project'].push(`— ${label}${row.dataset.key === 'budget' ? '' : ''}: ${val}`);
+        else data[grp === 'contact' ? 'contact' : 'project'].push(`– ${label}${row.dataset.key === 'budget' ? '' : ''}: ${val}`);
       });
       if (bad) { bad.scrollIntoView({ behavior: 'smooth', block: 'center' }); const f = $('input,textarea', bad); f && f.focus({ preventScroll: true }); return; }
 
       const topic = form.dataset.topic, page = form.dataset.page || document.title;
       const nameRow = $('[data-key=name]', form);
       const name = nameRow ? read(nameRow) : '';
-      const subject = `Заявка с сайта: ${topic} — ${name}`;
+      const subject = `Заявка с сайта: ${topic} – ${name}`;
       const body = [
         'Здравствуйте, Виктор!', '',
         `Хочу обсудить проект: ${topic}.`, '',
         'ДАННЫЕ ЗАЯВКИ',
-        ...(data.project.length ? data.project : ['— не указаны (обсудим в переписке)']), '',
+        ...(data.project.length ? data.project : ['– не указаны (обсудим в переписке)']), '',
         'ОСОБЫЕ ПОЖЕЛАНИЯ',
-        data.comment || '— нет', '',
+        data.comment || '– нет', '',
         'КОНТАКТЫ',
         ...data.contact, '',
         `Письмо составлено автоматически формой на сайте lednique.ru (страница: ${page}).`
@@ -640,7 +689,7 @@
     (document.fonts?.ready || Promise.resolve()).then(fit); fit(); addEventListener('resize', fit);
 
     if (!reduce) {
-      /* координаты — в локальной системе зоны (учитывает zoom страницы) */
+      /* координаты – в локальной системе зоны (учитывает zoom страницы) */
       const local = (e) => {
         const r = zone.getBoundingClientRect(), k = (r.width / zone.offsetWidth) || 1;
         return [(e.clientX - r.left) / k, (e.clientY - r.top) / k];
@@ -656,7 +705,7 @@
             const ax = tx - x, ay = ty - y, dist = Math.hypot(ax, ay);
             const step = Math.min(dist, SPEED * dt);
             if (dist > .5) { dx = ax / dist * step; dy = ay / dist * step; }
-          } else { dx = SPEED * dt; }        // курсора нет — уплывает вправо
+          } else { dx = SPEED * dt; }        // курсора нет – уплывает вправо
           x += dx; y += dy;
           if (Math.abs(dx) > .2) face = dx > 0 ? 1 : -1;
           ph += dt * (.08 + Math.hypot(dx, dy) * .012);
