@@ -29,6 +29,10 @@
        1px 0 1px rgba(0,0,0,.3),
        inset 0 2px 3px rgba(0,0,0,.3),
        0 4px 4px rgba(0,0,0,.25);
+  /* белый блик: на SDR-экране это обычный #fff (браузер обрежет),
+     на HDR-экране – реальный белый выше 100 % (display-p3 с компонентами >1) */
+  --hdr-white:#fff;
+  --hdr-white-soft:rgba(255,255,255,.5);
   --glass-fill:rgba(255,255,255,.42);  /* беловатая заливка неактивных пунктов меню/заявок */
   --off-fill:rgba(0,0,0,.5);           /* неактивные кнопки вне меню */
   /* «кнопочный» стеклянный стиль (не путать с --fx у контейнеров) */
@@ -40,6 +44,15 @@
            0 6px 10px rgba(0,0,0,.2),
            inset 0 4px 20px rgba(0,0,0,.3),
            inset 0 6px 20px -4px rgba(0,0,0,.3);
+}
+/* HDR-дисплеи: блики выводятся за пределы обычного белого (extended display-p3) */
+@supports (color:color(display-p3 1 1 1)){
+  @media (dynamic-range:high){
+    :root{
+      --hdr-white:color(display-p3 1.8 1.8 1.8);
+      --hdr-white-soft:color(display-p3 1.5 1.5 1.5 / .6);
+    }
+  }
 }
 *,*::before,*::after{box-sizing:border-box;corner-shape:var(--cs)}
 html{zoom:.85;scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-padding-top:110px}
@@ -722,10 +735,10 @@ body.lb-open{overflow:hidden}
 .nav .btn--nav::after,.nav__links a::after,.nav .opt::after{
   mix-blend-mode:normal;
   box-shadow:
-    inset 0 1px .5px #fff,
-    inset 0 .5px .5px #fff,
-    inset 0 8px 6px -5px #fff,
-    inset 0 -8px 1px -5px rgba(255,255,255,.5)}
+    inset 0 1px .5px var(--hdr-white),
+    inset 0 .5px .5px var(--hdr-white),
+    inset 0 8px 6px -5px var(--hdr-white),
+    inset 0 -8px 1px -5px var(--hdr-white-soft)}
 
 /* контейнеры и круглые кнопки (стек из Figma) */
 .svc,.svc__arrow,.feat__card,.pin__panel,.step,.cmp__card,.glass,.crow,
