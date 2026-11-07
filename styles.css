@@ -353,7 +353,12 @@ b,strong{font-weight:600}
 .step__n{font:600 11px/1 var(--font-b);letter-spacing:.2em;color:#8a8a8a}
 .sec--dark{background:#000;color:#fff;overflow:clip}
 .sec--dark .h2,.sec--dark .h3{text-shadow:none}
-.sec--dark .step{position:relative}   /* подложки за списком нет – только текст */
+/* «Преимущества моих работ»: тёмная стеклянная подложка как была + тени */
+.sec--dark .step{position:relative;overflow:hidden;
+  background:linear-gradient(152deg,rgba(128,128,128,.40),rgba(128,128,128,.30) 42%,rgba(128,128,128,.24) 64%,rgba(128,128,128,.36));
+  border:1px solid rgba(255,255,255,.26);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  box-shadow:var(--fx)}
 .sec--dark .step p,.sec--dark .lead{color:#b8b8b8}
 .sec--dark .eyebrow{color:#aaa}
 .dark__bg{position:absolute;inset:0;z-index:0}
@@ -445,7 +450,7 @@ b,strong{font-weight:600}
 .foot__soc{display:flex;flex-direction:column;gap:8px}
 .foot__word{position:relative;width:100%;margin-top:auto;--fw:200px;height:calc(var(--fw)*1.02);overflow:hidden;cursor:default}
 .foot__word b{position:absolute;left:0;right:0;top:0;width:100%;text-align:center;z-index:auto;
-  font:600 var(--fw)/1 var(--font-b);letter-spacing:-.04em;white-space:nowrap;color:rgb(242,242,242);user-select:none}
+  font:600 var(--fw)/1 var(--font-b);letter-spacing:-.04em;white-space:nowrap;color:var(--hdr-white);user-select:none}
 /* слово держим в inline-block (без своего stacking context), чтобы буквы могли
    быть и позади, и перед рыбой */
 .foot__word .fw-word{display:inline-block;position:static;z-index:auto}
