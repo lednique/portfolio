@@ -498,11 +498,11 @@ b,strong{font-weight:600}
   .hero--design .heroimg__in{position:static}
   .hero--design .pfish{opacity:1;z-index:3;left:auto !important;right:auto !important;top:auto !important;bottom:auto !important}
   /* левая рыба: 60 px влево, 20 px вниз */
-  .hero--design .pfish--1{width:300px !important;left:calc(-16% - 60px) !important;top:calc(var(--vh,100vh) * .17 + 20px) !important}
+  .hero--design .pfish--1{width:300px !important;left:calc(-16% - 60px) !important;top:calc(var(--vh,100vh) * .17 - 60px) !important}
   /* правая рыба: 20 px вправо */
   .hero--design .pfish--2{width:328px !important;right:calc(-18% - 20px) !important;top:calc(var(--vh,100vh) * .25) !important}
   /* нижняя рыба: на 60 px выше */
-  .hero--design .pfish--3{width:268px !important;left:-14% !important;top:calc(var(--vh,100vh) * .65 - 60px) !important}
+  .hero--design .pfish--3{width:268px !important;left:-14% !important;top:calc(var(--vh,100vh) * .65 - 120px) !important}
   .car--wide,.hero--arvid .car--video{height:auto !important;margin-top:0;display:block}
   .car--wide .car__item{height:auto;width:86vw}
   .hero--arvid .car--video .car__item{height:auto;width:62vw}
@@ -828,4 +828,21 @@ body.lb-open{overflow:hidden}
 /* мобильная шапка: у тонких пилюль аддитивный блик убираем */
 @media (max-width:1100px){
   .nav .opt::after,.nav__back::after{display:none}
+}
+
+/* ---------- заголовок на главной: на 20 px выше ---------- */
+.home-hero .sub{margin-top:-20px}
+
+/* ---------- «островки»: белые тени как в блоке заявок ---------- */
+.aboutglass,.formcard,.pipe__card,.svc,.feat__card,.cmp__card,.step,.glass,.crow{box-shadow:var(--fx)}
+.aboutglass,.formcard,.pipe__card,.svc,.feat__card,.cmp__card,.step,.glass,.crow{position:relative}
+.aboutglass::after,.formcard::after,.pipe__card::after,.svc::after,.feat__card::after,
+.cmp__card::after,.step::after,.glass::after,.crow::after{
+  content:"";display:block;position:absolute;inset:0;border-radius:inherit;
+  pointer-events:none;z-index:2;mix-blend-mode:plus-lighter;box-shadow:var(--fx-light)}
+
+/* ---------- мобила: направления сразу в меню, без появления по скроллу ---------- */
+@media (max-width:1100px){
+  .page-home .nav__dir{display:inline-flex}
+  .page-home .nav__sep{display:block}
 }
