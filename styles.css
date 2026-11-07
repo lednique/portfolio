@@ -22,10 +22,9 @@
      inner shadow 0/2/3  #000 30 % · drop shadow 0/4/4  #000 25 % */
   /* белые блики вынесены в отдельный слой ::after с наложением plus-lighter
      (см. блок «БЕЛЫЕ ТЕНИ» в конце файла) – здесь остаются только тёмные */
-  --fx-light:inset 0 1px .5px rgba(255,255,255,.92),
-       inset 0 .5px .5px #fff,
-       inset 0 2px 12px -2px rgba(255,255,255,.72),
-       inset 0 -1px 1px rgba(255,255,255,.5);
+  --fx-light:inset 0 1px .5px rgba(255,255,255,.45),
+       inset 0 .5px .5px rgba(255,255,255,.6),
+       inset 0 -1px 1px rgba(255,255,255,.3);
   --fx:-1px 0 0 rgba(0,0,0,.3),
        1px 0 1px rgba(0,0,0,.3),
        inset 0 2px 3px rgba(0,0,0,.3),
@@ -33,10 +32,9 @@
   --glass-fill:rgba(255,255,255,.42);  /* беловатая заливка неактивных пунктов меню/заявок */
   --off-fill:rgba(0,0,0,.5);           /* неактивные кнопки вне меню */
   /* «кнопочный» стеклянный стиль (не путать с --fx у контейнеров) */
-  --btn-light:inset 0 8px .5px -5px rgba(255,255,255,.98),
+  --btn-light:inset 0 8px .5px -5px rgba(255,255,255,.75),
            inset 0 8px 6px -5px #fff,
-           inset 0 10px 18px -8px rgba(255,255,255,.85),
-           inset 0 -8px 1px -5px rgba(255,255,255,.42);
+           inset 0 -8px 1px -5px rgba(255,255,255,.3);
   --btn-fx:-2px 0 2px rgba(0,0,0,.3),
            2px 0 2px rgba(0,0,0,.3),
            0 6px 10px rgba(0,0,0,.2),
@@ -298,39 +296,11 @@ b,strong{font-weight:600}
 .hero--arvid .car--video{margin-top:-60px;position:relative;z-index:2;flex:none;min-height:300px}
 .hero--arvid .car__scroller{position:relative;height:100%;padding-block:0;scroll-padding-inline:0}
 .hero--arvid .car__nav{position:absolute;right:calc((100% - 1280px)/2);bottom:8px;z-index:6;flex-direction:column;align-items:flex-end;gap:12px;width:auto}
-/* ---------- блок «Создаю цифровую эстетику…»: жидкое стекло (glisse: Glass) ----------
-   Bend .9 · Dispersion .3 · Frost 2px · Rim 0 + стопка теней из Figma
-   (3 inner shadow · 3 drop shadow · 2 inner · 1 drop shadow) */
+/* ---------- блок «Создаю цифровую эстетику…» – как было до экспериментов ---------- */
 .aboutglass{position:absolute;z-index:5;left:calc((100% - 1280px)/2 - 80px);top:50%;transform:translateY(-50%);
-  width:470px;max-height:calc(100% - 20px);overflow:auto;padding:26px;border-radius:38px;
-  display:flex;flex-direction:column;gap:12px;scrollbar-width:none;-webkit-overflow-scrolling:touch;
-  background:
-    linear-gradient(152deg,rgba(255,255,255,.42),rgba(255,255,255,.16) 38%,rgba(255,255,255,.10) 62%,rgba(255,255,255,.34));
-  border:1px solid rgba(255,255,255,.45);
-  -webkit-backdrop-filter:blur(2px) saturate(180%) brightness(1.12) contrast(1.06);
-  backdrop-filter:blur(2px) saturate(180%) brightness(1.12) contrast(1.06);
-  box-shadow:
-    inset 0 8px .5px -5px rgba(255,255,255,.35),
-    inset 0 8px 6px -5px rgba(255,255,255,.60),
-    inset 0 -8px 1px -5px rgba(255,255,255,.30),
-    -2px 0 2px rgba(0,0,0,.30),
-    2px 0 2px rgba(0,0,0,.30),
-    0 6px 10px rgba(0,0,0,.20),
-    inset 0 4px 20px -10px rgba(0,0,0,.30),
-    inset 0 6px 20px -4px rgba(0,0,0,.28),
-    0 10px 24px rgba(0,0,0,.18)}
-.aboutglass::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>");
-  opacity:.16;mix-blend-mode:overlay}
-.aboutglass::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
-  box-shadow:
-    inset 1.5px 0 0 rgba(255,48,96,.30),
-    inset -1.5px 0 0 rgba(48,196,255,.30),
-    inset 0 1.5px 0 rgba(255,255,255,.95),
-    inset 0 8px 22px -10px rgba(255,255,255,.9),
-    inset 0 -1.5px 0 rgba(255,255,255,.45);
-  mix-blend-mode:plus-lighter}
-.aboutglass > *{position:relative;z-index:1}
+  width:470px;max-height:calc(100% - 20px);overflow:auto;padding:24px;border-radius:36px;
+  background:rgba(255,255,255,.88);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
+  box-shadow:var(--shadow-frame);display:flex;flex-direction:column;gap:12px;scrollbar-width:none}
 .aboutglass::-webkit-scrollbar{display:none}
 .aboutglass p{font-size:16px;line-height:1.5;color:#1c1c1c}
 .aboutglass .label{margin:6px 0 0;color:#444}
@@ -363,36 +333,13 @@ b,strong{font-weight:600}
 .pin__num{font:500 clamp(140px,18vw,260px)/.8 var(--font-d);letter-spacing:-.0625em;color:var(--lime)}
 .pin__steps{position:relative;height:100%;min-height:0;overflow:hidden}
 .pin__list{display:flex;flex-direction:column;gap:var(--gap);padding-block:var(--gap);will-change:transform}
-.step{display:flex;flex-direction:column;justify-content:center;gap:14px;padding:32px;min-height:280px;border-radius:44px;background:rgba(255,255,255,.7);box-shadow:var(--fx);opacity:.4;transition:opacity .5s var(--ease-link)}
+.step{display:flex;flex-direction:column;justify-content:center;gap:14px;padding:32px;min-height:280px;border-radius:44px;background:rgba(255,255,255,.7);box-shadow:var(--shadow-frame);opacity:.4;transition:opacity .5s var(--ease-link)}
 .step.is-on{opacity:1}
 .step p{color:var(--muted);font-size:16px}
 .step__n{font:600 11px/1 var(--font-b);letter-spacing:.2em;color:#8a8a8a}
 .sec--dark{background:#000;color:#fff;overflow:clip}
 .sec--dark .h2,.sec--dark .h3{text-shadow:none}
-.sec--dark .step{position:relative;overflow:hidden;
-  background:linear-gradient(152deg,rgba(128,128,128,.40),rgba(128,128,128,.30) 42%,rgba(128,128,128,.24) 64%,rgba(128,128,128,.36));
-  border:1px solid rgba(255,255,255,.26);
-  -webkit-backdrop-filter:blur(2px) saturate(180%) brightness(1.12) contrast(1.06);
-  backdrop-filter:blur(2px) saturate(180%) brightness(1.12) contrast(1.06);
-  box-shadow:
-    inset 0 8px .5px -5px rgba(255,255,255,.35),
-    inset 0 8px 6px -5px rgba(255,255,255,.55),
-    inset 0 -8px 1px -5px rgba(255,255,255,.28),
-    -2px 0 2px rgba(0,0,0,.30),
-    2px 0 2px rgba(0,0,0,.30),
-    0 6px 10px rgba(0,0,0,.22),
-    inset 0 4px 20px -10px rgba(0,0,0,.30),
-    inset 0 6px 20px -4px rgba(0,0,0,.28),
-    0 10px 24px rgba(0,0,0,.18)}
-/* зерно и дисперсия по кромке – как в шейдере Glisse */
-.sec--dark .step::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>");
-  opacity:.16;mix-blend-mode:overlay}
-.sec--dark .step::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
-  box-shadow:inset 1.5px 0 0 rgba(255,48,96,.26),inset -1.5px 0 0 rgba(48,196,255,.26),
-    inset 0 1.5px 0 rgba(255,255,255,.55),inset 0 -1.5px 0 rgba(255,255,255,.26);
-  mix-blend-mode:screen}
-.sec--dark .step > *{position:relative;z-index:1}
+.sec--dark .step{position:relative}   /* подложки за списком нет – только текст */
 .sec--dark .step p,.sec--dark .lead{color:#b8b8b8}
 .sec--dark .eyebrow{color:#aaa}
 .dark__bg{position:absolute;inset:0;z-index:0}
@@ -541,7 +488,6 @@ b,strong{font-weight:600}
   .hero--arvid .car--video .car__item{height:auto;width:62vw}
   .hero--arvid .car__nav{position:static;flex-direction:row;padding-inline:20px;width:auto}
   .aboutglass{position:static;transform:none;width:auto;max-height:none;margin:20px 20px 0}
-  .aboutglass > .aboutglass__glass{position:static;inset:auto;padding:22px;border-radius:30px}
   .section--pin{padding:60px 0}
   .pinwrap{height:auto}
   .pinstage{position:static;height:auto;overflow:visible}
@@ -678,7 +624,7 @@ html[lang="ar"] body{font-family:"Montserrat","Noto Sans Arabic",system-ui,"Sego
 .cv__block{position:relative;display:flex;flex-direction:column;gap:14px;padding:32px;border-radius:44px;
   background:#fff;border:1px solid rgba(0,0,0,.07);box-shadow:var(--fx);overflow:hidden}
 .cv__block::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
-  box-shadow:var(--fx-light);mix-blend-mode:plus-lighter}
+  box-shadow:inset 0 1px .5px rgba(255,255,255,.55),inset 0 -1px 1px rgba(255,255,255,.30)}
 .cv__block > *{position:relative;z-index:1}
 .cv__block--card{background:linear-gradient(180deg,#ffffff 0%,#f7f8f3 100%)}
 .cv__block .h3{margin:0;display:flex;align-items:center;gap:10px}
@@ -781,7 +727,7 @@ body.lb-open{overflow:hidden}
 /* белая кнопка «назад»: белый блик – отдельным слоем */
 .nav__back::after{
   content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
-  box-shadow:inset 0 1px .5px #fff,inset 0 2px 10px -1px rgba(255,255,255,.8);mix-blend-mode:plus-lighter}
+  box-shadow:inset 0 1px .5px rgba(255,255,255,.75);mix-blend-mode:plus-lighter}
 .nav__back{box-shadow:0 2px 6px rgba(0,0,0,.12),0 8px 18px rgba(0,0,0,.06)!important}
 
 /* поля ввода – псевдоэлементы не рендерятся, поэтому белый блик остаётся в тени */
@@ -793,20 +739,6 @@ body.lb-open{overflow:hidden}
   .cv__meta::after,.cv .chip::after,.cv__cta::after,.svc::after,.svc__arrow::after,
   .feat__card::after,.pin__panel::after,.step::after,.cmp__card::after,.glass::after,
   .crow::after,.cv__head::after,.car__btn::after,.ico::after,.lang__menu::after,
-  .car__item::after,.bigcase::after,.cv__block::after,.aboutglass::after,.nav__back::after{
+  .cv__block::after,.nav__back::after{
     mix-blend-mode:lighten}
-}
-
-/* на HDR-экранах (dynamic-range: high) белые блики светятся сильнее –
-   plus-lighter выводит их за пределы обычного белого */
-@media (dynamic-range:high){
-  :root{
-    --fx-light:inset 0 1px .5px #fff,
-         inset 0 .5px .5px #fff,
-         inset 0 3px 16px -2px rgba(255,255,255,.9),
-         inset 0 -1px 1px rgba(255,255,255,.6);
-    --btn-light:inset 0 8px .5px -5px #fff,
-           inset 0 8px 6px -5px #fff,
-           inset 0 12px 24px -8px rgba(255,255,255,1),
-           inset 0 -8px 1px -5px rgba(255,255,255,.5)}
 }
