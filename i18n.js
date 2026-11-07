@@ -13,7 +13,7 @@
   if (codeEl) codeEl.textContent = CODES[lang] || lang.toUpperCase();
 
   /* ---------- выпадающий список языков в футере ---------- */
-  const box = document.querySelector('[data-lang]');
+  const box = document.querySelector('.lang[data-lang]');   /* html тоже получает data-lang – берём именно блок в футере */
   if (box) {
     const btn = box.querySelector('[data-lang-toggle]');
     const menu = box.querySelector('.lang__menu');

@@ -25,11 +25,16 @@
   const setVh = () => document.documentElement.style.setProperty('--vh', (innerHeight / getZ()).toFixed(1) + 'px');
   setVh();
   const nav = $('#nav');
-  /* шапка: градиент появляется при прокрутке (мобильная версия).
-     меню одинаковое на всех страницах, никаких «до/после героя» */
+  /* шапка: градиент при прокрутке (мобила) и появление направлений
+     после героя на главной (аватарка + заголовок + иконки софта) */
   (() => {
     if (!nav) return;
-    const upd = () => nav.classList.toggle('is-scrolled', scrollY > 8);
+    const hero = $('.home-hero');
+    const isHome = document.body.classList.contains('page-home');
+    const upd = () => {
+      nav.classList.toggle('is-scrolled', scrollY > 8);
+      if (isHome && hero) nav.classList.toggle('is-hero-passed', hero.getBoundingClientRect().bottom < 80);
+    };
     addEventListener('scroll', upd, { passive: true });
     addEventListener('resize', upd); addEventListener('load', upd); upd();
   })();
