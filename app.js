@@ -11,6 +11,12 @@
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const small = () => matchMedia('(max-width:720px)').matches;
   const MAIL_TO = 'lednique1@ya.ru';
+  /* перевод строк, которые скрипт создаёт уже после i18n.js */
+  const TR = (str, vars) => {
+    let out = (typeof window.LEDNIQUE_T === 'function' ? window.LEDNIQUE_T(str) : str) || str;
+    if (vars) Object.keys(vars).forEach((k) => { out = out.split('{' + k + '}').join(vars[k]); });
+    return out;
+  };
   document.documentElement.classList.add('js');
 
   /* ---------- шапка ---------- */
@@ -44,6 +50,19 @@
       }, 80);
     }
   })();
+  /* шапка: градиент появляется при прокрутке; на главной направления
+     подставляются в меню, как только пролистан первый экран */
+  (() => {
+    if (!nav) return;
+    const hero = $('.home-hero');
+    const isHome = document.body.classList.contains('page-home');
+    const upd = () => {
+      nav.classList.toggle('is-scrolled', scrollY > 8);
+      if (isHome && hero) nav.classList.toggle('is-hero-passed', hero.getBoundingClientRect().bottom < 96);
+    };
+    addEventListener('scroll', upd, { passive: true });
+    addEventListener('resize', upd); addEventListener('load', upd); upd();
+  })();
   /* меню прячется, когда долистали до футера */
   (() => {
     const f = $('.foot'); if (!f || !nav) return;
@@ -64,6 +83,24 @@
       const h = $('.home-hero'); h && out.observe(h);
     }
   }
+
+  /* ---------- иконки софта: мягкий свет под курсором ---------- */
+  $$('.stack-line').forEach((line) => {
+    const icos = $$('.ico', line);
+    const clear = () => icos.forEach(i => i.classList.remove('is-lit'));
+    line.addEventListener('pointermove', (e) => {
+      icos.forEach((ico) => {
+        const r = ico.getBoundingClientRect();
+        const inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+        ico.classList.toggle('is-lit', inside);
+        if (inside) {
+          ico.style.setProperty('--mx', ((e.clientX - r.left) / (r.width || 1) * 100).toFixed(1) + '%');
+          ico.style.setProperty('--my', ((e.clientY - r.top) / (r.height || 1) * 100).toFixed(1) + '%');
+        }
+      });
+    });
+    line.addEventListener('pointerleave', clear);
+  });
 
   /* ---------- появление блоков ---------- */
   if ('IntersectionObserver' in window) {
@@ -185,7 +222,7 @@
     const start = n + parseInt(root.dataset.start || '0', 10);
     const dots = [];
     if (dotsEl) orig.forEach((_, i) => {
-      const b = document.createElement('button'); b.className = 'car__dot'; b.type = 'button'; b.setAttribute('aria-label', 'Слайд ' + (i + 1));
+      const b = document.createElement('button'); b.className = 'car__dot'; b.type = 'button'; b.setAttribute('aria-label', TR('Слайд {n}', { n: i + 1 }));
       b.addEventListener('click', () => animTo(T[n + i])); dotsEl.appendChild(b); dots.push(b);
     });
     const nearest = () => { let b = 0, bd = 1e9; for (let i = 0; i < T.length; i++) { const d = Math.abs(T[i] - x); if (d < bd) { bd = d; b = i; } } return b; };
@@ -277,7 +314,7 @@
     const dots = [];
     if (dotsEl) orig.forEach((_, i) => {
       const b = document.createElement('button');
-      b.className = 'car__dot'; b.type = 'button'; b.setAttribute('aria-label', 'Слайд ' + (i + 1));
+      b.className = 'car__dot'; b.type = 'button'; b.setAttribute('aria-label', TR('Слайд {n}', { n: i + 1 }));
       b.addEventListener('click', () => api.userGo(loop ? Math.floor(idx / n) * n + i : i));
       dotsEl.appendChild(b); dots.push(b);
     });
@@ -577,16 +614,16 @@
   mail.className = 'mail'; mail.setAttribute('role', 'dialog'); mail.setAttribute('aria-modal', 'true');
   mail.innerHTML = `
     <div class="mail__box">
-      <div class="mail__top"><h3 class="h3">Письмо составлено</h3><button class="btn btn--ink btn--round" type="button" data-x aria-label="Закрыть">✕</button></div>
-      <div class="mail__meta"><span>Кому</span><b data-to></b><span>Тема</span><b data-subj></b></div>
+      <div class="mail__top"><h3 class="h3">${TR('Письмо составлено')}</h3><button class="btn btn--ink btn--round" type="button" data-x aria-label="${TR('Закрыть')}">✕</button></div>
+      <div class="mail__meta"><span>${TR('Кому')}</span><b data-to></b><span>${TR('Тема')}</span><b data-subj></b></div>
       <textarea data-body readonly></textarea>
       <div class="mail__btns">
-        <a class="btn btn--lime btn--lg" data-mailto href="#">Открыть в почте</a>
-        <a class="btn btn--ink btn--lg" data-ya target="_blank" rel="noopener" href="#">Яндекс Почта</a>
+        <a class="btn btn--lime btn--lg" data-mailto href="#">${TR('Открыть в почте')}</a>
+        <a class="btn btn--ink btn--lg" data-ya target="_blank" rel="noopener" href="#">${TR('Яндекс Почта')}</a>
         <a class="btn btn--ink btn--lg" data-gm target="_blank" rel="noopener" href="#">Gmail</a>
-        <button class="btn btn--ink btn--lg" type="button" data-copy>Скопировать</button>
+        <button class="btn btn--ink btn--lg" type="button" data-copy>${TR('Скопировать')}</button>
       </div>
-      <p class="mail__note">Если почтовая программа не открылась сама – выберите вариант выше или скопируйте текст и отправьте на ${MAIL_TO}.</p>
+      <p class="mail__note">${TR('Если почтовая программа не открылась сама – выберите вариант выше или скопируйте текст и отправьте на {mail}.', { mail: MAIL_TO })}</p>
     </div>`;
   document.body.appendChild(mail);
   const closeMail = () => mail.classList.remove('is-open');
@@ -595,7 +632,7 @@
   $('[data-copy]', mail).addEventListener('click', async (e) => {
     const t = $('[data-body]', mail).value, b = e.currentTarget;
     try { await navigator.clipboard.writeText(t); } catch (err) { $('[data-body]', mail).select(); document.execCommand('copy'); }
-    b.textContent = 'Скопировано ✓'; setTimeout(() => b.textContent = 'Скопировать', 1800);
+    b.textContent = TR('Скопировано ✓'); setTimeout(() => b.textContent = TR('Скопировать'), 1800);
   });
 
   const fmtDate = (v) => { const [y, m, d] = v.split('-'); return `${d}.${m}.${y}`; };
@@ -625,6 +662,11 @@
       }
     });
     $$('input,textarea', form).forEach(i => i.addEventListener('input', () => i.closest('.row')?.classList.remove('is-err')));
+    /* «Бюджет» принимает только цифры */
+    $$('input[data-num]', form).forEach(inp => inp.addEventListener('input', () => {
+      const v = inp.value.replace(/\D/g, '');
+      if (v !== inp.value) inp.value = v;
+    }));
 
     form.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -632,9 +674,14 @@
         if (row.dataset.type === 'opts') return $$('.opt.is-on', row).map(b => b.textContent.trim()).join(', ');
         if (row.dataset.type === 'date') {
           const d = $('input[type=date]', row).value;
-          return d ? fmtDate(d) : ($('[data-none].is-on', row) ? 'без жёстких сроков' : '');
+          return d ? fmtDate(d) : ($('[data-none].is-on', row) ? TR('без жёстких сроков') : '');
         }
-        const f = $('input,textarea', row); return f ? f.value.trim() : '';
+        const f = $('input,textarea', row);
+        if (!f) return '';
+        const v = f.value.trim();
+        /* бюджет – только цифры, в письме подставляем валюту */
+        if (row.dataset.key === 'budget') { const n = v.replace(/\D/g, ''); return n ? '$' + n : ''; }
+        return v;
       };
       let bad = null;
       const data = { project: [], contact: [], comment: '' };
@@ -650,17 +697,17 @@
       const topic = form.dataset.topic, page = form.dataset.page || document.title;
       const nameRow = $('[data-key=name]', form);
       const name = nameRow ? read(nameRow) : '';
-      const subject = `Заявка с сайта: ${topic} – ${name}`;
+      const subject = TR('Заявка с сайта: {topic} – {name}', { topic, name });
       const body = [
-        'Здравствуйте, Виктор!', '',
-        `Хочу обсудить проект: ${topic}.`, '',
-        'ДАННЫЕ ЗАЯВКИ',
-        ...(data.project.length ? data.project : ['– не указаны (обсудим в переписке)']), '',
-        'ОСОБЫЕ ПОЖЕЛАНИЯ',
-        data.comment || '– нет', '',
-        'КОНТАКТЫ',
+        TR('Здравствуйте, Виктор!'), '',
+        TR('Хочу обсудить проект: {topic}.', { topic }), '',
+        TR('ДАННЫЕ ЗАЯВКИ'),
+        ...(data.project.length ? data.project : [TR('– не указаны (обсудим в переписке)')]), '',
+        TR('ОСОБЫЕ ПОЖЕЛАНИЯ'),
+        data.comment || TR('– нет'), '',
+        TR('КОНТАКТЫ'),
         ...data.contact, '',
-        `Письмо составлено автоматически формой на сайте lednique.ru (страница: ${page}).`
+        TR('Письмо составлено автоматически формой на сайте lednique.ru (страница: {page}).', { page })
       ].join('\n');
       const q = (s) => encodeURIComponent(s).replace(/%0A/g, '%0D%0A');
       const mailto = `mailto:${MAIL_TO}?subject=${q(subject)}&body=${q(body)}`;
@@ -676,7 +723,8 @@
   });
 
   /* ==========================================================================
-     ФУТЕР: «lednique» на всю ширину + розовая рыбка за курсором
+     ФУТЕР: «lednique» на всю ширину + рыбка
+     десктоп: плывёт за курсором · мобила: плавает сама, по тапу – к месту нажатия
      ========================================================================== */
   const foot = $('.foot');
   if (foot) {
@@ -688,45 +736,75 @@
     };
     (document.fonts?.ready || Promise.resolve()).then(fit); fit(); addEventListener('resize', fit);
 
-    if (!reduce) {
+    if (!reduce && zone && fish) {
       /* координаты – в локальной системе зоны (учитывает zoom страницы) */
       const local = (e) => {
         const r = zone.getBoundingClientRect(), k = (r.width / zone.offsetWidth) || 1;
         return [(e.clientX - r.left) / k, (e.clientY - r.top) / k];
       };
-      const SPEED = 9;                       // постоянная скорость, px за кадр (при 60 fps)
-      let x = 0, y = 0, tx = 0, ty = 0, active = false, inside = false, face = 1, ph = 0, last = performance.now();
       const fw = () => fish.offsetWidth, fh = () => fish.offsetHeight;
+      const SPEED_DESK = 9, SPEED_MOB = 1.15;   // px за кадр при 60 fps
+      let x = 0, y = 0, tx = 0, ty = 0, face = 1, ph = 0, last = performance.now();
+      let active = false, inside = false, mobInit = false, wander = 0;
+
+      /* случайная точка в пределах зоны */
+      const pickWander = () => {
+        const W = Math.max(0, zone.clientWidth - fw()), H = Math.max(0, zone.clientHeight - fh());
+        tx = 10 + Math.random() * Math.max(10, W - 20);
+        ty = Math.random() * Math.max(10, H);
+        wander = 140 + Math.random() * 120;
+      };
+
       const loop = (now) => {
         const dt = Math.min(48, now - last) / 16.67; last = now;
-        if (active) {
-          let dx = 0, dy = 0;
+        const mob = matchMedia('(max-width:720px)').matches;
+        let dx = 0, dy = 0;
+        if (mob) {
+          if (!mobInit) { mobInit = true; x = zone.clientWidth * .18; y = zone.clientHeight * .38; fish.style.opacity = 1; pickWander(); }
+          if (--wander <= 0) pickWander();
+          const ax = tx - x, ay = ty - y, d = Math.hypot(ax, ay);
+          if (d > 2) { dx = ax / d * SPEED_MOB * dt; dy = ay / d * SPEED_MOB * dt; }
+          else pickWander();
+          x = clamp(x + dx, 0, Math.max(0, zone.clientWidth - fw()));
+          y = clamp(y + dy, 0, Math.max(0, zone.clientHeight - fh()));
+        } else if (active) {
           if (inside) {
-            const ax = tx - x, ay = ty - y, dist = Math.hypot(ax, ay);
-            const step = Math.min(dist, SPEED * dt);
-            if (dist > .5) { dx = ax / dist * step; dy = ay / dist * step; }
-          } else { dx = SPEED * dt; }        // курсора нет – уплывает вправо
+            const ax = tx - x, ay = ty - y, d = Math.hypot(ax, ay);
+            const step = Math.min(d, SPEED_DESK * dt);
+            if (d > .5) { dx = ax / d * step; dy = ay / d * step; }
+          } else { dx = SPEED_DESK * dt; }        // курсора нет – уплывает вправо
           x += dx; y += dy;
-          if (Math.abs(dx) > .2) face = dx > 0 ? 1 : -1;
-          ph += dt * (.08 + Math.hypot(dx, dy) * .012);
-          const wob = Math.sin(ph) * 5 + clamp(dy * .9, -14, 14) * face;
-          fish.style.transform = `translate3d(${x.toFixed(1)}px,${(y + Math.sin(ph * .7) * 4).toFixed(1)}px,0) scaleX(${face}) rotate(${wob.toFixed(2)}deg)`;
           if (!inside && x > zone.clientWidth + fw() * .2) { active = false; fish.style.opacity = 0; }
         }
+        if (Math.abs(dx) > .15) face = dx > 0 ? 1 : -1;
+        ph += dt * (.08 + Math.hypot(dx, dy) * .012);
+        const wob = Math.sin(ph) * 5 + clamp(dy * .9, -14, 14) * face;
+        fish.style.transform = `translate3d(${x.toFixed(1)}px,${(y + Math.sin(ph * .7) * 3).toFixed(1)}px,0) scaleX(${face}) rotate(${wob.toFixed(2)}deg)`;
         requestAnimationFrame(loop);
       };
       requestAnimationFrame(loop);
+
       const pos = (e) => {
         const [lx, ly] = local(e);
         tx = lx - fw() / 2;
         ty = clamp(ly - fh() / 2, -fh() * .2, zone.clientHeight - fh() * .8);
       };
       zone.addEventListener('pointerenter', (e) => {
+        if (matchMedia('(max-width:720px)').matches) return;
         pos(e); inside = true;
         if (!active) { x = -fw() * 1.2; y = ty; face = 1; active = true; fish.style.opacity = 1; }
       });
-      zone.addEventListener('pointermove', pos);
+      zone.addEventListener('pointermove', (e) => { if (!matchMedia('(max-width:720px)').matches) pos(e); });
       zone.addEventListener('pointerleave', () => { inside = false; });
+      /* мобила: тап – рыбка плывёт к месту нажатия */
+      zone.addEventListener('pointerdown', (e) => {
+        if (!matchMedia('(max-width:720px)').matches) return;
+        const [lx, ly] = local(e);
+        tx = clamp(lx - fw() / 2, 0, Math.max(0, zone.clientWidth - fw()));
+        ty = clamp(ly - fh() / 2, 0, Math.max(0, zone.clientHeight - fh()));
+        wander = 240;
+        fish.style.opacity = 1;
+      });
     }
   }
 })();

@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>AR-эффекты в соцсетях – LEDNIQUE</title>
 <meta name="description" content="AR-эффекты для соцсетей: try-on, digital MUA, target-tracking, 3D-моделирование.">
+<script>
+/* язык определяется системой, выбор запоминается; словарь грузится до отрисовки */
+(function(){try{var L=['ru','en','zh','ja','pt','fr','ar'];var s=localStorage.getItem('lednique-lang');
+var n=(navigator.languages||[navigator.language||'ru']).map(function(x){return String(x).toLowerCase().slice(0,2)});
+var l=(s&&L.indexOf(s)>-1)?s:(n.filter(function(x){return L.indexOf(x)>-1})[0]||'ru');
+document.documentElement.lang=l;document.documentElement.dataset.lang=l;document.documentElement.dir=(l==='ar'?'rtl':'ltr');
+if(l!=='ru'){document.write('<script src="lang/'+l+'.js"><\/script>');}}catch(e){}})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&family=Roboto+Condensed:wght@500&display=swap" rel="stylesheet">
@@ -16,7 +24,7 @@
     <a class="nav__back" href="https://lednique.ru/" aria-label="Перейти на основной сайт lednique.ru" title="lednique.ru"><span>←</span></a>
     <a class="logo" href="index.html" aria-label="LEDNIQUE – главная"><img src="assets/logo.png" alt="LEDNIQUE" width="200" height="140"></a>
     <div class="nav__scroll" data-navscroll>
-      <nav class="nav__links" aria-label="Основное меню"><a class="btn btn--nav" href="index.html" data-nav="index.html"><span>Главная</span></a><a class="btn btn--nav" href="graphic.html" data-nav="graphic.html"><span>Графика</span></a><a class="btn btn--nav is-active" href="ar.html" data-nav="ar.html"><span>AR-эффекты</span></a><a class="btn btn--nav" href="ai.html" data-nav="ai.html"><span>AI-продакшн</span></a><a class="btn btn--nav" href="index.html#process" data-nav="index.html#process"><span>Процесс</span></a><a class="btn btn--nav" href="index.html#about" data-nav="index.html#about"><span>Обо мне</span></a><a class="btn btn--lime nav__cta-mob" href="#request">Обсудить проект</a></nav>
+      <nav class="nav__links" aria-label="Основное меню"><a class="btn btn--nav " href="index.html" data-nav="index.html"><span>Главная</span></a><a class="btn btn--nav " href="index.html#process" data-nav="index.html#process"><span>Процесс</span></a><a class="btn btn--nav " href="index.html#about" data-nav="index.html#about"><span>Обо мне</span></a><span class="nav__sep" aria-hidden="true"></span><a class="btn btn--nav nav__dir" href="graphic.html" data-nav="graphic.html"><span>Графика</span></a><a class="btn btn--nav nav__dir is-active" href="ar.html" data-nav="ar.html"><span>AR-эффекты</span></a><a class="btn btn--nav nav__dir" href="ai.html" data-nav="ai.html"><span>AI-продакшн</span></a><a class="btn btn--lime nav__cta-mob" href="#request">Обсудить проект</a></nav>
     </div>
     <a class="btn btn--lime nav__cta" href="#request">Обсудить проект</a>
   </div>
@@ -81,7 +89,7 @@
       <form class="lform" data-form data-topic="AR-эффект" data-page="AR-эффекты" novalidate>
         <div class="lform__cols">
           <div class="glass"><div class="row row--chips" data-field data-label="Платформа" data-type="opts"><span class="row__l">Платформа</span><div class="opts" data-multi><button type="button" class="opt"><span>Snapchat</span></button><button type="button" class="opt"><span>TikTok</span></button><button type="button" class="opt"><span>Web AR</span></button></div></div><div class="row row--date" data-field data-label="Срок выполнения" data-type="date"><span class="row__l">Срок выполнения</span><div class="opts"><input type="date" class="opt opt--date" aria-label="Желаемая дата"><button type="button" class="opt" data-none><span>Нет срока</span></button></div></div><div class="row row--chips" data-field data-label="Тип эффекта" data-type="opts"><span class="row__l">Тип эффекта</span><div class="opts" data-multi><button type="button" class="opt"><span>Try-on</span></button><button type="button" class="opt"><span>Visual effect</span></button><button type="button" class="opt"><span>Make-up filter</span></button><button type="button" class="opt"><span>Body tracking</span></button><button type="button" class="opt"><span>3D character</span></button><button type="button" class="opt"><span>Image tracking</span></button><button type="button" class="opt"><span>Game development</span></button><button type="button" class="opt"><span>Другое</span></button></div></div></div>
-          <div class="glass"><label class="row" data-field data-label="Ваше имя" data-group="contact" data-key="name" data-required><span class="row__l">Ваше имя</span><input type="text" placeholder="имя" autocomplete="off"></label><label class="row" data-field data-label="Компания" data-group="contact"><span class="row__l">Компания</span><input type="text" placeholder="название компании" autocomplete="off"></label><label class="row" data-field data-label="Как связаться" data-group="contact"><span class="row__l">Как связаться</span><input type="text" placeholder="Telegram или e-mail" autocomplete="off"></label><label class="row" data-field data-label="Бюджет" data-group="project"><span class="row__l">Бюджет</span><input type="text" placeholder="в долларах" autocomplete="off"></label></div>
+          <div class="glass"><label class="row" data-field data-label="Ваше имя" data-group="contact" data-key="name" data-required><span class="row__l">Ваше имя</span><input type="text" placeholder="имя" autocomplete="off"></label><label class="row" data-field data-label="Компания" data-group="contact"><span class="row__l">Компания</span><input type="text" placeholder="название компании" autocomplete="off"></label><label class="row" data-field data-label="Как связаться" data-group="contact"><span class="row__l">Как связаться</span><input type="text" placeholder="Telegram или e-mail" autocomplete="off"></label><label class="row" data-field data-label="Бюджет" data-group="project" data-key="budget"><span class="row__l">Бюджет</span><input type="text" inputmode="numeric" pattern="[0-9]*" placeholder="в долларах" autocomplete="off" data-num></label></div>
         </div>
         <div class="glass"><label class="row row--area" data-field data-label="Особые пожелания" data-group="comment"><span class="row__l">Особые пожелания</span><textarea placeholder="Комментарий"></textarea></label></div>
         <div class="lform__actions">
@@ -104,17 +112,32 @@
   <div class="wrap">
     <div class="foot__top">
       <div class="foot__brand">
-        <img src="assets/logo.png" alt="LEDNIQUE" width="200" height="140">
         <p>Виктор, LEDNIQUE. Графический дизайн, AR-эффекты и AI-продакшн для брендов.</p>
+        <img src="assets/logo.png" alt="LEDNIQUE" width="200" height="140">
       </div>
-      <div><h4>Карта сайта</h4><ul><li><a href="index.html">Главная</a></li><li><a href="graphic.html">Графика</a></li><li><a href="ar.html">AR-эффекты</a></li><li><a href="ai.html">AI-продакшн</a></li><li><a href="index.html#process">Процесс</a></li><li><a href="index.html#about">Обо мне</a></li><li><a href="#request">Заявка</a></li></ul></div>
-      <div><h4>Контакты</h4><ul><li><a href="mailto:lednique1@ya.ru">lednique1@ya.ru</a></li><li><a href="https://t.me/lednique" target="_blank" rel="noopener">t.me/lednique</a></li><li><a href="https://lednique.ru" target="_blank" rel="noopener">lednique.ru</a></li></ul></div>
+      <div class="lang" data-lang>
+        <button class="btn btn--nav is-active lang__btn" type="button" aria-haspopup="listbox" aria-expanded="false" data-lang-toggle><span data-lang-code>RU</span></button>
+        <div class="lang__menu" role="listbox" aria-label="Язык сайта" hidden>
+          <button type="button" role="option" data-set-lang="ru" aria-selected="true">Русский</button>
+          <button type="button" role="option" data-set-lang="en" aria-selected="false">English</button>
+          <button type="button" role="option" data-set-lang="zh" aria-selected="false">中文</button>
+          <button type="button" role="option" data-set-lang="ja" aria-selected="false">日本語</button>
+          <button type="button" role="option" data-set-lang="pt" aria-selected="false">Português</button>
+          <button type="button" role="option" data-set-lang="fr" aria-selected="false">Français</button>
+          <button type="button" role="option" data-set-lang="ar" aria-selected="false">العربية</button>
+        </div>
+      </div>
+    </div>
+    <div class="foot__cols">
+      <div><h4>Карта сайта</h4><ul><li><a href="index.html">Главная</a></li><li><a href="graphic.html">Графика</a></li><li><a href="ar.html">AR-эффекты</a></li><li><a href="ai.html">AI-продакшн</a></li><li><a href="index.html#process">Процесс</a></li><li><a href="index.html#about">Обо мне</a></li><li><a href="#request">Заявка</a></li><li><a href="resume.html">Резюме</a></li></ul></div>
+      <div><h4>Контакты</h4><ul><li><a href="mailto:lednique1@ya.ru">lednique1@ya.ru</a></li><li><a href="https://t.me/lednique" target="_blank" rel="noopener">t.me/lednique</a></li><li><a href="https://lednique.ru" target="_blank" rel="noopener">lednique.ru</a></li><li>Ижевск, Россия</li><li class="foot__en" data-en-note>Понимаю английский – пишите на нём</li></ul></div>
       <div><h4>Соцсети</h4><div class="foot__soc"><a href="https://t.me/lednique" target="_blank" rel="noopener">Telegram</a><a href="https://www.behance.net/lednique" target="_blank" rel="noopener">Behance</a><a href="https://www.instagram.com/lednique" target="_blank" rel="noopener">Instagram</a><a href="https://kwork.ru/user/lednique" target="_blank" rel="noopener">Kwork</a><a href="https://boosty.to/lednique" target="_blank" rel="noopener">Boosty</a></div></div>
     </div>
   </div>
   <div class="foot__word" aria-hidden="true"><div class="foot__fish"><img src="assets/fish/group3.svg" alt=""></div><b>lednique</b></div>
   <div class="wrap"><div class="foot__bar"><span>© LEDNIQUE – 2026. All Rights Reserved.</span><a href="https://www.lednique.ru/privacy" target="_blank" rel="noopener">Политика конфиденциальности</a></div></div>
 </footer>
+<script src="i18n.js" defer></script>
 <script src="app.js" defer></script>
 </body>
 </html>
