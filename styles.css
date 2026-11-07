@@ -498,7 +498,7 @@ b,strong{font-weight:600}
   .hero--design .heroimg__in{position:static}
   .hero--design .pfish{opacity:1;z-index:3;left:auto !important;right:auto !important;top:auto !important;bottom:auto !important}
   /* левая рыба: 60 px влево, 20 px вниз */
-  .hero--design .pfish--1{width:300px !important;left:calc(-16% - 60px) !important;top:calc(var(--vh,100vh) * .17 - 80px) !important}
+  .hero--design .pfish--1{width:300px !important;left:calc(-16% - 90px) !important;top:calc(var(--vh,100vh) * .17 - 80px) !important}
   /* правая рыба: 20 px вправо */
   .hero--design .pfish--2{width:328px !important;right:calc(-18% - 20px) !important;top:calc(var(--vh,100vh) * .25) !important}
   /* нижняя рыба: на 60 px выше */
