@@ -229,15 +229,17 @@ b,strong{font-weight:600}
 .cardlist{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap)}
 .svc{position:relative;display:flex;flex-direction:column;min-height:300px;padding:32px;border-radius:44px;background:var(--gray-sec);box-shadow:var(--fx)}
 .svc__n{font:600 11px/1 var(--font-b);letter-spacing:.2em;color:#8a8a8a}
-.svc__body{display:flex;flex-direction:column;gap:14px;margin-top:56px;padding-right:70px}
+.svc__body{display:flex;flex-direction:column;gap:14px;margin-top:56px;padding:0 70px 60px 0}
 .svc__body p{color:var(--muted);font-size:16px}
 .svc__body .btn{align-self:flex-start;margin-top:6px}
 .svc .h3 a{text-decoration:none}
-.svc__arrow{position:absolute;right:24px;bottom:24px;width:48px;height:48px;border-radius:48px;display:grid;place-items:center;background:rgba(255,255,255,.8);box-shadow:var(--fx);text-decoration:none;font-size:20px;transition:transform .15s var(--ease-back)}
+.svc__arrow{position:absolute;left:20px;right:auto;bottom:20px;width:48px;height:48px;border-radius:48px;display:grid;place-items:center;background:rgba(255,255,255,.8);box-shadow:var(--fx);text-decoration:none;font-size:20px;transition:transform .15s var(--ease-back)}
 .svc__arrow:hover{transform:scale(1.1)}
 .feat{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap)}
 .feat__card{display:flex;flex-direction:column;gap:14px;padding:36px;border-radius:44px;background:var(--gray-sec);box-shadow:var(--fx);min-height:290px}
 .feat__card p{color:var(--muted);font-size:16px}
+.feat__cta{margin-top:auto;align-self:center}
+.content-cta{align-self:center;margin-top:12px}
 .feat__card--lime{background:var(--lime)}
 .feat__card--lime p{color:#3a4a10}
 .feat__card--ink{background:#0a0a0a;color:#fff}
@@ -499,16 +501,14 @@ b,strong{font-weight:600}
   .heroimg{height:auto !important}
   .heroimg__in{height:auto;width:100%}
   .heroimg__pic{height:auto}
-  /* «Графический дизайн»: рыбы не в центре, а по углам первого экрана */
+  /* «Графический дизайн»: расположение отдельных рыб сохраняет исходный масштаб;
+     слой ниже поднимает всю розовую композицию целиком к подписи направления. */
   .hero--design .hero__fishes{display:none}
   .hero--design .heroimg__in{position:static}
   .hero--design .pfish{opacity:1;z-index:3;left:auto !important;right:auto !important;top:auto !important;bottom:auto !important}
-  /* левая рыба: 60 px влево, 20 px вниз */
   .hero--design .pfish--1{width:300px !important;left:calc(-16% - 90px) !important;top:calc(var(--vh,100vh) * .17 - 80px) !important}
-  /* правая рыба: 20 px вправо */
   .hero--design .pfish--2{width:328px !important;right:calc(-18% - 20px) !important;top:calc(var(--vh,100vh) * .25) !important}
-  /* нижняя рыба: на 60 px выше */
-  .hero--design .pfish--3{width:268px !important;left:-14% !important;top:calc(var(--vh,100vh) * .65 - 120px) !important}
+  .hero--design .pfish--3{width:268px !important;left:calc(-14% + 40px) !important;top:calc(var(--vh,100vh) * .65 - 120px) !important}
   .car--wide,.hero--arvid .car--video{height:auto !important;margin-top:0;display:block}
   .car--wide .car__item{height:auto;width:86vw}
   .hero--arvid .car--video .car__item{height:auto;width:62vw}
@@ -853,11 +853,21 @@ body.lb-open{overflow:hidden}
   .page-home .nav__sep{display:block}
 }
 
-/* ---------- hero «Графика»: фото 1400 px в ширину, высота = остаток экрана ---------- */
-@media (min-width:1101px){
-  .hero--design .heroimg{flex:1 1 auto;min-height:140px;width:100%;padding-inline:0}
-  .hero--design .heroimg__in{width:1400px;max-width:100%;min-width:0;height:100%;overflow:hidden}
+/* ---------- hero «Графика»: изображение до 1400 px, высота под остаток экрана ---------- */
+@media (min-width:721px){
+  .hero--design .heroimg{flex:0 0 auto;min-height:0;max-height:420px;width:100%;padding-inline:0}
+  .hero--design > .wrap:last-child{margin-top:auto}
+  .hero--design .heroimg__in{position:absolute;inset:0 auto 0 50%;transform:translateX(-50%);width:min(1400px,100%);max-width:100%;min-width:0;height:100%;min-height:0;overflow:hidden}
   .hero--design .heroimg__pic{width:100%;min-width:100%;height:100%;object-fit:cover;object-position:center center}
+  /* Рыбы масштабируются и раскладываются относительно экрана, как в референсе. */
+  .hero--design .pfish--1{left:18vw;right:auto;top:44%;bottom:auto;width:19vw;scale:2;transform-origin:center center}
+  .hero--design .pfish--2{left:43vw;right:auto;top:calc(2% - 13vw);bottom:auto;width:27vw;scale:2;transform-origin:center center}
+  .hero--design .pfish--3{left:calc(64vw + 40px);right:auto;top:calc(74% - 3.2vw);bottom:auto;width:13vw;scale:2;transform-origin:center center}
+}
+.hero--design .heroimg__fish-layer{position:absolute;z-index:3;inset:0;width:100%;height:100%;transform:translateX(50px);pointer-events:none;overflow:visible}
+.hero--design .heroimg__fish-layer .pfish{z-index:1}
+@media (max-width:720px){
+  .hero--design .heroimg__fish-layer{inset:0 auto 0 50%;width:100%;height:auto;transform:translate(calc(-50% + 20px),var(--fish-mobile-shift,0px))}
 }
 
 /* ---------- футер: сначала логотип, потом подпись ---------- */
