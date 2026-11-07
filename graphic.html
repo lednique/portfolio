@@ -23,12 +23,24 @@ if(l!=='ru'){document.write('<script src="lang/'+l+'.js"><\/script>');}}catch(e)
   <div class="nav__in">
     <a class="nav__back" href="https://lednique.ru/" aria-label="Перейти на основной сайт lednique.ru" title="lednique.ru"><span>←</span></a>
     <a class="logo" href="index.html" aria-label="LEDNIQUE – главная"><img src="assets/logo.png" alt="LEDNIQUE" width="200" height="140"></a>
-    <div class="nav__scroll" data-navscroll>
-      <nav class="nav__links" aria-label="Основное меню"><a class="btn btn--nav " href="index.html" data-nav="index.html"><span>Главная</span></a><a class="btn btn--nav " href="index.html#process" data-nav="index.html#process"><span>Процесс</span></a><a class="btn btn--nav " href="index.html#about" data-nav="index.html#about"><span>Обо мне</span></a><span class="nav__sep" aria-hidden="true"></span><a class="btn btn--nav nav__dir is-active" href="graphic.html" data-nav="graphic.html"><span>Графика</span></a><a class="btn btn--nav nav__dir" href="ar.html" data-nav="ar.html"><span>AR-эффекты</span></a><a class="btn btn--nav nav__dir" href="ai.html" data-nav="ai.html"><span>AI-продакшн</span></a><a class="btn btn--lime nav__cta-mob" href="#request">Обсудить проект</a></nav>
-    </div>
     <a class="btn btn--lime nav__cta" href="#request">Обсудить проект</a>
+    <nav class="nav__links" aria-label="Основное меню">
+      <a class="btn btn--nav" href="index.html" data-nav="index.html"><span>Главная</span></a><a class="btn btn--nav" href="index.html#process" data-nav="index.html#process"><span>Процесс</span></a><a class="btn btn--nav" href="index.html#about" data-nav="index.html#about"><span>Обо мне</span></a><span class="nav__sep" aria-hidden="true"></span><a class="btn btn--nav nav__dir is-active" href="graphic.html" data-nav="graphic.html"><span>Графика</span></a><a class="btn btn--nav nav__dir" href="ar.html" data-nav="ar.html"><span>AR-эффекты</span></a><a class="btn btn--nav nav__dir" href="ai.html" data-nav="ai.html"><span>AI-продакшн</span></a>
+    </nav>
   </div>
 </header>
+<aside class="lang lang--rail" data-lang>
+  <button class="btn btn--nav is-active lang__btn" type="button" aria-haspopup="listbox" aria-expanded="false" data-lang-toggle aria-label="Язык сайта"><span data-lang-code>RU</span></button>
+  <div class="lang__menu" role="listbox" aria-label="Язык сайта" hidden>
+          <button type="button" role="option" data-set-lang="ru" aria-selected="true">Русский</button>
+          <button type="button" role="option" data-set-lang="en" aria-selected="false">English</button>
+          <button type="button" role="option" data-set-lang="zh" aria-selected="false">中文</button>
+          <button type="button" role="option" data-set-lang="ja" aria-selected="false">日本語</button>
+          <button type="button" role="option" data-set-lang="pt" aria-selected="false">Português</button>
+          <button type="button" role="option" data-set-lang="fr" aria-selected="false">Français</button>
+          <button type="button" role="option" data-set-lang="ar" aria-selected="false">العربية</button>
+  </div>
+</aside>
 <main>
 <section class="hero hero--design" data-hero>
   <div class="hero__bg" data-bg style="background-image:url(assets/bg/bg_design.svg)"></div>
@@ -151,18 +163,6 @@ if(l!=='ru'){document.write('<script src="lang/'+l+'.js"><\/script>');}}catch(e)
       <div class="foot__brand">
         <p>Виктор, LEDNIQUE. Графический дизайн, AR-эффекты и AI-продакшн для брендов.</p>
         <img src="assets/logo.png" alt="LEDNIQUE" width="200" height="140">
-      </div>
-      <div class="lang" data-lang>
-        <button class="btn btn--nav is-active lang__btn" type="button" aria-haspopup="listbox" aria-expanded="false" data-lang-toggle><span data-lang-code>RU</span></button>
-        <div class="lang__menu" role="listbox" aria-label="Язык сайта" hidden>
-          <button type="button" role="option" data-set-lang="ru" aria-selected="true">Русский</button>
-          <button type="button" role="option" data-set-lang="en" aria-selected="false">English</button>
-          <button type="button" role="option" data-set-lang="zh" aria-selected="false">中文</button>
-          <button type="button" role="option" data-set-lang="ja" aria-selected="false">日本語</button>
-          <button type="button" role="option" data-set-lang="pt" aria-selected="false">Português</button>
-          <button type="button" role="option" data-set-lang="fr" aria-selected="false">Français</button>
-          <button type="button" role="option" data-set-lang="ar" aria-selected="false">العربية</button>
-        </div>
       </div>
     </div>
     <div class="foot__cols">

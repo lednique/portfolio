@@ -25,41 +25,11 @@
   const setVh = () => document.documentElement.style.setProperty('--vh', (innerHeight / getZ()).toFixed(1) + 'px');
   setVh();
   const nav = $('#nav');
-  /* мобильная шапка: пункты меню – горизонтальная карусель, по краям градиент,
-     пока список не прокручен до начала / до конца */
-  (() => {
-    const box = $('[data-navscroll]'); if (!box) return;
-    const links = $('.nav__links', box); if (!links) return;
-    const upd = () => {
-      const max = links.scrollWidth - links.clientWidth;
-      const x = links.scrollLeft;
-      box.classList.toggle('is-start', max <= 2 || x <= 2);
-      box.classList.toggle('is-end', max <= 2 || x >= max - 2);
-    };
-    links.addEventListener('scroll', upd, { passive: true });
-    addEventListener('resize', upd); addEventListener('load', upd);
-    if ('ResizeObserver' in window) new ResizeObserver(upd).observe(links);
-    upd();
-    /* активный пункт сразу виден */
-    const act = $('.is-active', links);
-    if (act && matchMedia('(max-width:1100px)').matches) {
-      setTimeout(() => {
-        const r = act.getBoundingClientRect(), lr = links.getBoundingClientRect();
-        links.scrollLeft += (r.left - lr.left) - 16;
-        upd();
-      }, 80);
-    }
-  })();
-  /* шапка: градиент появляется при прокрутке; на главной направления
-     подставляются в меню, как только пролистан первый экран */
+  /* шапка: градиент появляется при прокрутке (мобильная версия).
+     меню одинаковое на всех страницах, никаких «до/после героя» */
   (() => {
     if (!nav) return;
-    const hero = $('.home-hero');
-    const isHome = document.body.classList.contains('page-home');
-    const upd = () => {
-      nav.classList.toggle('is-scrolled', scrollY > 8);
-      if (isHome && hero) nav.classList.toggle('is-hero-passed', hero.getBoundingClientRect().bottom < 96);
-    };
+    const upd = () => nav.classList.toggle('is-scrolled', scrollY > 8);
     addEventListener('scroll', upd, { passive: true });
     addEventListener('resize', upd); addEventListener('load', upd); upd();
   })();
