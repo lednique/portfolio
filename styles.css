@@ -808,3 +808,24 @@ body.lb-open{overflow:hidden}
   .row input[type=date]{height:30px;min-width:160px;padding:0 10px;border-radius:30px;
     font:600 11px/1 var(--font-b)}
 }
+
+/* ==========================================================================
+   ТЕНИ ПИЛЮЛЬ = ТЕНИ ПУНКТОВ МЕНЮ (чёрные + белые, HDR через plus-lighter)
+   ========================================================================== */
+.btn--nav,.opt,.btn--lime,.nav__links a,.car__tag,.cv__meta,.cv .chip,.cv__cta,
+.lang__btn,.btn--lg,.btn--sm{position:relative;box-shadow:var(--btn-fx)}
+.btn--nav::after,.opt::after,.btn--lime::after,.nav__links a::after,.car__tag::after,
+.cv__meta::after,.cv .chip::after,.cv__cta::after,.lang__btn::after,
+.btn--lg::after,.btn--sm::after{
+  content:"";display:block;position:absolute;inset:0;border-radius:inherit;
+  pointer-events:none;z-index:2;mix-blend-mode:plus-lighter;
+  box-shadow:
+    inset 0 1px .5px var(--hdr-white),
+    inset 0 .5px .5px var(--hdr-white),
+    inset 0 8px 6px -5px var(--hdr-white),
+    inset 0 -8px 1px -5px var(--hdr-white-soft)}
+
+/* мобильная шапка: у тонких пилюль аддитивный блик убираем */
+@media (max-width:1100px){
+  .nav .opt::after,.nav__back::after{display:none}
+}

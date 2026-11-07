@@ -681,8 +681,14 @@
         if (multi) b.classList.toggle('is-on');
         else { const was = b.classList.contains('is-on'); $$('.opt', g).forEach(x => x.classList.remove('is-on')); b.classList.toggle('is-on', !was); }
       });
-      /* «Срок выполнения»: выбрана дата → кнопка активна (#CAF865), иначе – как неактивная */
+      /* «Срок выполнения»: по умолчанию – неделя вперёд, «Нет срока» снят */
       if (date) {
+        if (!date.value) {
+          const dd = new Date(); dd.setDate(dd.getDate() + 7);
+          const p2 = (n) => String(n).padStart(2, '0');
+          date.value = `${dd.getFullYear()}-${p2(dd.getMonth() + 1)}-${p2(dd.getDate())}`;
+        }
+        const nbInit = $('[data-none]', g); if (nbInit) nbInit.classList.remove('is-on');
         const sync = () => date.classList.toggle('is-on', !!date.value);
         ['input', 'change'].forEach(ev => date.addEventListener(ev, () => {
           sync();
