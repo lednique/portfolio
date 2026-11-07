@@ -37,6 +37,20 @@
     };
     addEventListener('scroll', upd, { passive: true });
     addEventListener('resize', upd); addEventListener('load', upd); upd();
+    /* меню не влезает в строку – показываем градиент у обрезанного края */
+    const links = $('.nav__links');
+    if (links) {
+      const cut = () => {
+        const max = links.scrollWidth - links.clientWidth;
+        links.classList.toggle('is-cut-l', links.scrollLeft > 4);
+        links.classList.toggle('is-cut-r', max > 4 && links.scrollLeft < max - 4);
+      };
+      links.addEventListener('scroll', cut, { passive: true });
+      addEventListener('resize', cut); addEventListener('load', cut); cut();
+      if ('ResizeObserver' in window) new ResizeObserver(cut).observe(links);
+      document.addEventListener('lednique:lang', cut);
+      setTimeout(cut, 300);
+    }
   })();
   /* меню прячется, когда долистали до футера */
   (() => {
@@ -703,7 +717,7 @@
      ========================================================================== */
   const foot = $('.foot');
   if (foot) {
-    const zone = $('.foot__word', foot), word = $('b', zone), fish = $('.foot__fish', zone);
+    const zone = $('.foot__word', foot), word = $('.fw-word', zone) || $('b', zone), fish = $('.foot__fish', zone);
     const fit = () => {
       zone.style.setProperty('--fw', '200px');
       const w = word.offsetWidth || 1;
