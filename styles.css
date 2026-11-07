@@ -755,3 +755,49 @@ body.lb-open{overflow:hidden}
 /* превью крайней работы – скругление как у кнопок, тени внутри */
 .bigcase{border-radius:44px;overflow:hidden}
 .car__tag{z-index:3}
+
+/* ==========================================================================
+   ТЕНИ: стек из Figma (Glisse) – один и тот же для карточек, картинок и видео
+   ========================================================================== */
+:root{
+  --glisse-in:
+    inset 0 8px .5px -5px rgba(255,255,255,.35),
+    inset 0 8px 6px -5px rgba(255,255,255,.60),
+    inset 0 -8px 1px -5px rgba(255,255,255,.30),
+    inset 0 4px 20px rgba(0,0,0,.30),
+    inset 0 6px 20px -4px rgba(0,0,0,.30);
+  --glisse-out:
+    -2px 0 2px rgba(0,0,0,.30),
+    2px 0 2px rgba(0,0,0,.30),
+    0 6px 10px rgba(0,0,0,.20);
+}
+/* светлые карточки-пункты */
+.step{background:rgba(255,255,255,.74);border:1px solid rgba(255,255,255,.7);overflow:hidden;
+  box-shadow:var(--glisse-in),var(--glisse-out)}
+.step > *{position:relative;z-index:1}
+/* тёмная секция */
+.sec--dark .step{box-shadow:var(--glisse-in),var(--glisse-out)}
+/* карточки резюме */
+.cv__block,.cv__head{box-shadow:var(--glisse-in),var(--glisse-out)}
+/* картинки и видео: наружные тени на контейнере, внутренние – оверлеем */
+.car__item,.bigcase{box-shadow:var(--glisse-out)}
+.car__item::after,.bigcase::after{
+  box-shadow:
+    inset 0 8px .5px -5px rgba(255,255,255,.35),
+    inset 0 8px 6px -5px rgba(255,255,255,.60),
+    inset 0 -8px 1px -5px rgba(255,255,255,.30),
+    inset 0 4px 20px rgba(0,0,0,.30),
+    inset 0 6px 20px -4px rgba(0,0,0,.30)}
+
+/* видео: кадр ровно по контейнеру */
+.car--video .car__item{background:#000}
+.car--video .car__item > img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.car--video .car__frame{overflow:hidden}
+.car--video .car__frame iframe{min-width:100%;min-height:100%;background:#000}
+
+/* ---------- слой «искривления» внутри стекла ---------- */
+.step > .bendfx,.aboutglass > .bendfx{position:absolute;inset:-12%;z-index:0;pointer-events:none;border-radius:inherit;
+  background-image:var(--bend);background-size:cover;background-position:center;
+  filter:url(#glisse-bend) blur(5px) saturate(150%) contrast(1.05);
+  opacity:.42;mix-blend-mode:soft-light;transform:scale(1.08)}
+.sec--dark .step .bendfx{opacity:.55;mix-blend-mode:screen}

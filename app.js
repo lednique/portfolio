@@ -353,7 +353,7 @@
       }, AUTO_MS);
     };
     const api = {
-      arm, root, n, all, loop, get idx() { return idx; }, get base() { return base; },
+      arm, root, n, all, loop, nearest, get idx() { return idx; }, get base() { return base; },
       real: (i) => ((i % n) + n) % n,
       scrollTo(i, smooth = true) {
         lastProg = performance.now(); hold = lastProg + 1100;
@@ -512,7 +512,7 @@
     all.forEach((it, k) => it.addEventListener('click', () => { if (k !== cur) play(k, true); }));
     car.hook({
       user: (i) => play(i, true),
-      settle: (i, user) => { if (user && i !== cur) play(i, true); },
+      settle: (i, user) => { if (i !== cur) play(i, !!user); },   /* играет всегда тот слайд, что в центре */
       shift: (delta) => {                       /* бесшовный ре-центр: тот же слайд в другом клоне */
         if (cur < 0) return;
         const o = cur, nn = cur + delta;
@@ -525,7 +525,12 @@
       new IntersectionObserver((es) => es.forEach(e => {
         visible = e.isIntersecting;
         if (visible) {
-          if (cur < 0) play(car.base + parseInt(root.dataset.start || '0', 10), false);
+          if (cur < 0) {
+            play(car.base + parseInt(root.dataset.start || '0', 10), false);
+            /* после доводки скролла включаем именно центральный слайд */
+            setTimeout(() => { const nn = car.nearest ? car.nearest() : cur; if (nn !== cur) play(nn, false); }, 520);
+            setTimeout(() => { const nn = car.nearest ? car.nearest() : cur; if (nn !== cur) play(nn, false); }, 1200);
+          }
           else { mount(at(cur)); runBar(at(cur)); arm(); }
         } else { clearTimeout(timer); }
       }), { threshold: .25 }).observe(root);
@@ -760,6 +765,28 @@
       if (e.target.closest('[data-lb-close]') || e.target === lb || e.target.classList.contains('lb__scroll')) close();
     });
     addEventListener('keydown', (e) => { if (e.key === 'Escape' && !lb.hidden) close(); });
+  })();
+
+
+  /* ---------- стекло: внутрь кладём искажённую копию того, что за блоком ---------- */
+  (() => {
+    const pick = (el) => el && el.src;
+    const pinOn = () => { const a = $('.pin__img.is-on'); return pick(a); };
+    const vidOn = () => { const a = $('.car--video .car__item.is-active > img'); return pick(a); };
+    const map = [];
+    $$('.sec--dark .step').forEach(el => map.push({ el, src: pinOn }));
+    $$('.aboutglass').forEach(el => map.push({ el, src: vidOn }));
+    if (!map.length) return;
+    map.forEach(({ el }) => {
+      let i = [...el.children].find(x => x.classList && x.classList.contains('bendfx'));
+      if (!i) { i = document.createElement('i'); i.className = 'bendfx'; i.setAttribute('aria-hidden', 'true'); el.prepend(i); }
+    });
+    const sync = () => map.forEach(({ el, src }) => {
+      const s = src(); if (!s) return;
+      const v = 'url("' + s + '")';
+      if (el.style.getPropertyValue('--bend') !== v) el.style.setProperty('--bend', v);
+    });
+    sync(); setInterval(sync, 900);
   })();
 
   /* ==========================================================================
