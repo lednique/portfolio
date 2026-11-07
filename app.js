@@ -25,20 +25,6 @@
   const setVh = () => document.documentElement.style.setProperty('--vh', (innerHeight / getZ()).toFixed(1) + 'px');
   setVh();
 
-  /* ---------- SVG-фильтр «искривление» для стекла (Glisse Bend на максимум) ---------- */
-  (() => {
-    if (document.getElementById('glisse-bend')) return;
-    const NS = 'http://www.w3.org/2000/svg';
-    const svg = document.createElementNS(NS, 'svg');
-    svg.setAttribute('width', '0'); svg.setAttribute('height', '0'); svg.setAttribute('aria-hidden', 'true');
-    svg.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden;pointer-events:none';
-    svg.innerHTML = '<defs><filter id="glisse-bend" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">' +
-      '<feTurbulence type="fractalNoise" baseFrequency="0.012 0.018" numOctaves="3" seed="9" result="n"/>' +
-      '<feDisplacementMap in="SourceGraphic" in2="n" scale="34" xChannelSelector="R" yChannelSelector="G"/>' +
-      '</filter></defs>';
-    document.body.appendChild(svg);
-  })();
-
   const nav = $('#nav');
   /* шапка: градиент при прокрутке (мобила) и появление направлений
      после героя на главной (аватарка + заголовок + иконки софта) */
