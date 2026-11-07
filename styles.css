@@ -704,7 +704,8 @@ html[lang="ar"] body{font-family:"Montserrat","Noto Sans Arabic",system-ui,"Sego
 .btn--lime,.btn--lime *{text-transform:uppercase!important}
 
 /* ---------- аватарка на главной: на 60 px выше (только мобильная версия) ---------- */
-@media (max-width:720px){.home-hero__pic{position:relative;top:-60px}}
+/* поднимаем всю колонку, а не только картинку – иначе под аватаркой остаётся пустые 60px */
+@media (max-width:720px){.home-hero__pic{position:static;top:auto;margin-top:-60px}}
 
 /* ---------- лайтбокс превью кейса ---------- */
 .lb{position:fixed;inset:0;z-index:400;display:flex;flex-direction:column;
