@@ -1,5 +1,5 @@
 /* ==========================================================================
-   LEDNIQUE — app.js (v2)
+   LEDNIQUE – app.js (v2)
    карусели (один движок, бесконечный режим) · AR-видео по очереди ·
    герои: фон ×3, рыбы + инерция · pinned-шаги · форма → письмо · футер
    ========================================================================== */
@@ -11,6 +11,12 @@
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const small = () => matchMedia('(max-width:720px)').matches;
   const MAIL_TO = 'lednique1@ya.ru';
+  /* перевод строк, которые скрипт создаёт уже после i18n.js */
+  const TR = (str, vars) => {
+    let out = (typeof window.LEDNIQUE_T === 'function' ? window.LEDNIQUE_T(str) : str) || str;
+    if (vars) Object.keys(vars).forEach((k) => { out = out.split('{' + k + '}').join(vars[k]); });
+    return out;
+  };
   document.documentElement.classList.add('js');
 
   /* ---------- шапка ---------- */
@@ -18,16 +24,54 @@
   const getZ = () => innerWidth / (document.documentElement.offsetWidth || innerWidth) || 1;
   const setVh = () => document.documentElement.style.setProperty('--vh', (innerHeight / getZ()).toFixed(1) + 'px');
   setVh();
-  const nav = $('#nav'), mm = $('#mmenu'), burger = $('#burger');
-  if (burger) {
-    const toggle = (f) => {
-      const open = f ?? !nav.classList.contains('is-open');
-      nav.classList.toggle('is-open', open); mm.classList.toggle('is-open', open);
-      burger.setAttribute('aria-expanded', open);
+
+  const nav = $('#nav');
+  /* высота шапки в CSS px – от неё считаются мобильные отступы героев */
+  const setNavH = () => document.documentElement.style.setProperty('--navh',
+    ((nav ? nav.getBoundingClientRect().height : 0) / getZ()).toFixed(1) + 'px');
+  setNavH();
+  addEventListener('resize', setNavH, { passive: true });
+  addEventListener('load', setNavH);
+  /* шапка: градиент при прокрутке (мобила) и появление направлений
+     после героя на главной (аватарка + заголовок + иконки софта) */
+  (() => {
+    if (!nav) return;
+    const hero = $('.home-hero');
+    const isHome = document.body.classList.contains('page-home');
+    const upd = () => {
+      nav.classList.toggle('is-scrolled', scrollY > 8);
+      if (isHome && hero) nav.classList.toggle('is-hero-passed', hero.getBoundingClientRect().bottom < 80);
     };
-    burger.addEventListener('click', () => toggle());
-    $$('a', mm).forEach(a => a.addEventListener('click', () => toggle(false)));
-  }
+    addEventListener('scroll', upd, { passive: true });
+    addEventListener('resize', upd); addEventListener('load', upd); upd();
+    /* меню не влезает в строку – показываем градиент у обрезанного края */
+    const links = $('.nav__links');
+    if (links) {
+      const cut = () => {
+        const max = links.scrollWidth - links.clientWidth;
+        links.classList.toggle('is-cut-l', links.scrollLeft > 4);
+        links.classList.toggle('is-cut-r', max > 4 && links.scrollLeft < max - 4);
+      };
+      links.addEventListener('scroll', cut, { passive: true });
+      addEventListener('resize', cut); addEventListener('load', cut); cut();
+      if ('ResizeObserver' in window) new ResizeObserver(cut).observe(links);
+      document.addEventListener('lednique:lang', cut);
+      setTimeout(cut, 300);
+      /* мобильное меню: сразу проматываем к активной кнопке (страница, где находимся) */
+      const act = links.querySelector('.is-active');
+      const toActive = () => {
+        if (!act) return;
+        const max = links.scrollWidth - links.clientWidth;
+        if (max <= 4) return;
+        const r = act.getBoundingClientRect(), lr = links.getBoundingClientRect();
+        links.scrollLeft = Math.max(0, Math.min(max, links.scrollLeft + (r.left - lr.left) - (links.clientWidth - r.width) / 2));
+        cut();
+      };
+      toActive(); addEventListener('load', toActive);
+      document.addEventListener('lednique:lang', toActive);
+      setTimeout(toActive, 350);
+    }
+  })();
   /* меню прячется, когда долистали до футера */
   (() => {
     const f = $('.foot'); if (!f || !nav) return;
@@ -48,6 +92,24 @@
       const h = $('.home-hero'); h && out.observe(h);
     }
   }
+
+  /* ---------- иконки софта: мягкий свет под курсором ---------- */
+  $$('.stack-line').forEach((line) => {
+    const icos = $$('.ico', line);
+    const clear = () => icos.forEach(i => i.classList.remove('is-lit'));
+    line.addEventListener('pointermove', (e) => {
+      icos.forEach((ico) => {
+        const r = ico.getBoundingClientRect();
+        const inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+        ico.classList.toggle('is-lit', inside);
+        if (inside) {
+          ico.style.setProperty('--mx', ((e.clientX - r.left) / (r.width || 1) * 100).toFixed(1) + '%');
+          ico.style.setProperty('--my', ((e.clientY - r.top) / (r.height || 1) * 100).toFixed(1) + '%');
+        }
+      });
+    });
+    line.addEventListener('pointerleave', clear);
+  });
 
   /* ---------- появление блоков ---------- */
   if ('IntersectionObserver' in window) {
@@ -75,6 +137,8 @@
     $$('[data-hero]').forEach((hero) => {
       const box = $('[data-fitbox]', hero);
       if (!box) return;
+      /* фиксированная ширина + адаптивная высота (например, главное изображение «Графики») */
+      if (box.hasAttribute('data-fixed')) { box.style.height = ''; box.style.minHeight = ''; return; }
       if (small()) { box.style.height = ''; box.style.minHeight = ''; hero.style.minHeight = ''; return; }
       const LH = innerHeight / getZ();
       hero.style.minHeight = '0px'; box.style.minHeight = '0px'; box.style.height = '0px';
@@ -102,8 +166,8 @@
         const r = p.getBoundingClientRect(), h = r.height;
         if (r.bottom < -H || r.top > 2 * H) return;
         const cands = [];
-        if (h <= H) cands.push(r.top - (H - h) / 2);                            // блок помещается — по центру экрана
-        else {                                                                   // длинный блок — только у краёв
+        if (h <= H) cands.push(r.top - (H - h) / 2);                            // блок помещается – по центру экрана
+        else {                                                                   // длинный блок – только у краёв
           if (Math.abs(r.top) < H * .45) cands.push(r.top);
           if (Math.abs(r.bottom - H) < H * .45) cands.push(r.bottom - H);
         }
@@ -135,14 +199,14 @@
   })();
 
   /* ==========================================================================
-     КАРУСЕЛИ — один движок
+     КАРУСЕЛИ – один движок
      режимы: data-loop (бесконечная, клоны ×3) · car--center · по умолчанию «старт»
      ========================================================================== */
   const cars = new Map();
 
   /* ==========================================================================
      ГАЛЕРЕИ: непрерывное линейное движение справа налево (transform, 60 fps,
-     не зависит от прокрутки страницы). Стрелки/точки/перетаскивание — поверх.
+     не зависит от прокрутки страницы). Стрелки/точки/перетаскивание – поверх.
      ========================================================================== */
   function initFlow(root) {
     const sc = $('.car__scroller', root);
@@ -167,7 +231,7 @@
     const start = n + parseInt(root.dataset.start || '0', 10);
     const dots = [];
     if (dotsEl) orig.forEach((_, i) => {
-      const b = document.createElement('button'); b.className = 'car__dot'; b.type = 'button'; b.setAttribute('aria-label', 'Слайд ' + (i + 1));
+      const b = document.createElement('button'); b.className = 'car__dot'; b.type = 'button'; b.setAttribute('aria-label', TR('Слайд {n}', { n: i + 1 }));
       b.addEventListener('click', () => animTo(T[n + i])); dotsEl.appendChild(b); dots.push(b);
     });
     const nearest = () => { let b = 0, bd = 1e9; for (let i = 0; i < T.length; i++) { const d = Math.abs(T[i] - x); if (d < bd) { bd = d; b = i; } } return b; };
@@ -259,7 +323,7 @@
     const dots = [];
     if (dotsEl) orig.forEach((_, i) => {
       const b = document.createElement('button');
-      b.className = 'car__dot'; b.type = 'button'; b.setAttribute('aria-label', 'Слайд ' + (i + 1));
+      b.className = 'car__dot'; b.type = 'button'; b.setAttribute('aria-label', TR('Слайд {n}', { n: i + 1 }));
       b.addEventListener('click', () => api.userGo(loop ? Math.floor(idx / n) * n + i : i));
       dotsEl.appendChild(b); dots.push(b);
     });
@@ -281,7 +345,7 @@
       }, AUTO_MS);
     };
     const api = {
-      arm, root, n, all, loop, get idx() { return idx; }, get base() { return base; },
+      arm, root, n, all, loop, nearest, get idx() { return idx; }, get base() { return base; },
       real: (i) => ((i % n) + n) % n,
       scrollTo(i, smooth = true) {
         lastProg = performance.now(); hold = lastProg + 1100;
@@ -383,61 +447,100 @@
   }
   $$('[data-car]').forEach(initCar);
 
-  /* ---------- AR: видео проигрываются по очереди, центральное — активное ---------- */
+  /* ---------- AR: видео файлами – активный играет, остальные буферизуются в фоне ---------- */
   $$('[data-vcar]').forEach((root) => {
     const car = cars.get(root), all = car.all, n = car.n;
     const vids = all.map(it => $('video', it));
     const bars = all.map(it => $('.car__progress', it));
-    const AUTO_MS = 7000;
-    let cur = -1, visible = false, timer = 0, manual = false;
+    const AUTO_MS = 8000;
+    const PRELOAD_NEXT = 2;                     /* сколько роликов держим «наготове» */
+    let cur = -1, visible = false, timer = 0, manual = false, idle = 0;
 
-    const load = (v) => { if (v && !v.getAttribute('src') && v.dataset.src) { v.src = v.dataset.src; v.load(); } };
     const at = (i) => ((i % all.length) + all.length) % all.length;
-    const reset = (k) => { const v = vids[k]; v.pause(); try { v.currentTime = 0; } catch (e) {} bars[k].style.width = '0'; };
+
+    const attach = (k, auto) => {
+      const v = vids[k]; if (!v || v.getAttribute('src')) return;
+      if (auto) v.preload = 'auto';
+      v.src = v.dataset.src;
+    };
+    const playV = (k) => {
+      const v = vids[k]; if (!v) return;
+      attach(k, true);
+      if (!v.dataset.hook) {
+        v.dataset.hook = '1';
+        /* показываем video только с первым кадром – никаких чёрных/белых полос при загрузке */
+        v.addEventListener('playing', () => v.classList.add('is-live'));
+        v.addEventListener('emptied', () => v.classList.remove('is-live'));
+      }
+      const p = v.play(); if (p && p.catch) p.catch(() => {});
+      if (v.readyState >= 3) v.classList.add('is-live');
+    };
+    const pauseV = (k) => {
+      const v = vids[k]; if (!v) return;
+      v.pause(); v.classList.remove('is-live');
+    };
+    /* фоновый буфер: следующие ролики качаются, пока играет текущий */
+    const prefetch = (k) => {
+      if (window.cancelIdleCallback) cancelIdleCallback(idle);
+      const run = () => {
+        for (let d = 1; d <= PRELOAD_NEXT; d++) attach(at(k + d), true);
+        attach(at(k - 1), true);
+      };
+      idle = (window.requestIdleCallback || ((f) => setTimeout(f, 400)))(run, { timeout: 2500 });
+    };
+
+    const stopBar = (k) => { const b = bars[k]; if (!b) return; b.style.transition = 'none'; b.style.transform = 'scaleX(0)'; };
+    const runBar = (k) => {
+      const b = bars[k]; if (!b) return;
+      b.style.transition = 'none'; b.style.transform = 'scaleX(0)';
+      void b.offsetWidth;
+      b.style.transition = `transform ${AUTO_MS}ms linear`; b.style.transform = 'scaleX(1)';
+    };
+
+    function play(i, isManual) {
+      i = car.loop ? i : at(i);
+      clearTimeout(timer);
+      const wasPlaying = cur >= 0;
+      if (cur >= 0 && at(cur) !== at(i)) { pauseV(at(cur)); stopBar(at(cur)); }
+      cur = i; manual = !!isManual;
+      all.forEach((it, k) => it.classList.toggle('is-active', k === i));
+      playV(at(i)); runBar(at(i));
+      car.go(i, wasPlaying);
+      prefetch(at(i));
+      arm();
+    }
     const arm = () => {
       clearTimeout(timer);
       if (!manual && visible) timer = setTimeout(() => play(cur + 1, false), AUTO_MS);
     };
-    function play(i, isManual) {
-      i = car.loop ? i : at(i);
-      clearTimeout(timer);
-      const curWasPlaying = cur >= 0;
-      if (cur >= 0 && cur !== i) reset(cur);
-      cur = i; manual = !!isManual;
-      all.forEach((it, k) => it.classList.toggle('is-active', k === i));
-      const v = vids[at(i)];
-      load(v); load(vids[at(i + 1)]); load(vids[at(i - 1)]);
-      try { v.currentTime = 0; } catch (e) {}
-      const p = v.play(); if (p && p.catch) p.catch(() => {});
-      car.go(i, curWasPlaying);
-      arm();
-    }
-    vids.forEach((v, k) => {
-      v.addEventListener('ended', () => { if (cur === k) play(k + 1, false); });
-      v.addEventListener('timeupdate', () => { if (cur === k && v.duration) bars[k].style.width = (v.currentTime / v.duration * 100) + '%'; });
-      v.addEventListener('error', () => { if (cur === k) setTimeout(() => play(k + 1, false), 800); });
-      all[k].addEventListener('click', () => { if (k !== cur) play(k, true); });
-    });
+    all.forEach((it, k) => it.addEventListener('click', () => { if (k !== cur) play(k, true); }));
     car.hook({
       user: (i) => play(i, true),
-      settle: (i, user) => { if (user && i !== cur) play(i, true); },
-      shift: (delta) => {            /* бесшовный ре-центр: играем тот же ролик в другом клоне */
+      settle: (i, user) => { if (i !== cur) play(i, !!user); },
+      shift: (delta) => {
         if (cur < 0) return;
-        const o = cur, nn = cur + delta, ov = vids[o], nv = vids[nn];
-        load(nv);
-        const t = ov.currentTime;
-        const go = () => { try { nv.currentTime = t; } catch (e) {} const p = nv.play(); p && p.catch && p.catch(() => {}); };
-        nv.readyState >= 1 ? go() : nv.addEventListener('loadedmetadata', go, { once: true });
-        ov.pause(); bars[o].style.width = '0';
+        const o = cur, nn = cur + delta;
+        pauseV(at(o)); stopBar(at(o));
         all[o].classList.remove('is-active'); all[nn].classList.add('is-active');
-        cur = nn;
+        cur = nn; playV(at(nn)); runBar(at(nn));
       }
     });
+    /* первый ролик и его соседей грузим сразу после загрузки страницы */
+    const kick = () => {
+      const i = car.base + parseInt(root.dataset.start || '0', 10);
+      attach(at(i), true); prefetch(at(i));
+    };
+    addEventListener('load', () => setTimeout(kick, 200));
     if ('IntersectionObserver' in window) {
       new IntersectionObserver((es) => es.forEach(e => {
         visible = e.isIntersecting;
-        if (visible) { cur < 0 ? play(car.base + parseInt(root.dataset.start || '0', 10), false) : (vids[at(cur)].play().catch(() => {}), arm()); }
-        else if (cur >= 0) { vids[at(cur)].pause(); clearTimeout(timer); }
+        if (visible) {
+          if (cur < 0) {
+            play(car.base + parseInt(root.dataset.start || '0', 10), false);
+            setTimeout(() => { const nn = car.nearest ? car.nearest() : cur; if (nn !== cur) play(nn, false); }, 520);
+            setTimeout(() => { const nn = car.nearest ? car.nearest() : cur; if (nn !== cur) play(nn, false); }, 1200);
+          } else { playV(at(cur)); runBar(at(cur)); arm(); }
+        } else { clearTimeout(timer); if (cur >= 0) pauseV(at(cur)); }
       }), { threshold: .25 }).observe(root);
     } else { visible = true; play(car.base, false); }
   });
@@ -510,7 +613,7 @@
     };
     bgs.forEach((b, k) => { if (imgs[k]) b.style.backgroundImage = `url("${imgs[k].getAttribute('src')}")`; });
     set(0);
-    /* мобильный режим: обычный список, активный пункт — по центру экрана */
+    /* мобильный режим: обычный список, активный пункт – по центру экрана */
     if ('IntersectionObserver' in window) {
       const io = new IntersectionObserver((es) => es.forEach(e => { if (small() && e.isIntersecting) set(steps.indexOf(e.target)); }),
         { rootMargin: '-46% 0px -46% 0px' });
@@ -541,16 +644,16 @@
   mail.className = 'mail'; mail.setAttribute('role', 'dialog'); mail.setAttribute('aria-modal', 'true');
   mail.innerHTML = `
     <div class="mail__box">
-      <div class="mail__top"><h3 class="h3">Письмо составлено</h3><button class="btn btn--ink btn--round" type="button" data-x aria-label="Закрыть">✕</button></div>
-      <div class="mail__meta"><span>Кому</span><b data-to></b><span>Тема</span><b data-subj></b></div>
+      <div class="mail__top"><h3 class="h3">${TR('Письмо составлено')}</h3><button class="btn btn--ink btn--round" type="button" data-x aria-label="${TR('Закрыть')}">✕</button></div>
+      <div class="mail__meta"><span>${TR('Кому')}</span><b data-to></b><span>${TR('Тема')}</span><b data-subj></b></div>
       <textarea data-body readonly></textarea>
       <div class="mail__btns">
-        <a class="btn btn--lime btn--lg" data-mailto href="#">Открыть в почте</a>
-        <a class="btn btn--ink btn--lg" data-ya target="_blank" rel="noopener" href="#">Яндекс Почта</a>
+        <a class="btn btn--lime btn--lg" data-mailto href="#">${TR('Открыть в почте')}</a>
+        <a class="btn btn--ink btn--lg" data-ya target="_blank" rel="noopener" href="#">${TR('Яндекс Почта')}</a>
         <a class="btn btn--ink btn--lg" data-gm target="_blank" rel="noopener" href="#">Gmail</a>
-        <button class="btn btn--ink btn--lg" type="button" data-copy>Скопировать</button>
+        <button class="btn btn--ink btn--lg" type="button" data-copy>${TR('Скопировать')}</button>
       </div>
-      <p class="mail__note">Если почтовая программа не открылась сама — выберите вариант выше или скопируйте текст и отправьте на ${MAIL_TO}.</p>
+      <p class="mail__note">${TR('Если почтовая программа не открылась сама – выберите вариант выше или скопируйте текст и отправьте на {mail}.', { mail: MAIL_TO })}</p>
     </div>`;
   document.body.appendChild(mail);
   const closeMail = () => mail.classList.remove('is-open');
@@ -559,7 +662,7 @@
   $('[data-copy]', mail).addEventListener('click', async (e) => {
     const t = $('[data-body]', mail).value, b = e.currentTarget;
     try { await navigator.clipboard.writeText(t); } catch (err) { $('[data-body]', mail).select(); document.execCommand('copy'); }
-    b.textContent = 'Скопировано ✓'; setTimeout(() => b.textContent = 'Скопировать', 1800);
+    b.textContent = TR('Скопировано ✓'); setTimeout(() => b.textContent = TR('Скопировать'), 1800);
   });
 
   const fmtDate = (v) => { const [y, m, d] = v.split('-'); return `${d}.${m}.${y}`; };
@@ -569,13 +672,37 @@
       const date = $('input[type=date]', g);
       g.addEventListener('click', (e) => {
         const b = e.target.closest('.opt'); if (!b) return;
-        if (b.hasAttribute('data-none')) { b.classList.toggle('is-on'); if (date && b.classList.contains('is-on')) date.value = ''; return; }
+        if (b.tagName === 'INPUT') return;                 // дата живёт своими событиями
+        if (b.hasAttribute('data-none')) {
+          b.classList.toggle('is-on');
+          if (date && b.classList.contains('is-on')) { date.value = ''; date.classList.remove('is-on'); }
+          return;
+        }
         if (multi) b.classList.toggle('is-on');
         else { const was = b.classList.contains('is-on'); $$('.opt', g).forEach(x => x.classList.remove('is-on')); b.classList.toggle('is-on', !was); }
       });
-      if (date) date.addEventListener('input', () => { const nb = $('[data-none]', g); nb && nb.classList.remove('is-on'); });
+      /* «Срок выполнения»: по умолчанию – неделя вперёд, «Нет срока» снят */
+      if (date) {
+        if (!date.value) {
+          const dd = new Date(); dd.setDate(dd.getDate() + 7);
+          const p2 = (n) => String(n).padStart(2, '0');
+          date.value = `${dd.getFullYear()}-${p2(dd.getMonth() + 1)}-${p2(dd.getDate())}`;
+        }
+        const nbInit = $('[data-none]', g); if (nbInit) nbInit.classList.remove('is-on');
+        const sync = () => date.classList.toggle('is-on', !!date.value);
+        ['input', 'change'].forEach(ev => date.addEventListener(ev, () => {
+          sync();
+          const nb = $('[data-none]', g); if (date.value && nb) nb.classList.remove('is-on');
+        }));
+        sync();
+      }
     });
     $$('input,textarea', form).forEach(i => i.addEventListener('input', () => i.closest('.row')?.classList.remove('is-err')));
+    /* «Бюджет» принимает только цифры */
+    $$('input[data-num]', form).forEach(inp => inp.addEventListener('input', () => {
+      const v = inp.value.replace(/\D/g, '');
+      if (v !== inp.value) inp.value = v;
+    }));
 
     form.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -583,9 +710,14 @@
         if (row.dataset.type === 'opts') return $$('.opt.is-on', row).map(b => b.textContent.trim()).join(', ');
         if (row.dataset.type === 'date') {
           const d = $('input[type=date]', row).value;
-          return d ? fmtDate(d) : ($('[data-none].is-on', row) ? 'без жёстких сроков' : '');
+          return d ? fmtDate(d) : ($('[data-none].is-on', row) ? TR('без жёстких сроков') : '');
         }
-        const f = $('input,textarea', row); return f ? f.value.trim() : '';
+        const f = $('input,textarea', row);
+        if (!f) return '';
+        const v = f.value.trim();
+        /* бюджет – только цифры, в письме подставляем валюту */
+        if (row.dataset.key === 'budget') { const n = v.replace(/\D/g, ''); return n ? '$' + n : ''; }
+        return v;
       };
       let bad = null;
       const data = { project: [], contact: [], comment: '' };
@@ -594,24 +726,24 @@
         if (row.hasAttribute('data-required') && !val) { row.classList.add('is-err'); bad = bad || row; }
         if (!val) return;
         if (grp === 'comment') data.comment = val;
-        else data[grp === 'contact' ? 'contact' : 'project'].push(`— ${label}${row.dataset.key === 'budget' ? '' : ''}: ${val}`);
+        else data[grp === 'contact' ? 'contact' : 'project'].push(`– ${label}${row.dataset.key === 'budget' ? '' : ''}: ${val}`);
       });
       if (bad) { bad.scrollIntoView({ behavior: 'smooth', block: 'center' }); const f = $('input,textarea', bad); f && f.focus({ preventScroll: true }); return; }
 
       const topic = form.dataset.topic, page = form.dataset.page || document.title;
       const nameRow = $('[data-key=name]', form);
       const name = nameRow ? read(nameRow) : '';
-      const subject = `Заявка с сайта: ${topic} — ${name}`;
+      const subject = TR('Заявка с сайта: {topic} – {name}', { topic, name });
       const body = [
-        'Здравствуйте, Виктор!', '',
-        `Хочу обсудить проект: ${topic}.`, '',
-        'ДАННЫЕ ЗАЯВКИ',
-        ...(data.project.length ? data.project : ['— не указаны (обсудим в переписке)']), '',
-        'ОСОБЫЕ ПОЖЕЛАНИЯ',
-        data.comment || '— нет', '',
-        'КОНТАКТЫ',
+        TR('Здравствуйте, Виктор!'), '',
+        TR('Хочу обсудить проект: {topic}.', { topic }), '',
+        TR('ДАННЫЕ ЗАЯВКИ'),
+        ...(data.project.length ? data.project : [TR('– не указаны (обсудим в переписке)')]), '',
+        TR('ОСОБЫЕ ПОЖЕЛАНИЯ'),
+        data.comment || TR('– нет'), '',
+        TR('КОНТАКТЫ'),
         ...data.contact, '',
-        `Письмо составлено автоматически формой на сайте lednique.ru (страница: ${page}).`
+        TR('Письмо составлено автоматически формой на сайте lednique.ru (страница: {page}).', { page })
       ].join('\n');
       const q = (s) => encodeURIComponent(s).replace(/%0A/g, '%0D%0A');
       const mailto = `mailto:${MAIL_TO}?subject=${q(subject)}&body=${q(body)}`;
@@ -626,12 +758,37 @@
     });
   });
 
+
   /* ==========================================================================
-     ФУТЕР: «lednique» на всю ширину + розовая рыбка за курсором
+     ЛАЙТБОКС: клик по крайней работе открывает превью (roll.jpg)
+     ========================================================================== */
+  (() => {
+    const lb = $('#lb'); if (!lb) return;
+    const img = $('.lb__img', lb), scroll = $('[data-lb-scroll]', lb);
+    const open = (src, alt) => {
+      if (src) img.src = src;
+      img.alt = alt || '';
+      lb.hidden = false; document.body.classList.add('lb-open');
+      if (scroll) scroll.scrollTop = 0;
+      const c = $('[data-lb-close]', lb); c && c.focus({ preventScroll: true });
+    };
+    const close = () => { lb.hidden = true; document.body.classList.remove('lb-open'); };
+    document.addEventListener('click', (e) => {
+      const trg = e.target.closest('[data-lb]');
+      if (trg) { e.preventDefault(); open(trg.dataset.lb || trg.getAttribute('href'), trg.dataset.lbAlt); return; }
+      if (e.target.closest('[data-lb-close]') || e.target === lb || e.target.classList.contains('lb__scroll')) close();
+    });
+    addEventListener('keydown', (e) => { if (e.key === 'Escape' && !lb.hidden) close(); });
+  })();
+
+
+  /* ==========================================================================
+     ФУТЕР: «lednique» на всю ширину + рыбка
+     десктоп: плывёт за курсором · мобила: плавает сама, по тапу – к месту нажатия
      ========================================================================== */
   const foot = $('.foot');
   if (foot) {
-    const zone = $('.foot__word', foot), word = $('b', zone), fish = $('.foot__fish', zone);
+    const zone = $('.foot__word', foot), word = $('.fw-word', zone) || $('b', zone), fish = $('.foot__fish', zone);
     const fit = () => {
       zone.style.setProperty('--fw', '200px');
       const w = word.offsetWidth || 1;
@@ -639,45 +796,75 @@
     };
     (document.fonts?.ready || Promise.resolve()).then(fit); fit(); addEventListener('resize', fit);
 
-    if (!reduce) {
-      /* координаты — в локальной системе зоны (учитывает zoom страницы) */
+    if (!reduce && zone && fish) {
+      /* координаты – в локальной системе зоны (учитывает zoom страницы) */
       const local = (e) => {
         const r = zone.getBoundingClientRect(), k = (r.width / zone.offsetWidth) || 1;
         return [(e.clientX - r.left) / k, (e.clientY - r.top) / k];
       };
-      const SPEED = 9;                       // постоянная скорость, px за кадр (при 60 fps)
-      let x = 0, y = 0, tx = 0, ty = 0, active = false, inside = false, face = 1, ph = 0, last = performance.now();
       const fw = () => fish.offsetWidth, fh = () => fish.offsetHeight;
+      const SPEED_DESK = 9, SPEED_MOB = 2.3;   // на мобиле – вдвое быстрее к месту тапа   // px за кадр при 60 fps
+      let x = 0, y = 0, tx = 0, ty = 0, face = 1, ph = 0, last = performance.now();
+      let active = false, inside = false, mobInit = false, wander = 0;
+
+      /* случайная точка в пределах зоны */
+      const pickWander = () => {
+        const W = Math.max(0, zone.clientWidth - fw()), H = Math.max(0, zone.clientHeight - fh());
+        tx = 10 + Math.random() * Math.max(10, W - 20);
+        ty = Math.random() * Math.max(10, H);
+        wander = 140 + Math.random() * 120;
+      };
+
       const loop = (now) => {
         const dt = Math.min(48, now - last) / 16.67; last = now;
-        if (active) {
-          let dx = 0, dy = 0;
+        const mob = matchMedia('(max-width:720px)').matches;
+        let dx = 0, dy = 0;
+        if (mob) {
+          if (!mobInit) { mobInit = true; x = zone.clientWidth * .18; y = zone.clientHeight * .38; fish.style.opacity = 1; pickWander(); }
+          if (--wander <= 0) pickWander();
+          const ax = tx - x, ay = ty - y, d = Math.hypot(ax, ay);
+          if (d > 2) { dx = ax / d * SPEED_MOB * dt; dy = ay / d * SPEED_MOB * dt; }
+          else pickWander();
+          x = clamp(x + dx, 0, Math.max(0, zone.clientWidth - fw()));
+          y = clamp(y + dy, 0, Math.max(0, zone.clientHeight - fh()));
+        } else if (active) {
           if (inside) {
-            const ax = tx - x, ay = ty - y, dist = Math.hypot(ax, ay);
-            const step = Math.min(dist, SPEED * dt);
-            if (dist > .5) { dx = ax / dist * step; dy = ay / dist * step; }
-          } else { dx = SPEED * dt; }        // курсора нет — уплывает вправо
+            const ax = tx - x, ay = ty - y, d = Math.hypot(ax, ay);
+            const step = Math.min(d, SPEED_DESK * dt);
+            if (d > .5) { dx = ax / d * step; dy = ay / d * step; }
+          } else { dx = SPEED_DESK * dt; }        // курсора нет – уплывает вправо
           x += dx; y += dy;
-          if (Math.abs(dx) > .2) face = dx > 0 ? 1 : -1;
-          ph += dt * (.08 + Math.hypot(dx, dy) * .012);
-          const wob = Math.sin(ph) * 5 + clamp(dy * .9, -14, 14) * face;
-          fish.style.transform = `translate3d(${x.toFixed(1)}px,${(y + Math.sin(ph * .7) * 4).toFixed(1)}px,0) scaleX(${face}) rotate(${wob.toFixed(2)}deg)`;
           if (!inside && x > zone.clientWidth + fw() * .2) { active = false; fish.style.opacity = 0; }
         }
+        if (Math.abs(dx) > .15) face = dx > 0 ? 1 : -1;
+        ph += dt * (.08 + Math.hypot(dx, dy) * .012);
+        const wob = Math.sin(ph) * 5 + clamp(dy * .9, -14, 14) * face;
+        fish.style.transform = `translate3d(${x.toFixed(1)}px,${(y + Math.sin(ph * .7) * 3).toFixed(1)}px,0) scaleX(${face}) rotate(${wob.toFixed(2)}deg)`;
         requestAnimationFrame(loop);
       };
       requestAnimationFrame(loop);
+
       const pos = (e) => {
         const [lx, ly] = local(e);
         tx = lx - fw() / 2;
         ty = clamp(ly - fh() / 2, -fh() * .2, zone.clientHeight - fh() * .8);
       };
       zone.addEventListener('pointerenter', (e) => {
+        if (matchMedia('(max-width:720px)').matches) return;
         pos(e); inside = true;
         if (!active) { x = -fw() * 1.2; y = ty; face = 1; active = true; fish.style.opacity = 1; }
       });
-      zone.addEventListener('pointermove', pos);
+      zone.addEventListener('pointermove', (e) => { if (!matchMedia('(max-width:720px)').matches) pos(e); });
       zone.addEventListener('pointerleave', () => { inside = false; });
+      /* мобила: тап – рыбка плывёт к месту нажатия */
+      zone.addEventListener('pointerdown', (e) => {
+        if (!matchMedia('(max-width:720px)').matches) return;
+        const [lx, ly] = local(e);
+        tx = clamp(lx - fw() / 2, 0, Math.max(0, zone.clientWidth - fw()));
+        ty = clamp(ly - fh() / 2, 0, Math.max(0, zone.clientHeight - fh()));
+        wander = 240;
+        fish.style.opacity = 1;
+      });
     }
   }
 })();
