@@ -168,7 +168,6 @@ b,strong{font-weight:600}
 .heroimg__pic{width:100%;height:auto;object-fit:contain}
 .pfish{position:absolute;pointer-events:none;will-change:transform}
 .pfish img{width:100%;height:auto;max-width:none}
-.pfish--4{display:none}   /* четвёртая рыба – только на мобиле, по углам */
 
 /* ---------- главная ---------- */
 .home-hero{padding:122px 0 40px;background:#fff;min-height:var(--vh,100vh);display:flex;flex-direction:column;justify-content:center}
@@ -485,7 +484,6 @@ b,strong{font-weight:600}
   .hero--design .pfish--1{width:150px !important;left:-13% !important;top:calc(var(--vh,100vh) * .17) !important}
   .hero--design .pfish--2{width:164px !important;right:-15% !important;top:calc(var(--vh,100vh) * .25) !important}
   .hero--design .pfish--3{width:134px !important;left:-11% !important;top:calc(var(--vh,100vh) * .65) !important}
-  .hero--design .pfish--4{display:block !important;width:154px !important;right:-13% !important;top:calc(var(--vh,100vh) * .74) !important}
   .car--wide,.hero--arvid .car--video{height:auto !important;margin-top:0;display:block}
   .car--wide .car__item{height:auto;width:86vw}
   .hero--arvid .car--video .car__item{height:auto;width:62vw}
