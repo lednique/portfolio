@@ -136,7 +136,7 @@ b,strong{font-weight:600}
 .logo{display:block;flex:none;width:105px;position:relative;top:4px;transform:none;transition:none;animation:none}
 .logo:hover,.logo img:hover{transform:none;animation:none}
 .logo img{width:105px;height:auto;display:block;transform:none;transition:none;animation:none}
-.nav__links{display:flex;align-items:center;justify-content:flex-start;gap:5px;flex:0 1 auto;min-width:0;
+.nav__links{display:flex;align-items:center;justify-content:flex-start;gap:10px;flex:0 1 auto;min-width:0;
   overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;
   scrollbar-width:none;-ms-overflow-style:none;
   padding:16px;margin:-16px}   /* 16px «воздуха», чтобы контейнер не обрезал тени кнопок */
@@ -188,7 +188,7 @@ b,strong{font-weight:600}
 .home-hero__grid{display:grid;grid-template-columns:1fr 541px;gap:40px;align-items:center}
 .home-hero__txt{display:flex;flex-direction:column;gap:24px}
 .home-hero .sub{font:500 56px/.98 var(--font-d);letter-spacing:-.0625em;text-transform:uppercase;max-width:640px}
-.home-hero__cta{display:flex;gap:5px;flex-wrap:wrap}
+.home-hero__cta{display:flex;gap:10px;flex-wrap:wrap}
 .home-hero__cta .btn--nav{height:32px;padding:0 12px;font-size:12.5px;letter-spacing:.02em}
 .home-hero__resume{order:4;align-self:flex-start}
 .home-hero__txt .metrics{order:5}
@@ -672,13 +672,3 @@ html[lang="ar"] body{font-family:"Montserrat","Noto Sans Arabic",system-ui,"Sego
 .nav__links a,.nav__links a *,
 .home-hero__cta .btn,.home-hero__cta .btn *,
 .btn--lime,.btn--lime *{text-transform:uppercase!important}
-
-/* пункты меню: боковые тёмные тени кнопок «съедали» отступ между ними –
-   у пилюль меню их убираем, чтобы 5px читались как настоящий зазор */
-.nav__links .btn--nav,.nav__links .btn--nav.is-active,.lang__btn,.lang__btn.is-active{
-  box-shadow:inset 0 8px .5px -5px rgba(255,255,255,.75),
-             inset 0 8px 6px -5px #fff,
-             inset 0 -8px 1px -5px rgba(255,255,255,.3),
-             0 6px 10px rgba(0,0,0,.2),
-             inset 0 4px 20px rgba(0,0,0,.3),
-             inset 0 6px 20px -4px rgba(0,0,0,.3)}
