@@ -835,7 +835,7 @@ body.lb-open{overflow:hidden}
 
 /* ---------- «островки»: белые тени как в блоке заявок ---------- */
 .aboutglass,.formcard,.pipe__card,.svc,.feat__card,.cmp__card,.step,.glass,.crow{box-shadow:var(--fx)}
-.aboutglass,.formcard,.pipe__card,.svc,.feat__card,.cmp__card,.step,.glass,.crow{position:relative}
+.formcard,.pipe__card,.svc,.feat__card,.cmp__card,.step,.glass,.crow{position:relative}
 .aboutglass::after,.formcard::after,.pipe__card::after,.svc::after,.feat__card::after,
 .cmp__card::after,.step::after,.glass::after,.crow::after{
   content:"";display:block;position:absolute;inset:0;border-radius:inherit;
