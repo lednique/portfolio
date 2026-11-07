@@ -174,7 +174,7 @@ b,strong{font-weight:600}
 /* ---------- герои: на всю высоту окна (--vh задаёт JS с учётом масштаба 85 %) ---------- */
 .hero{position:relative;overflow:hidden;min-height:var(--vh,100vh);padding-top:122px;padding-bottom:28px;display:flex;flex-direction:column;gap:var(--gap);isolation:isolate}
 .hero__bg{position:absolute;inset:0;z-index:-3;background-size:cover;background-position:center top;transform-origin:50% 32%;will-change:transform}
-.hero__fishes{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.hero__fishes{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 .hero__fishes img{position:absolute;max-width:none}
 .hero > .wrap,.hero > .h1{position:relative;z-index:2}
 .hero--ai{background:linear-gradient(180deg,#ffffff 0%,#8da1a9 27%,#ffffff 100%)}
@@ -193,7 +193,7 @@ b,strong{font-weight:600}
 .chip{display:inline-flex;align-items:center;height:32px;padding:0 16px;border-radius:32px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.7);font:600 12px/1 var(--font-b);letter-spacing:.02em;color:#222;box-shadow:0 2px 6px rgba(0,0,0,.08)}
 .chips--white .chip{background:#fff}
 .sec--dark .chip{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2);color:#fff}
-.heroimg{width:100%;display:flex;justify-content:center;min-height:120px}
+.heroimg{position:relative;z-index:1;width:100%;display:flex;justify-content:center;min-height:120px}
 .heroimg__in{position:relative;width:1400px;max-width:100%;height:auto}
 .heroimg__pic{width:100%;height:auto;object-fit:contain}
 .pfish{position:absolute;pointer-events:none;will-change:transform}
@@ -851,3 +851,14 @@ body.lb-open{overflow:hidden}
   .page-home .nav__dir{display:inline-flex}
   .page-home .nav__sep{display:block}
 }
+
+/* ---------- hero «Графика»: фото 1400 px в ширину, высота = остаток экрана ---------- */
+@media (min-width:1101px){
+  .hero--design .heroimg{flex:1 1 auto;min-height:140px}
+  .hero--design .heroimg__in{width:1400px;max-width:100%;height:100%;overflow:hidden}
+  .hero--design .heroimg__pic{width:100%;height:100%;object-fit:cover;object-position:center center}
+}
+
+/* ---------- футер: сначала логотип, потом подпись ---------- */
+.foot__brand img{order:1}
+.foot__brand p{order:2}
