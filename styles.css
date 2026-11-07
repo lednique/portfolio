@@ -223,7 +223,8 @@ b,strong{font-weight:600}
   background:radial-gradient(circle 76px at var(--mx,50%) var(--my,50%),rgba(255,255,255,.92),rgba(255,255,255,.35) 45%,rgba(255,255,255,0) 72%);
   opacity:0;transition:opacity .25s var(--ease-link);mix-blend-mode:screen}
 .ico.is-lit::before{opacity:.45}
-.ico.tip::after{content:attr(data-name);position:absolute;left:50%;bottom:-24px;transform:translateX(-50%);font:600 9px/1 var(--font-b);color:#555;white-space:nowrap;opacity:0}
+.ico::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:3;
+  box-shadow:var(--fx-light);mix-blend-mode:plus-lighter}
 .statement{font:500 clamp(36px,4.6vw,66px)/1.02 var(--font-d);letter-spacing:-.0625em;text-transform:uppercase;margin-top:24px;max-width:1100px}
 .cardlist{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap)}
 .svc{position:relative;display:flex;flex-direction:column;min-height:300px;padding:32px;border-radius:44px;background:var(--gray-sec);box-shadow:var(--fx)}
@@ -854,9 +855,9 @@ body.lb-open{overflow:hidden}
 
 /* ---------- hero «Графика»: фото 1400 px в ширину, высота = остаток экрана ---------- */
 @media (min-width:1101px){
-  .hero--design .heroimg{flex:1 1 auto;min-height:140px}
-  .hero--design .heroimg__in{width:1400px;max-width:100%;height:100%;overflow:hidden}
-  .hero--design .heroimg__pic{width:100%;height:100%;object-fit:cover;object-position:center center}
+  .hero--design .heroimg{flex:1 1 auto;min-height:140px;width:100%;padding-inline:0}
+  .hero--design .heroimg__in{width:1400px;max-width:100%;min-width:0;height:100%;overflow:hidden}
+  .hero--design .heroimg__pic{width:100%;min-width:100%;height:100%;object-fit:cover;object-position:center center}
 }
 
 /* ---------- футер: сначала логотип, потом подпись ---------- */
