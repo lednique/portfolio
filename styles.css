@@ -459,6 +459,9 @@ b,strong{font-weight:600}
   .nav__cta-mob{display:none}
   .nav__links{flex:1 1 auto;justify-content:flex-start;padding:14px 12px;margin:-14px -12px}
   .nav__links .btn--nav{height:30px;padding:0 10px;font-size:11px}
+  /* мобильная шапка: аддитивный блик (plus-lighter) на тонких пилюлях давал
+     белую светящуюся полосу поверх подложки – на мобиле слой выключен */
+  .nav .btn--nav::after,.nav .opt::after,.nav__back::after{display:none}
   .home-hero__cta .btn--nav{height:30px;padding:0 10px;font-size:11px}   /* в герое – как пункты меню */
   .nav__sep{width:1px;height:16px}
   .hero,.home-hero{padding-top:112px}
