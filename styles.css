@@ -803,10 +803,15 @@ body.lb-open{overflow:hidden}
    ========================================================================== */
 .aboutglass.is-glisse,.step.is-glisse{background:none;border:0;box-shadow:none;
   -webkit-backdrop-filter:none;backdrop-filter:none;overflow:visible}
-.aboutglass > .aboutglass__glass{position:absolute;inset:0;display:flex;flex-direction:column;gap:12px;
+/* хост – только позиционирование; высоту задаёт содержимое стекла */
+.aboutglass.is-glisse{display:block;padding:0;max-height:none}
+.aboutglass > .aboutglass__glass{position:static;width:100%;display:flex;flex-direction:column;gap:12px;
   padding:26px;border-radius:38px;overflow:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;
+  max-height:calc(100vh - 40px);
   background-color:rgba(255,255,255,.28);border:1px solid rgba(255,255,255,.5)}
 .aboutglass > .aboutglass__glass > *{position:relative;z-index:1}
+/* карточки-пункты: оболочка без своих отступов, стекло само задаёт размер */
+.step.is-glisse{display:block;padding:0;min-height:0}
 .step > .step__glass{display:flex;flex-direction:column;justify-content:center;gap:14px;
   padding:32px;min-height:280px;border-radius:44px;background-color:rgba(128,128,128,.30);
   border:1px solid rgba(255,255,255,.28)}
