@@ -1,429 +1,295 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""Generate concise Russian and English LEDNIQUE CVs as single-page A4 PDFs.
+
+Fonts are the same families used by the website (Montserrat and Roboto Condensed).
+Run: python3 tools/make-resume.py
 """
-Резюме LEDNIQUE → assets/resume.pdf (RU) и assets/resume-en.pdf (EN).
-Стиль сайта: светлый фон, белые скруглённые карточки, лаймовый акцент.
-Запуск:  python3 tools/make-resume.py
-"""
-import os
-from reportlab.pdfgen import canvas
+from pathlib import Path
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen import canvas
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FONT_DIR = "/usr/share/fonts/truetype/dejavu"
-pdfmetrics.registerFont(TTFont("DJ", os.path.join(FONT_DIR, "DejaVuSans.ttf")))
-pdfmetrics.registerFont(TTFont("DJB", os.path.join(FONT_DIR, "DejaVuSans-Bold.ttf")))
+ROOT = Path(__file__).resolve().parents[1]
+FONT_DIR = ROOT / "assets" / "fonts"
+OUTPUT_DIR = ROOT / "assets"
 
-W, H = A4
-M = 34
-GAP = 16
-RIGHT_W = 178
-LEFT_W = W - 2 * M - GAP - RIGHT_W
-TOP_H = 112
-INK = (0.06, 0.06, 0.06)
-MUT = (0.45, 0.45, 0.45)
-LIME = (0.792, 0.973, 0.396)
-CARD = (1, 1, 1)
-BG = (0.949, 0.949, 0.941)
+pdfmetrics.registerFont(TTFont("Montserrat", str(FONT_DIR / "Montserrat-500.ttf")))
+pdfmetrics.registerFont(TTFont("Montserrat-SemiBold", str(FONT_DIR / "Montserrat-600.ttf")))
+pdfmetrics.registerFont(TTFont("RobotoCondensed", str(FONT_DIR / "RobotoCondensed-500.ttf")))
+
+PAGE_W, PAGE_H = A4
+MARGIN = 42
+TEXT_W = PAGE_W - 2 * MARGIN
+INK = (0.04, 0.04, 0.04)
+BODY = (0.19, 0.19, 0.19)
+MUTED = (0.43, 0.43, 0.43)
+LIME = (0.79, 0.96, 0.39)
+PALE = (0.96, 0.97, 0.94)
 
 
 def wrap(text, font, size, width):
-    words, lines, cur = text.split(), [], ""
-    for word in words:
-        trial = (cur + " " + word).strip()
+    lines, line = [], ""
+    for word in text.split():
+        trial = f"{line} {word}".strip()
         if pdfmetrics.stringWidth(trial, font, size) <= width:
-            cur = trial
+            line = trial
         else:
-            if cur:
-                lines.append(cur)
-            cur = word
-    if cur:
-        lines.append(cur)
+            if line:
+                lines.append(line)
+            line = word
+    if line:
+        lines.append(line)
     return lines
 
 
-class Flow:
-    """Поток карточек в колонке с переносом на новую страницу."""
+class Resume:
+    def __init__(self, path, data):
+        self.path = path
+        self.data = data
+        self.canvas = canvas.Canvas(str(path), pagesize=A4, pageCompression=1)
+        self.canvas.setTitle(f"{data['name']} — {data['title']}")
+        self.canvas.setAuthor("LEDNIQUE")
+        self.y = PAGE_H - MARGIN
+        self.page = 1
+        self.draw_header(first=True)
 
-    def __init__(self, col, x, w, y):
-        self.c, self.x, self.w, self.y = col, x, w, y
-        self.pad = 15
+    def draw_header(self, first=False):
+        c = self.canvas
+        if first:
+            top = PAGE_H - MARGIN
+            header_h = 142
+            c.setFillColorRGB(*PALE)
+            c.roundRect(MARGIN, top - header_h, TEXT_W, header_h, 22, stroke=0, fill=1)
+            c.setStrokeColorRGB(0.88, 0.89, 0.85)
+            c.setLineWidth(0.7)
+            c.roundRect(MARGIN, top - header_h, TEXT_W, header_h, 22, stroke=1, fill=0)
+            c.setFillColorRGB(*LIME)
+            c.roundRect(MARGIN + 18, top - 31, 61, 17, 8, stroke=0, fill=1)
+            c.setFillColorRGB(*INK)
+            c.setFont("Montserrat-SemiBold", 7.5)
+            c.drawCentredString(MARGIN + 48.5, top - 25.5, "LEDNIQUE")
+            c.setFillColorRGB(*MUTED)
+            c.setFont("Montserrat", 8)
+            c.drawString(MARGIN + 88, top - 25.5, self.data["cv_label"])
 
-    def space(self, h):
-        if self.y - h < M + 4:
-            self.new_page()
-        return self.y
+            c.setFillColorRGB(*INK)
+            c.setFont("RobotoCondensed", 38)
+            c.drawString(MARGIN + 18, top - 77, self.data["name"])
+            c.setFont("Montserrat-SemiBold", 11)
+            c.drawString(MARGIN + 19, top - 100, self.data["title"])
+            c.setFillColorRGB(*MUTED)
+            c.setFont("Montserrat", 8.2)
+            c.drawString(MARGIN + 19, top - 119, self.data["location"])
+            portfolio_w = pdfmetrics.stringWidth(self.data["portfolio"], "Montserrat", 8)
+            portfolio_x = PAGE_W - MARGIN - 18 - portfolio_w
+            c.drawString(portfolio_x, top - 25.5, self.data["portfolio"])
+            c.linkURL("https://lednique.ru", (portfolio_x, top - 29, portfolio_x + portfolio_w, top - 20), relative=0, thickness=0)
+            self.y = top - header_h - 17
+        else:
+            c.setFillColorRGB(*INK)
+            c.setFont("Montserrat-SemiBold", 8)
+            c.drawString(MARGIN, PAGE_H - MARGIN, self.data["name"])
+            c.setFillColorRGB(*MUTED)
+            c.setFont("Montserrat", 8)
+            c.drawRightString(PAGE_W - MARGIN, PAGE_H - MARGIN, self.data["portfolio"])
+            self.y = PAGE_H - MARGIN - 18
 
     def new_page(self):
-        self.c.showPage()
-        self.y = H - M
-        return self.y
+        self.canvas.showPage()
+        self.page += 1
+        self.draw_header(first=False)
 
-    def card(self, title, height, gaps):
-        self.space(height)
-        c, x, w, y = self.c, self.x, self.w, self.y
-        c.setFillColorRGB(*CARD)
-        c.roundRect(x, y - height, w, height, 20, stroke=0, fill=1)
-        # заголовок – капсом с разрядкой
-        spaced(c, x + self.pad, y - self.pad - 9, title.upper(), "DJB", 9.2, INK, 1.1)
-        c.setStrokeColorRGB(*LIME)
-        c.setLineWidth(2)
-        c.line(x + self.pad, y - self.pad - 15, x + self.pad + 26, y - self.pad - 15)
-        gaps(x + self.pad, y - self.pad - 30, w - 2 * self.pad)
-        self.y = y - height - 10
+    def ensure(self, height):
+        if self.y - height < MARGIN + 20:
+            self.new_page()
 
-    def bullets(self, items, size=8.6, lead=12.4, dot=True):
-        self.c.setFont("DJ", size)
-        out = []
-        for it in items:
-            lines = wrap(it, "DJ", size, self.w - 2 * self.pad - (10 if dot else 0))
-            out.append(lines)
-        height = self.pad * 2 + 26 + sum(len(l) * lead + 3 for l in out)
-        self.space(height)
-        c, x, y = self.c, self.x, self.y
-        c.setFillColorRGB(*CARD)
-        c.roundRect(x, y - height, self.w, height, 16, stroke=0, fill=1)
-        cy = y - self.pad - 24
-        for lines in out:
-            if dot:
-                c.setFillColorRGB(*INK)
-                c.circle(x + self.pad + 2.4, cy + size * 0.36, 1.7, stroke=0, fill=1)
-            c.setFillColorRGB(0.2, 0.2, 0.2)
-            c.setFont("DJ", size)
-            for ln in lines:
-                c.drawString(x + self.pad + (11 if dot else 0), cy, ln)
-                cy -= lead
-            cy -= 3
-        self.y = y - height - 10
-        return height
+    def section_heading(self, title):
+        self.ensure(27)
+        c = self.canvas
+        c.setFillColorRGB(*INK)
+        c.setFont("RobotoCondensed", 13)
+        c.drawString(MARGIN, self.y, title.upper())
+        c.setFillColorRGB(*LIME)
+        c.roundRect(MARGIN, self.y - 7, 28, 2.5, 1.2, stroke=0, fill=1)
+        self.y -= 20
 
+    def paragraph(self, text, size=8.9, leading=12.2):
+        lines = wrap(text, "Montserrat", size, TEXT_W)
+        self.ensure(len(lines) * leading + 3)
+        c = self.canvas
+        c.setFillColorRGB(*BODY)
+        c.setFont("Montserrat", size)
+        for line in lines:
+            c.drawString(MARGIN, self.y, line)
+            self.y -= leading
+        self.y -= 3
 
-def spaced(c, x, y, s, font, size, color, space):
-    t = c.beginText(x, y)
-    t.setFont(font, size)
-    t.setFillColorRGB(*color)
-    t.setCharSpace(space)
-    t.textOut(s)
-    t.setCharSpace(0)         # Tc живёт в состоянии PDF – сбрасываем, иначе разрядка «прилипает»
-    c.drawText(t)
+    def bullet(self, text, size=8.5, leading=11.2):
+        indent = 13
+        lines = wrap(text, "Montserrat", size, TEXT_W - indent)
+        self.ensure(len(lines) * leading + 3)
+        c = self.canvas
+        c.setFillColorRGB(*LIME)
+        c.circle(MARGIN + 3, self.y + 3, 2.2, stroke=0, fill=1)
+        c.setFillColorRGB(*BODY)
+        c.setFont("Montserrat", size)
+        for line in lines:
+            c.drawString(MARGIN + indent, self.y, line)
+            self.y -= leading
+        self.y -= 2
 
-
-def txt(c, x, y, s, font, size, color=INK):
-    c.setFont(font, size)
-    c.setFillColorRGB(*color)
-    c.drawString(x, y, s)
-
-
-def text_height(text, font, size, width, lead):
-    return len(wrap(text, font, size, width)) * lead
-
-
-def header(c, d):
-    """Шапка как герой сайта: градиентная карточка, лаймовая пилюля, имя капсом."""
-    top = H - M
-    # градиент внутри скруглённой карточки
-    c.saveState()
-    path = c.beginPath()
-    path.roundRect(M, top - TOP_H, W - 2 * M, TOP_H, 28)
-    c.clipPath(path, stroke=0, fill=0)
-    c.linearGradient(M, top, W, top - TOP_H, [(1, 1, 1), (0.902, 0.965, 0.796)], extend=True)
-    c.restoreState()
-    c.setStrokeColorRGB(0.85, 0.86, 0.82)
-    c.setLineWidth(0.6)
-    c.roundRect(M, top - TOP_H, W - 2 * M, TOP_H, 28, stroke=1, fill=0)
-    # лаймовая пилюля с брендом
-    pw = pdfmetrics.stringWidth("LEDNIQUE", "DJB", 7.4) + 22
-    c.setFillColorRGB(*LIME)
-    c.roundRect(M + 18, top - 34, pw, 16, 8, stroke=0, fill=1)
-    txt(c, M + 29, top - 29.5, "LEDNIQUE", "DJB", 7.4, INK)
-    txt(c, M + 18 + pw + 10, top - 29.5, "резюме · 2026", "DJ", 7.4, MUT)
-    # имя – крупно капсом, как h1 на сайте
-    txt(c, M + 18, top - 66, d["name"].upper(), "DJB", 31)
-    spaced(c, M + 18, top - 84, d["role"].upper(), "DJ", 8.6, (0.13, 0.13, 0.13), 0.7)
-    txt(c, M + 18, top - 100, d["meta"], "DJ", 8.2, MUT)
-    txt(c, M + W - 2 * M - 18 - pdfmetrics.stringWidth(d["site"], "DJ", 8.2), top - 29.5, d["site"], "DJ", 8.2, MUT)
-    return top - TOP_H - 16
-
-
-def chips_height(items, width, size=7.6, h=15):
-    x, rows = 0, 1
-    for s in items:
-        w = pdfmetrics.stringWidth(s, "DJ", size) + 12 + 2
-        if x + w > width:
-            rows += 1
-            x = 0
-        x += w + 5
-    return rows * (h + 4) - 4
-
-
-def chips(c, x, y, width, items, size=7.6, h=15):
-    px, cx = x, x
-    cy = y
-    for s in items:
-        w = pdfmetrics.stringWidth(s, "DJ", size) + 12 + 2
-        if cx + w > px + width:
-            cx = px
-            cy -= h + 4
-        c.setFillColorRGB(0.965, 0.965, 0.955)
-        c.setStrokeColorRGB(0.86, 0.86, 0.84)
+    def experience(self):
+        self.section_heading(self.data["experience_title"])
+        c = self.canvas
+        title_y = self.y
+        c.setFillColorRGB(*INK)
+        c.setFont("Montserrat-SemiBold", 10)
+        c.drawString(MARGIN, title_y, self.data["experience_role"])
+        c.setFillColorRGB(*MUTED)
+        c.setFont("Montserrat-SemiBold", 7.7)
+        c.drawRightString(PAGE_W - MARGIN, title_y, self.data["experience_dates"])
+        self.y -= 15
+        c.setStrokeColorRGB(0.88, 0.89, 0.85)
         c.setLineWidth(0.5)
-        c.roundRect(cx, cy - h, w, h, h / 2, stroke=1, fill=1)
-        c.setFillColorRGB(0.16, 0.16, 0.16)
-        c.setFont("DJ", size)
-        c.drawString(cx + 6, cy - h + (h - size) / 2 + size * 0.24, s)
-        cx += w + 5
-    return cy - h
+        c.line(MARGIN, self.y, PAGE_W - MARGIN, self.y)
+        self.y -= 11
+        for item in self.data["experience"]:
+            self.bullet(item)
+        self.y -= 1
 
+    def skill_rows(self, title, rows):
+        self.section_heading(title)
+        label_w = 103
+        for label, text in rows:
+            lines = wrap(text, "Montserrat", 8.2, TEXT_W - label_w - 10)
+            self.ensure(max(13, len(lines) * 11.2) + 4)
+            c = self.canvas
+            c.setFillColorRGB(*INK)
+            c.setFont("Montserrat-SemiBold", 8.2)
+            c.drawString(MARGIN, self.y, label)
+            c.setFillColorRGB(*BODY)
+            c.setFont("Montserrat", 8.2)
+            for i, line in enumerate(lines):
+                c.drawString(MARGIN + label_w, self.y - i * 11.2, line)
+            self.y -= max(13, len(lines) * 11.2) + 4
 
-def section_title(c, x, y, title):
-    spaced(c, x, y, title.upper(), "DJB", 9.4, INK, 1.2)
-    c.setStrokeColorRGB(*LIME)
-    c.setLineWidth(2)
-    c.line(x, y - 6, x + 26, y - 6)
+    def build(self):
+        self.section_heading(self.data["profile_title"])
+        self.paragraph(self.data["profile"], size=8.8, leading=12)
+        self.experience()
+        self.section_heading(self.data["clients_title"])
+        self.paragraph(self.data["clients"], size=8.4, leading=11.4)
+        self.skill_rows(self.data["skills_title"], self.data["skills"])
+        self.skill_rows(self.data["tools_title"], self.data["tools"])
+        self.section_heading(self.data["additional_title"])
+        self.paragraph(self.data["education"], size=8.2, leading=11)
+        self.paragraph(self.data["languages"], size=8.2, leading=11)
+        self.paragraph(self.data["work_format"], size=8.2, leading=11)
 
-
-def left_col(c, y, d):
-    x, w = M, LEFT_W
-    pad = 14
-    inner = w - pad * 2
-
-    # О себе
-    paras = d["about"]
-    heights = [text_height(p, "DJ", 8.5, inner, 11.9) for p in paras]
-    h = pad * 2 + 24 + sum(heights) + 5 * (len(paras) - 1)
-    c.setFillColorRGB(*CARD)
-    c.roundRect(x, y - h, w, h, 16, stroke=0, fill=1)
-    section_title(c, x + pad, y - pad - 10, d["s_about"])
-    cy = y - pad - 28
-    for p, ph in zip(paras, heights):
-        c.setFillColorRGB(0.22, 0.22, 0.22)
-        c.setFont("DJ", 8.5)
-        for ln in wrap(p, "DJ", 8.5, inner):
-            c.drawString(x + pad, cy, ln)
-            cy -= 11.9
-        cy -= 5
-    y = y - h - 8
-
-    # Опыт
-    items = d["exp"]
-    heights = []
-    for it in items:
-        hh = 10.5 + 11.6 + text_height(it["text"], "DJ", 8.1, inner, 11.4) + 7
-        heights.append(hh)
-    h = pad * 2 + 24 + sum(heights)
-    c.setFillColorRGB(*CARD)
-    c.roundRect(x, y - h, w, h, 16, stroke=0, fill=1)
-    section_title(c, x + pad, y - pad - 10, d["s_exp"])
-    cy = y - pad - 28
-    for it, hh in zip(items, heights):
-        spaced(c, x + pad, cy, it["years"].upper(), "DJB", 6.4, (0.55, 0.55, 0.55), 0.7)
-        c.setFillColorRGB(*INK)
-        c.setFont("DJB", 9)
-        c.drawString(x + pad, cy - 11, it["title"])
-        c.setFillColorRGB(0.3, 0.3, 0.3)
-        c.setFont("DJ", 8.1)
-        ty = cy - 23
-        for ln in wrap(it["text"], "DJ", 8.1, inner):
-            c.drawString(x + pad, ty, ln)
-            ty -= 11.4
-        cy -= hh
-        if it is not items[-1]:
-            c.setStrokeColorRGB(0.9, 0.9, 0.9)
-            c.setLineWidth(0.5)
-            c.line(x + pad, cy + 6, x + w - pad, cy + 6)
-    y = y - h - 8
-
-    # Навыки
-    ch = chips_height(d["skills"], inner, 7.3)
-    h = pad * 2 + 24 + ch
-    c.setFillColorRGB(*CARD)
-    c.roundRect(x, y - h, w, h, 16, stroke=0, fill=1)
-    section_title(c, x + pad, y - pad - 10, d["s_skills"])
-    chips(c, x + pad, y - pad - 24, inner, d["skills"], 7.3, 13.5)
-    return y - h - 10
-
-
-def right_col(c, y, d):
-    x, w = M + LEFT_W + GAP, RIGHT_W
-    pad = 12
-    inner = w - pad * 2
-
-    # Контакты
-    rows = d["contacts"]
-    h = pad * 2 + 24 + len(rows) * 18
-    c.setFillColorRGB(*CARD)
-    c.roundRect(x, y - h, w, h, 16, stroke=0, fill=1)
-    section_title(c, x + pad, y - pad - 10, d["s_contacts"])
-    cy = y - pad - 28
-    for label, val in rows:
-        spaced(c, x + pad, cy, label.upper(), "DJB", 5.8, (0.55, 0.55, 0.55), 0.6)
-        c.setFillColorRGB(*INK)
-        c.setFont("DJ", 8)
-        c.drawString(x + pad, cy - 9, val)
-        cy -= 18
-    y = y - h - 10
-
-    # Языки
-    langs = d["langs"]
-    note_h = text_height(d["langs_note"], "DJ", 7.4, inner, 10.4)
-    h = pad * 2 + 24 + sum(20 for _ in langs) + 6 + note_h
-    c.setFillColorRGB(*CARD)
-    c.roundRect(x, y - h, w, h, 16, stroke=0, fill=1)
-    section_title(c, x + pad, y - pad - 10, d["s_langs"])
-    cy = y - pad - 28
-    for label, val in langs:
-        spaced(c, x + pad, cy, label.upper(), "DJB", 5.8, (0.55, 0.55, 0.55), 0.6)
-        c.setFillColorRGB(*INK)
-        c.setFont("DJ", 8)
-        for ln in wrap(val, "DJ", 8, inner):
-            cy -= 9.4
-            c.drawString(x + pad, cy, ln)
-        cy -= 10.6
-    c.setFillColorRGB(*MUT)
-    c.setFont("DJ", 7.4)
-    cy -= 4
-    for ln in wrap(d["langs_note"], "DJ", 7.4, inner):
-        c.drawString(x + pad, cy, ln)
-        cy -= 10.4
-    y = y - h - 10
-
-    # Формат работы
-    items = d["work"]
-    hh = [len(wrap(i, "DJ", 7.9, inner - 9)) * 10.6 for i in items]
-    h = pad * 2 + 24 + sum(hh) + 3 * len(items)
-    c.setFillColorRGB(*CARD)
-    c.roundRect(x, y - h, w, h, 16, stroke=0, fill=1)
-    section_title(c, x + pad, y - pad - 10, d["s_work"])
-    cy = y - pad - 28
-    for it, ih in zip(items, hh):
-        c.setFillColorRGB(*INK)
-        c.circle(x + pad + 2, cy + 2.8, 1.5, stroke=0, fill=1)
-        c.setFillColorRGB(0.25, 0.25, 0.25)
-        c.setFont("DJ", 7.9)
-        for ln in wrap(it, "DJ", 7.9, inner - 9):
-            c.drawString(x + pad + 9, cy, ln)
-            cy -= 10.6
-        cy -= 3
-    y = y - h - 10
-
-    # Инструменты
-    ch = chips_height(d["tools"], inner, 6.8, 13)
-    h = pad * 2 + 24 + ch
-    c.setFillColorRGB(*CARD)
-    c.roundRect(x, y - h, w, h, 16, stroke=0, fill=1)
-    section_title(c, x + pad, y - pad - 10, d["s_tools"])
-    chips(c, x + pad, y - pad - 24, inner, d["tools"], 6.8, 13)
-    return y - h - 10
-
-
-def footer(c, d):
-    c.setFillColorRGB(*LIME)
-    c.roundRect(M, M, W - 2 * M, 26, 13, stroke=0, fill=1)
-    txt(c, M + 14, M + 9.4, d["footer"], "DJ", 6.8, (0.09, 0.11, 0.04))
-
-
-def build(path, d):
-    c = canvas.Canvas(path, pagesize=A4)
-    c.setTitle(d["name"] + " – " + d["s_title_file"])
-    c.setAuthor("LEDNIQUE")
-    c.setFillColorRGB(*BG)
-    c.rect(0, 0, W, H, stroke=0, fill=1)
-    y = header(c, d)
-    yl = left_col(c, y, d)
-    yr = right_col(c, y, d)
-    print("  left bottom %.1f / right bottom %.1f (страница: %.1f)" % (yl, yr, M))
-    footer(c, d)
-    c.showPage()
-    c.save()
+        c = self.canvas
+        footer_y = MARGIN - 14
+        c.setStrokeColorRGB(0.89, 0.89, 0.87)
+        c.setLineWidth(0.5)
+        c.line(MARGIN, footer_y + 10, PAGE_W - MARGIN, footer_y + 10)
+        c.setFillColorRGB(*MUTED)
+        c.setFont("Montserrat", 7.2)
+        email_x = MARGIN
+        email_w = pdfmetrics.stringWidth(self.data["email"], "Montserrat", 7.2)
+        c.drawString(email_x, footer_y, self.data["email"])
+        c.linkURL("mailto:" + self.data["email"], (email_x, footer_y - 2, email_x + email_w, footer_y + 8), relative=0, thickness=0)
+        separator_x = email_x + email_w + 5
+        c.drawString(separator_x, footer_y, "·")
+        telegram_x = separator_x + 9
+        telegram_w = pdfmetrics.stringWidth(self.data["telegram"], "Montserrat", 7.2)
+        c.drawString(telegram_x, footer_y, self.data["telegram"])
+        c.linkURL("https://t.me/lednique", (telegram_x, footer_y - 2, telegram_x + telegram_w, footer_y + 8), relative=0, thickness=0)
+        c.drawRightString(PAGE_W - MARGIN, footer_y, f"{self.page}")
+        c.save()
+        print(f"{self.path.relative_to(ROOT)}: {self.page} page(s), content bottom {self.y:.1f} pt")
 
 
 RU = {
-    "name": "Виктор",
-    "role": "Мультидизайнер: графика, AR-эффекты и AI-продакшн",
-    "meta": "26 лет · Ижевск, Россия · гибрид в Ижевске или удалённо",
-    "site": "lednique.ru",
-    "s_title_file": "Резюме",
-    "s_about": "О себе",
-    "about": [
-        "Дизайнер полного цикла: 12 лет в графике и 7 лет в AR / XR. Веду проект от идеи до готового файла – айдентика, карточки товара и инфографика для маркетплейсов, сайты, AR-эффекты (Try-on, Digital MUA, phygital, target-tracking) и AI-съёмка товаров и моделей.",
-        "Проверяю, как макет печатается, как карточка читается в реальной выдаче на телефоне и как эффект ведёт себя на живой камере. Больше 20 брендов и компаний – от локальных магазинов до международных.",
+    "name": "ВИКТОР",
+    "title": "Графический дизайнер · AI / AR-продакшн",
+    "location": "Ижевск · удалённо или гибридно",
+    "portfolio": "lednique.ru",
+    "cv_label": "РЕЗЮМЕ · 2026",
+    "email": "lednique1@ya.ru",
+    "telegram": "t.me/lednique",
+    "profile_title": "Профиль",
+    "profile": "Графический дизайнер с 12-летним опытом. С 2019 года — AR/XR-проекты, с 2023 года — AI-продакшн. Специализация: айдентика, digital- и печатные материалы, маркетплейс-инфографика, сайты, UI/UX и презентации. Создание AR-эффектов, AI-фото и видео; ведение проекта от брифа и визуальной концепции до файлов, готовых к публикации или печати. Портфолио включает проекты для более чем 20 брендов и компаний.",
+    "experience_title": "Опыт работы",
+    "experience_role": "Независимый дизайнер · LEDNIQUE",
+    "experience_dates": "2014 — НАСТОЯЩЕЕ ВРЕМЯ",
+    "experience": [
+        "Разрабатываю айдентику и визуальные системы; создаю материалы для цифровых и печатных носителей, готовлю файлы к печати.",
+        "Проектирую карточки товаров и инфографику для маркетплейсов, сайты, презентации и материалы для социальных сетей.",
+        "С 2019 года создаю AR/XR-проекты: face/body tracking, virtual try-on, digital make-up, target tracking, 3D-маски и AR-игры.",
+        "С 2023 года создаю AI-фото товаров и моделей, AI-видео и прототипы UGC-контента; контролирую сходство товара, фактуры, свет и отражения.",
+        "Выполняю 3D-моделирование и motion: модели и текстуры в Blender, rigging, анимация и промо-ролики.",
     ],
-    "s_exp": "Опыт",
-    "exp": [
-        {"years": "2014 – 2026", "title": "Графический дизайн, LEDNIQUE",
-         "text": "Айдентика и фирменный стиль, полиграфия и препресс, карточки товара и инфографика для маркетплейсов, сайты, презентации, соцсети. Проектная работа с брендами, в том числе по NDA."},
-        {"years": "2019 – 2026", "title": "AR-эффекты и XR",
-         "text": "Face и body tracking, virtual try-on, digital make-up, target-tracking, 3D-маски и AR-игры. Сборка в Lens Studio, Effect House и Spark AR. Работы для Glamnetic, OSCAR&FRANK, SLA Paris, H&M Beauty, Atomic Heart, NewJeans."},
-        {"years": "2023 – 2026", "title": "AI-продакшн фото и видео",
-         "text": "Нейрофотосессии товаров и AI-моделей, AI-видео, UGC-контент, прототипирование креативов. Контроль материала: мех и ворс, стекло и прозрачный пластик, текстиль, свет и отражения."},
-        {"years": "постоянно", "title": "3D-моделирование и motion",
-         "text": "Модели и текстуры в Blender, low-poly адаптация, rigging, анимация под музыку, промо-ролики продуктов."},
+    "clients_title": "Выбранные бренды",
+    "clients": "Glamnetic · OSCAR&FRANK · SLA Paris · H&M Beauty · Atomic Heart · NewJeans. Также — локальные компании и проекты под NDA.",
+    "skills_title": "Ключевые компетенции",
+    "skills": [
+        ("Графический дизайн", "Айдентика, digital-дизайн, UI/UX, сайты, маркетплейс-инфографика, полиграфия и препресс, презентации, соцсети."),
+        ("AR / XR", "Face/body tracking, virtual try-on, digital make-up, target tracking, 3D-маски, AR-игры."),
+        ("AI / 3D / motion", "AI-фото и видео, AI-модели, прототипирование контента, 3D-моделирование, текстуры и анимация."),
     ],
-    "s_skills": "Навыки",
-    "skills": ["Айдентика", "Логотипы", "Полиграфия", "Препресс", "Карточки товара", "Инфографика",
-               "UI/UX", "Сайты", "Презентации", "Соцсети", "3D-моделирование", "Motion",
-               "AR-эффекты", "Virtual Try-On", "Digital MUA", "AI-съёмка", "AI-видео"],
-    "s_contacts": "Контакты",
-    "contacts": [("Почта", "lednique1@ya.ru"), ("Telegram", "t.me/lednique"),
-                 ("Портфолио", "lednique.ru"), ("Behance", "behance.net/lednique"),
-                 ("Kwork", "kwork.ru/user/lednique")],
-    "s_langs": "Языки",
-    "langs": [("Русский", "родной"), ("Английский", "хорошо общаюсь и понимаю в большинстве ситуаций")],
-    "langs_note": "Читаю документацию и брифы на английском, веду переписку и созвон. Есть опыт работы с иностранными заказчиками.",
-    "s_work": "Формат работы",
-    "work": ["Ижевск, Россия · UTC+4", "Гибрид в Ижевске или удалённо",
-             "Фриланс, проектная работа, часть занятости", "Готов начать с короткого тестового"],
-    "s_tools": "Инструменты",
-    "tools": ["Figma", "Photoshop", "Illustrator", "InDesign", "Blender", "Lens Studio", "Effect House",
-              "Spark AR", "After Effects", "Premiere Pro", "Midjourney", "Nano Banana", "ChatGPT", "Claude"],
-    "footer": "LEDNIQUE · Виктор · lednique1@ya.ru · t.me/lednique · lednique.ru",
+    "tools_title": "Инструменты",
+    "tools": [
+        ("Дизайн", "Figma, Photoshop, Illustrator, InDesign."),
+        ("3D и видео", "Blender, After Effects, Premiere Pro."),
+        ("AR и AI", "Lens Studio, Effect House, Spark AR, Midjourney, Nano Banana, ChatGPT, Claude."),
+    ],
+    "additional_title": "Образование и условия",
+    "education": "Высшее образование — технология обработки материалов.",
+    "languages": "Русский — родной. Английский — рабочее общение: брифы, переписка и созвоны.",
+    "work_format": "Проектная работа, фриланс или частичная занятость; удалённо или гибридно в Ижевске.",
 }
 
 EN = {
-    "name": "Viktor",
-    "role": "Multidisciplinary designer: graphics, AR effects and AI production",
-    "meta": "26 years old · Izhevsk, Russia · hybrid in Izhevsk or remote",
-    "site": "lednique.ru",
-    "s_title_file": "CV",
-    "s_about": "Profile",
-    "about": [
-        "Full-cycle designer: 12 years in graphics and 7 years in AR / XR. I take a project from idea to final file – identity, product cards and marketplace infographics, websites, AR effects (try-on, digital MUA, phygital, target tracking) and AI shoots of products and models.",
-        "I check how a layout prints, how a product card reads in real search results on a phone and how an effect behaves on a live camera. More than 20 brands and companies – from local shops to international ones.",
+    "name": "VIKTOR",
+    "title": "Graphic Designer · AI / AR Production",
+    "location": "Izhevsk, Russia · remote or hybrid",
+    "portfolio": "lednique.ru",
+    "cv_label": "CV · 2026",
+    "email": "lednique1@ya.ru",
+    "telegram": "t.me/lednique",
+    "profile_title": "Profile",
+    "profile": "Graphic designer with 12 years of experience. AR/XR practice since 2019 and AI production since 2023. Focus areas include brand identity, digital and print assets, marketplace graphics, websites, UI/UX, and presentations. Produces AR experiences, AI imagery, and video, taking projects from brief and concept through to production-ready assets. Portfolio includes work for 20+ brands and companies.",
+    "experience_title": "Experience",
+    "experience_role": "Independent Designer · LEDNIQUE",
+    "experience_dates": "2014 — PRESENT",
+    "experience": [
+        "Develops brand identities and visual systems; creates digital and print assets and prepares production-ready files.",
+        "Designs marketplace product cards and infographics, websites, presentations, and social media assets.",
+        "Since 2019, creates AR/XR projects: face and body tracking, virtual try-on, digital make-up, target tracking, 3D masks, and AR games.",
+        "Since 2023, produces AI product and model imagery, AI video, and UGC prototypes, with close control of product likeness, materials, lighting, and reflections.",
+        "Creates 3D and motion work, including Blender models and textures, rigging, animation, and product promos.",
     ],
-    "s_exp": "Experience",
-    "exp": [
-        {"years": "2014 – 2026", "title": "Graphic design, LEDNIQUE",
-         "text": "Identity and brand style, print and prepress, product cards and marketplace infographics, websites, presentations, social media. Project work with brands, including under NDA."},
-        {"years": "2019 – 2026", "title": "AR effects and XR",
-         "text": "Face and body tracking, virtual try-on, digital make-up, target tracking, 3D masks and AR games. Built in Lens Studio, Effect House and Spark AR. Work for Glamnetic, OSCAR&FRANK, SLA Paris, H&M Beauty, Atomic Heart, NewJeans."},
-        {"years": "2023 – 2026", "title": "AI photo and video production",
-         "text": "AI photoshoots of products and AI models, AI video, UGC content, creative prototyping. Material control: fur and pile, glass and clear plastic, textiles, light and reflections."},
-        {"years": "ongoing", "title": "3D modelling and motion",
-         "text": "Models and textures in Blender, low-poly adaptation, rigging, animation to music, product promo videos."},
+    "clients_title": "Selected brands",
+    "clients": "Glamnetic · OSCAR&FRANK · SLA Paris · H&M Beauty · Atomic Heart · NewJeans. Also works with local businesses and confidential clients.",
+    "skills_title": "Core skills",
+    "skills": [
+        ("Graphic design", "Brand identity, digital design, UI/UX, websites, marketplace infographics, print and prepress, presentations, social media."),
+        ("AR / XR", "Face/body tracking, virtual try-on, digital make-up, target tracking, 3D masks, AR games."),
+        ("AI / 3D / motion", "AI imagery and video, AI models, content prototyping, 3D modelling, texturing, animation."),
     ],
-    "s_skills": "Skills",
-    "skills": ["Identity", "Logos", "Print", "Prepress", "Product cards", "Infographics",
-               "UI/UX", "Websites", "Presentations", "Social media", "3D modelling", "Motion",
-               "AR effects", "Virtual Try-On", "Digital MUA", "AI photo", "AI video"],
-    "s_contacts": "Contacts",
-    "contacts": [("Email", "lednique1@ya.ru"), ("Telegram", "t.me/lednique"),
-                 ("Portfolio", "lednique.ru"), ("Behance", "behance.net/lednique"),
-                 ("Kwork", "kwork.ru/user/lednique")],
-    "s_langs": "Languages",
-    "langs": [("Russian", "native"), ("English", "good communication, understand most situations")],
-    "langs_note": "I read documentation and briefs in English and handle correspondence and calls. I have experience working with foreign clients.",
-    "s_work": "Work format",
-    "work": ["Izhevsk, Russia · UTC+4", "Hybrid in Izhevsk or remote",
-             "Freelance, project work, part-time", "Ready to start with a short test task"],
-    "s_tools": "Tools",
-    "tools": ["Figma", "Photoshop", "Illustrator", "InDesign", "Blender", "Lens Studio", "Effect House",
-              "Spark AR", "After Effects", "Premiere Pro", "Midjourney", "Nano Banana", "ChatGPT", "Claude"],
-    "footer": "LEDNIQUE · Viktor · lednique1@ya.ru · t.me/lednique · lednique.ru",
+    "tools_title": "Tools",
+    "tools": [
+        ("Design", "Figma, Photoshop, Illustrator, InDesign."),
+        ("3D and video", "Blender, After Effects, Premiere Pro."),
+        ("AR and AI", "Lens Studio, Effect House, Spark AR, Midjourney, Nano Banana, ChatGPT, Claude."),
+    ],
+    "additional_title": "Education and availability",
+    "education": "Higher education — Materials Processing Technology.",
+    "languages": "Russian — native. English — working communication for briefs, correspondence, and calls.",
+    "work_format": "Project, freelance, or part-time work; remote or hybrid in Izhevsk.",
 }
 
 if __name__ == "__main__":
-    build(os.path.join(ROOT, "assets", "resume.pdf"), RU)
-    build(os.path.join(ROOT, "assets", "resume-en.pdf"), EN)
-    print("ok")
+    Resume(OUTPUT_DIR / "resume.pdf", RU).build()
+    Resume(OUTPUT_DIR / "resume-en.pdf", EN).build()

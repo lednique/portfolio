@@ -132,6 +132,33 @@
   (document.fonts?.ready || Promise.resolve()).then(fitH1); fitH1(); addEventListener('resize', fitH1);
 
   /* ---------- центральное изображение/галерея героя вписывается до блока «перечень работ» ---------- */
+  const alignMobilePinkFish = () => {
+    const hero = $('.hero--design[data-hero]');
+    const layer = $('.heroimg__fish-layer', hero || document);
+    const fish = $('.pfish--1 img', layer || document);
+    const label = $('.eyebrow', hero || document);
+    if (!hero || !layer || !fish || !label) return;
+    if (!small()) { layer.style.removeProperty('--fish-mobile-shift'); return; }
+    if (!fish.complete || !fish.naturalHeight) return;
+
+    // Measure the fish in its resting position; the scroll/parallax motion stays intact afterwards.
+    const previousShift = layer.style.getPropertyValue('--fish-mobile-shift');
+    const previousTranslate = fish.parentElement.style.translate;
+    const previousRotate = fish.parentElement.style.rotate;
+    layer.style.removeProperty('--fish-mobile-shift');
+    fish.parentElement.style.translate = 'none';
+    fish.parentElement.style.rotate = 'none';
+    const fishBox = fish.getBoundingClientRect();
+    const labelBox = label.getBoundingClientRect();
+    fish.parentElement.style.translate = previousTranslate;
+    fish.parentElement.style.rotate = previousRotate;
+    if (previousShift) layer.style.setProperty('--fish-mobile-shift', previousShift);
+
+    // group1.svg has transparent top padding; align the visible pink silhouette, not its SVG canvas.
+    const visibleTop = fishBox.top + fishBox.height * .293;
+    const targetTop = labelBox.top + labelBox.height / 2 - 20;
+    layer.style.setProperty('--fish-mobile-shift', `${(targetTop - visibleTop).toFixed(2)}px`);
+  };
   const fitBoxes = () => {
     setVh();
     $$('[data-hero]').forEach((hero) => {
@@ -148,7 +175,12 @@
     });
   };
   const snapSections = () => {};
-  const relayout = () => { fitH1(); fitBoxes(); snapSections(); };
+  const pinkFishImage = $('.hero--design .pfish--1 img');
+  pinkFishImage?.addEventListener('load', () => requestAnimationFrame(alignMobilePinkFish), { once: true });
+  const relayout = () => {
+    fitH1(); fitBoxes(); snapSections();
+    requestAnimationFrame(alignMobilePinkFish);
+  };
   (document.fonts?.ready || Promise.resolve()).then(relayout);
   addEventListener('load', relayout); addEventListener('resize', relayout);
   setTimeout(relayout, 0);
