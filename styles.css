@@ -811,3 +811,13 @@ body.lb-open{overflow:hidden}
   padding:32px;min-height:280px;border-radius:44px;background-color:rgba(128,128,128,.30);
   border:1px solid rgba(255,255,255,.28)}
 .step > .step__glass > *{position:relative;z-index:1}
+
+/* ==========================================================================
+   ДЕСКТОП: пункты меню по центру шапки, «Обсудить проект» – у правого края
+   ========================================================================== */
+@media (min-width:1101px){
+  .nav__in{position:relative}
+  .nav__links{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    margin:0;max-width:min(820px,calc(100% - 400px));flex:none}
+  .nav__cta{margin-left:auto;margin-right:0}
+}
