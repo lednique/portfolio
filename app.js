@@ -26,6 +26,12 @@
   setVh();
 
   const nav = $('#nav');
+  /* высота шапки в CSS px – от неё считаются мобильные отступы героев */
+  const setNavH = () => document.documentElement.style.setProperty('--navh',
+    ((nav ? nav.getBoundingClientRect().height : 0) / getZ()).toFixed(1) + 'px');
+  setNavH();
+  addEventListener('resize', setNavH, { passive: true });
+  addEventListener('load', setNavH);
   /* шапка: градиент при прокрутке (мобила) и появление направлений
      после героя на главной (аватарка + заголовок + иконки софта) */
   (() => {

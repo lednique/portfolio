@@ -20,7 +20,7 @@
      inner shadow 0/1/0.5  #fff 45 % · inner shadow 0/0.5/0.5 #fff 60 % · inner shadow 0/-1/1 #fff 30 %
      drop shadow -1/0/0  #000 30 % · drop shadow 1/0/1  #000 30 %
      inner shadow 0/2/3  #000 30 % · drop shadow 0/4/4  #000 25 % */
-  /* белые блики вынесены в отдельный слой ::after с наложением plus-lighter
+  /* белые блики вынесены в отдельный слой ::after с наложением lighten
      (см. блок «БЕЛЫЕ ТЕНИ» в конце файла) – здесь остаются только тёмные */
   --fx-light:inset 0 1px .5px rgba(255,255,255,.45),
        inset 0 .5px .5px rgba(255,255,255,.6),
@@ -293,12 +293,12 @@ b,strong{font-weight:600}
 .car--video .car__item.is-active{transform:none;opacity:1}
 .car--video video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 /* кадр – это сам <video>: проявляется, когда пошли первые кадры, чтобы не было чёрных/белых полос */
-.car--video .car__frame{position:absolute;inset:0;z-index:1;width:100%;height:100%;object-fit:cover;
+.car--video .car__frame{position:absolute;inset:0;z-index:1;width:100%;height:100%;object-fit:cover;border-radius:inherit;
   background:#000;opacity:0;transition:opacity .35s var(--ease-link)}
 .car--video .car__frame.is-live{opacity:1}
-.car__tag{position:absolute;left:12px;top:12px;z-index:2;height:32px;padding:0 12px;border-radius:32px;display:inline-flex;align-items:center;
+.car__tag{position:absolute;left:12px;top:12px;z-index:2;height:36px;padding:6px 14px;border-radius:36px;display:inline-flex;align-items:center;
   background:var(--glass-fill);color:#0a0a0a;box-shadow:var(--btn-fx);
-  font:600 12px/1 var(--font-b);letter-spacing:.02em;text-transform:none;
+  font:600 14px/17.6px var(--font-b);letter-spacing:.66px;text-transform:none;
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .car__tag span{text-shadow:0 0 10px rgba(255,255,255,.55)}
 .car__cap{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:60px 18px 20px;color:#fff;background:linear-gradient(180deg,transparent,rgba(0,0,0,.72));display:flex;flex-direction:column;gap:4px}
@@ -394,7 +394,7 @@ b,strong{font-weight:600}
 .row--area{grid-template-columns:150px 1fr}
 .row.is-err input{box-shadow:inset 0 0 0 2px #e5392b}
 .opts{display:flex;flex-wrap:wrap;gap:8px}
-.opt{height:34px;padding:0 16px;border:0;border-radius:34px;font:600 12px/1 var(--font-b);letter-spacing:.02em;text-transform:none;cursor:pointer;transition:transform .15s var(--ease-back)}
+.opt{height:36px;padding:6px 14px;border:0;border-radius:36px;font:600 14px/17.6px var(--font-b);letter-spacing:.66px;text-transform:none;cursor:pointer;transition:transform .15s var(--ease-back)}
 .opt:active{transform:scale(.97)}
 .row input[type=date]{width:auto;height:34px;min-width:196px;padding:0 16px;border-radius:34px;background:var(--glass-fill);color:#0a0a0a;font:600 12px/1 var(--font-b);letter-spacing:.02em;box-shadow:var(--btn-fx);cursor:pointer;text-shadow:0 0 10px rgba(255,255,255,.55);-webkit-appearance:none;appearance:none}
 .row input[type=date]::-webkit-calendar-picker-indicator{opacity:.75;cursor:pointer}
@@ -472,7 +472,7 @@ b,strong{font-weight:600}
   .nav__cta-mob{display:none}
   .nav__links{flex:1 1 auto;justify-content:flex-start;padding:14px 12px;margin:-14px -12px}
   .nav__links .btn--nav{height:30px;padding:0 10px;font-size:11px}
-  /* мобильная шапка: аддитивный блик (plus-lighter) на тонких пилюлях давал
+  /* мобильная шапка: аддитивный блик на тонких пилюлях давал
      белую светящуюся полосу поверх подложки – на мобиле слой выключен */
   .nav .opt::after,.nav__back::after{display:none}
   .home-hero__cta .btn--nav{height:30px;padding:0 10px;font-size:11px}   /* в герое – как пункты меню */
@@ -698,14 +698,14 @@ body.lb-open{overflow:hidden}
 .car__item,.bigcase{border-radius:24px;background:var(--glass);border:1px solid var(--glass-b);box-shadow:var(--fx)}
 .car__item::after,.bigcase::after{
   content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:2;
-  box-shadow:var(--fx-light);mix-blend-mode:plus-lighter}
+  box-shadow:var(--fx-light);mix-blend-mode:lighten}
 
 .bigcase{overflow:hidden}
 .car__tag{z-index:3}
 
 /* видео: кадр ровно по контейнеру */
-.car--video .car__item{background:#000}
-.car--video .car__item > img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.car--video .car__item{background:#000;overflow:hidden;isolation:isolate}
+.car--video .car__item > img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit}
 /* ==========================================================================
    ДЕСКТОП: пункты меню по центру шапки, «Обсудить проект» – у правого края
    ========================================================================== */
@@ -717,9 +717,9 @@ body.lb-open{overflow:hidden}
 }
 
 /* ==========================================================================
-   БЕЛЫЕ ТЕНИ = СЛОЙ С НАЛОЖЕНИЕМ plus-lighter (по всему сайту)
+   БЕЛЫЕ ТЕНИ = СЛОЙ С НАЛОЖЕНИЕМ lighten (по всему сайту)
    Белые inset-блики больше не лежат в box-shadow элемента: они вынесены
-   в отдельный слой ::after с mix-blend-mode:plus-lighter (фолбэк lighten).
+   в отдельный слой ::after с mix-blend-mode:lighten (фолбэк lighten).
    На тёмном фоне блик складывается и светится, а не даёт серую вуаль.
    ========================================================================== */
 /* кнопки-пилюли (кнопочный стек) */
@@ -728,12 +728,12 @@ body.lb-open{overflow:hidden}
 .car__tag::after,.cv__meta::after,.cv .chip::after,.cv__cta::after{
   content:"";display:block;position:absolute;inset:0;border-radius:inherit;
   pointer-events:none;z-index:2;
-  box-shadow:var(--btn-light);mix-blend-mode:plus-lighter}
+  box-shadow:var(--btn-light);mix-blend-mode:lighten}
 
 /* пункты меню: наложение обычное (normal), но белый блик – «HDR»,
    то есть максимально плотный, без серой полупрозрачности */
 .nav .btn--nav::after,.nav__links a::after,.nav .opt::after{
-  mix-blend-mode:normal;
+  mix-blend-mode:lighten;
   box-shadow:
     inset 0 1px .5px var(--hdr-white),
     inset 0 .5px .5px var(--hdr-white),
@@ -748,23 +748,41 @@ body.lb-open{overflow:hidden}
 .cv__head::after,.car__btn::after,.ico::after,.lang__menu::after{
   content:"";display:block;position:absolute;inset:0;border-radius:inherit;
   pointer-events:none;z-index:2;
-  box-shadow:var(--fx-light);mix-blend-mode:plus-lighter}
+  box-shadow:var(--fx-light);mix-blend-mode:lighten}
 
 /* белая кнопка «назад»: белый блик – отдельным слоем */
 .nav__back::after{
   content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
-  box-shadow:inset 0 1px .5px rgba(255,255,255,.75);mix-blend-mode:plus-lighter}
+  box-shadow:inset 0 1px .5px rgba(255,255,255,.75);mix-blend-mode:lighten}
 .nav__back{box-shadow:0 2px 6px rgba(0,0,0,.12),0 8px 18px rgba(0,0,0,.06)!important}
 
 /* поля ввода – псевдоэлементы не рендерятся, поэтому белый блик остаётся в тени */
 .row input[type=date],.row input[type=date]:hover{box-shadow:var(--btn-fx),var(--btn-light)}
 
-/* браузеры без plus-lighter */
-@supports not (mix-blend-mode:plus-lighter){
+/* браузеры без mix-blend-mode:lighten */
+@supports not (mix-blend-mode:lighten){
   .btn--nav::after,.opt::after,.btn--lime::after,.nav__links a::after,.car__tag::after,
   .cv__meta::after,.cv .chip::after,.cv__cta::after,.svc::after,.svc__arrow::after,
   .feat__card::after,.pin__panel::after,.step::after,.cmp__card::after,.glass::after,
   .crow::after,.cv__head::after,.car__btn::after,.ico::after,.lang__menu::after,
   .cv__block::after,.nav__back::after{
     mix-blend-mode:lighten}
+}
+
+/* «Клиенты»: снизу ровно 60 px до блока «Что именно делается» */
+.clients-sec{padding-bottom:0;margin-bottom:60px}
+.clients-sec + .section--pin{padding-top:0}
+
+/* ---------- мобильные отступы от шапки ---------- */
+@media (max-width:1100px){
+  /* логотип на 10 px левее, контейнер меню – на 10 px шире влево */
+  .logo{margin-left:-10px}
+  .nav__links{padding-left:22px;margin-left:-22px}
+
+  /* страницы направлений: от меню до героя ровно 40 px */
+  .page-graphic .hero,.page-ar .hero,.page-ai .hero{padding-top:calc(var(--navh,75px) + 40px)}
+
+  /* главная: аватарка в 20 px от меню и 20 px до заголовка */
+  .home-hero{padding-top:calc(var(--navh,75px) + 20px)}
+  .home-hero__pic{margin-top:0;margin-bottom:20px}
 }
