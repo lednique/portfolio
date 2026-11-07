@@ -664,22 +664,9 @@ html[lang="ar"] body{font-family:"Montserrat","Noto Sans Arabic",system-ui,"Sego
 .cv__hint a{color:#111;border-bottom:1px solid rgba(0,0,0,.25);text-decoration:none}
 
 /* ==========================================================================
-   РЕГИСТР: капсом остаются только крупные заголовки.
-   Всё, что похоже на пункт меню / кнопку / подпись – обычным регистром.
-   !important – чтобы ни одно более специфичное правило не вернуло капс.
+   ВЕРХНИЙ РЕГИСТР: пункты меню, кнопки в герое, «Скачать резюме», «Обсудить проект»
    ========================================================================== */
-.btn,.btn *,
 .btn--nav,.btn--nav *,
-.btn--lime,.btn--lime *,
-.opt,.opt *,
-.lang__menu button,
 .nav__links a,.nav__links a *,
-.eyebrow,.label,
-.stack-line__t,
-.metrics span,
-.kv div span,
-.chip,.car__tag,.car__tag *,
-.foot h4,
-.row__l,.crow span,
-.mail__meta span,
-.sechead .eyebrow,.sechead .label{text-transform:none!important}
+.home-hero__cta .btn,.home-hero__cta .btn *,
+.btn--lime,.btn--lime *{text-transform:uppercase!important}
