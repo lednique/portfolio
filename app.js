@@ -50,6 +50,19 @@
       if ('ResizeObserver' in window) new ResizeObserver(cut).observe(links);
       document.addEventListener('lednique:lang', cut);
       setTimeout(cut, 300);
+      /* мобильное меню: сразу проматываем к активной кнопке (страница, где находимся) */
+      const act = links.querySelector('.is-active');
+      const toActive = () => {
+        if (!act) return;
+        const max = links.scrollWidth - links.clientWidth;
+        if (max <= 4) return;
+        const r = act.getBoundingClientRect(), lr = links.getBoundingClientRect();
+        links.scrollLeft = Math.max(0, Math.min(max, links.scrollLeft + (r.left - lr.left) - (links.clientWidth - r.width) / 2));
+        cut();
+      };
+      toActive(); addEventListener('load', toActive);
+      document.addEventListener('lednique:lang', toActive);
+      setTimeout(toActive, 350);
     }
   })();
   /* меню прячется, когда долистали до футера */
@@ -711,6 +724,29 @@
     });
   });
 
+
+  /* ==========================================================================
+     ЛАЙТБОКС: клик по крайней работе открывает превью (roll.jpg)
+     ========================================================================== */
+  (() => {
+    const lb = $('#lb'); if (!lb) return;
+    const img = $('.lb__img', lb), scroll = $('[data-lb-scroll]', lb);
+    const open = (src, alt) => {
+      if (src) img.src = src;
+      img.alt = alt || '';
+      lb.hidden = false; document.body.classList.add('lb-open');
+      if (scroll) scroll.scrollTop = 0;
+      const c = $('[data-lb-close]', lb); c && c.focus({ preventScroll: true });
+    };
+    const close = () => { lb.hidden = true; document.body.classList.remove('lb-open'); };
+    document.addEventListener('click', (e) => {
+      const trg = e.target.closest('[data-lb]');
+      if (trg) { e.preventDefault(); open(trg.dataset.lb || trg.getAttribute('href'), trg.dataset.lbAlt); return; }
+      if (e.target.closest('[data-lb-close]') || e.target === lb || e.target.classList.contains('lb__scroll')) close();
+    });
+    addEventListener('keydown', (e) => { if (e.key === 'Escape' && !lb.hidden) close(); });
+  })();
+
   /* ==========================================================================
      ФУТЕР: «lednique» на всю ширину + рыбка
      десктоп: плывёт за курсором · мобила: плавает сама, по тапу – к месту нажатия
@@ -732,7 +768,7 @@
         return [(e.clientX - r.left) / k, (e.clientY - r.top) / k];
       };
       const fw = () => fish.offsetWidth, fh = () => fish.offsetHeight;
-      const SPEED_DESK = 9, SPEED_MOB = 1.15;   // px за кадр при 60 fps
+      const SPEED_DESK = 9, SPEED_MOB = 2.3;   // на мобиле – вдвое быстрее к месту тапа   // px за кадр при 60 fps
       let x = 0, y = 0, tx = 0, ty = 0, face = 1, ph = 0, last = performance.now();
       let active = false, inside = false, mobInit = false, wander = 0;
 
