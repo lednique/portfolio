@@ -38,9 +38,18 @@
     if (!nav) return;
     const hero = $('.home-hero');
     const isHome = document.body.classList.contains('page-home');
+    /* тёмные секции: прячем белый градиент под меню, пока они под шапкой */
+    const darkSecs = $$('.sec--dark');
+    const updDark = () => {
+      if (!darkSecs.length) { nav.classList.remove('is-over-dark'); return; }
+      const h = nav.getBoundingClientRect().height || 0;
+      const over = darkSecs.some(s => { const r = s.getBoundingClientRect(); return r.top < h && r.bottom > 0; });
+      nav.classList.toggle('is-over-dark', over);
+    };
     const upd = () => {
       nav.classList.toggle('is-scrolled', scrollY > 8);
       if (isHome && hero) nav.classList.toggle('is-hero-passed', hero.getBoundingClientRect().bottom < 80);
+      updDark();
     };
     addEventListener('scroll', upd, { passive: true });
     addEventListener('resize', upd); addEventListener('load', upd); upd();
