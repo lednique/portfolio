@@ -144,6 +144,15 @@ b,strong{font-weight:600}
              linear-gradient(180deg,#fff 0%,rgba(255,255,255,0) 100%);
   opacity:0;transition:opacity .45s var(--ease-link)}
 .nav.is-scrolled::before{opacity:1}
+/* на тёмных секциях градиент прячем – иначе под меню остаётся белая полоса */
+.nav.is-over-dark::before{opacity:0}
+/* …и неактивные кнопки меню перекрашиваются: чёрное стекло, белый текст, чёрная тень */
+.nav .btn--nav,.nav .btn--nav span,.nav .nav__back,.nav .nav__back span{transition:background .15s var(--ease-link),color .15s var(--ease-link),text-shadow .15s var(--ease-link),transform .15s var(--ease-back),box-shadow .15s var(--ease-back)}
+.nav.is-over-dark .btn--nav:not(.is-active){background:rgba(0,0,0,.42);color:#fff}
+.nav.is-over-dark .btn--nav:not(.is-active) span{text-shadow:0 0 10px rgba(0,0,0,.55)}
+/* стрелка возврата на lednique.ru – в инверсии: чёрная кнопка, белая стрелка */
+.nav.is-over-dark .nav__back{background:#0a0a0a;color:#fff}
+.nav.is-over-dark .nav__back span{text-shadow:0 0 10px rgba(0,0,0,.55)}
 .nav.is-away{transform:translateY(-130%)}
 .nav__back{position:relative;flex:none;width:36px;height:36px;border-radius:50%;background:#fff;color:#0a0a0a;display:grid;place-items:center;text-decoration:none;font:600 16px/1 var(--font-b);border:1px solid var(--glass-b);box-shadow:inset 0 1px .5px rgba(255,255,255,.75),0 2px 6px rgba(0,0,0,.12),0 8px 18px rgba(0,0,0,.06);transition:transform .15s var(--ease-back)}
 .nav__back span{text-shadow:0 0 10px rgba(255,255,255,.55)}
