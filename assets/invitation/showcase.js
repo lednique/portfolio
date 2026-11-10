@@ -1,7 +1,7 @@
 (function () {
   const host = document.querySelector('[data-invitation-demo]');
   if (!host) return;
-  fetch('assets/invitation/showcase.html').then(function (response) {
+  fetch('assets/invitation/showcase.html?v=20261110b').then(function (response) {
     if (!response.ok) throw new Error('Invitation showcase failed to load');
     return response.text();
   }).then(function (html) {
@@ -267,7 +267,7 @@
     const bodyBottom = (1317 - 1615 / 2) / 1615;
     L.downCy = L.idleCy + boxH * bodyBottom + (L.idleW * AR) / 2 + boxH * 0.02;
 
-    L.fullW  = Math.min(vw * 0.86, (vh * 0.82) / AR);
+    L.fullW  = Math.min(vw * 0.72, (vh * 0.58) / AR, 520);
     L.fullCx = vw / 2;
     L.fullCy = vh / 2;
 
@@ -717,6 +717,7 @@
   }
   window.addEventListener('scroll', checkVisibility, { passive: true });
   window.addEventListener('resize', checkVisibility);
+  if ('ResizeObserver' in window) new ResizeObserver(function () { measure(); kick(); checkVisibility(); }).observe(stage);
   document.addEventListener('visibilitychange', checkVisibility);
   checkVisibility();
 

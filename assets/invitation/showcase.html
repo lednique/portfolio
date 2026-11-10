@@ -48,6 +48,7 @@
   overflow-y:hidden;
   font-family:var(--font);
   font-weight:700;
+  line-height:normal;
   color:var(--ink);
   background:#ffffff;
   -webkit-tap-highlight-color:transparent;
@@ -64,7 +65,8 @@
   position:relative;
   z-index:0;
   width:100%;
-  height:clamp(470px, 64vw, 650px);
+  height:100%;
+  container-type:size;
   overflow:hidden;
 }
 
@@ -109,7 +111,7 @@
 .postbox{ z-index:3; }
 
 .postbox-shadow img,
-.postbox__.demo-root{
+.postbox__body{
   width:100%;
   height:100%;
   object-fit:contain;
@@ -526,13 +528,20 @@
 .back, .details-link, .hint, .event-details { display:none !important; }
 .demo-root.is-open { overflow:hidden; }
 
-:host{display:block;--box-w:min(70vw, 32vh, 350px);}
-.demo-root{position:relative; min-height:0; overflow:hidden; background:transparent;}
+:host{display:block;height:100%;--box-w:min(70vw, 32vh, 350px);}
+.demo-root{position:relative; height:100%; min-height:0; overflow:hidden; background:transparent;}
 .card-stage{background:transparent;}
 .is-open .postbox,.is-open .postbox-shadow{transform:translate(-50%, calc(-50% - 700px)) rotate(-2.5deg);}
 .back,.details-link,.hint,.event-details{display:none!important;}
 .field__go.demo-pressed{transform:scale(.85);background:rgba(92,18,38,.13);}
-@media(max-width:600px){:host{--box-w:min(65vw, 30vh, 290px)} .card-stage{height:480px;}}
+/* All parts use the same stage dimensions, not the browser viewport. */
+.postbox, .postbox-shadow{width:min(70cqw, 32cqh, 350px)}
+.panel{padding-bottom:clamp(8px, 4cqh, 32px)}
+.field{width:min(248px, 64cqw)}
+.field__label{font-size:clamp(9px, 1.5cqh, 12px);margin-bottom:clamp(5px, 1.4cqh, 10px)}
+.field__input{font-size:clamp(16px, 3.2cqh, 23px)}
+.field__hint{font-size:clamp(9px, 1.45cqh, 11px)}
+@media(max-width:600px){.postbox,.postbox-shadow{width:min(65cqw, 32cqh, 290px)}}
 </style><div class="demo-root preload"><div class="card-stage" id="cardStage">
   <!-- открытка: canvas на весь первый экран, поэтому её не обрезает по краям -->
   <canvas id="cardCanvas" class="card-canvas" tabindex="0"

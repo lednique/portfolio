@@ -346,7 +346,7 @@ b,strong{font-weight:600}
 .section--pin{padding:0;min-height:0;display:block}
 .pinwrap{height:calc(var(--vh,100vh)*(1 + var(--n,4)*.5))}
 .pinstage{position:sticky;top:0;height:var(--vh,100vh);overflow:hidden;display:flex;flex-direction:column;justify-content:center}
-.pinstage__in{position:relative;z-index:1;height:100%;padding-block:128px 36px;display:flex;flex-direction:column;gap:var(--gap)}
+.pinstage__in{position:relative;z-index:1;height:100%;padding-block:128px 0;display:flex;flex-direction:column;gap:var(--gap)}
 .pinstage .sechead{margin-bottom:0;flex:none}
 .pin__grid{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:minmax(0,1fr);gap:var(--gap)}
 .pin__panel{position:relative;height:100%;min-height:0;border-radius:44px;overflow:hidden;background:#111;box-shadow:var(--fx);color:#fff}
@@ -357,8 +357,14 @@ b,strong{font-weight:600}
 .pin__panel--type{background:#0a0a0a;display:flex;flex-direction:column;justify-content:space-between;padding:28px}
 .pin__panel--type .pin__cap{position:static}
 .pin__num{font:500 clamp(140px,18vw,260px)/.8 var(--font-d);letter-spacing:-.0625em;color:var(--lime)}
-.pin__steps{position:relative;height:100%;min-height:0;overflow:hidden}
-.pin__list{display:flex;flex-direction:column;gap:var(--gap);padding-block:var(--gap);will-change:transform}
+.pin__steps{position:relative;height:100%;min-height:0;overflow:hidden;
+  --pin-fade-top:0px;--pin-fade-bottom:0px;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 var(--pin-fade-top),#000 calc(100% - var(--pin-fade-bottom)),transparent 100%);
+  mask-image:linear-gradient(to bottom,transparent 0,#000 var(--pin-fade-top),#000 calc(100% - var(--pin-fade-bottom)),transparent 100%)}
+.pin__steps.has-top-fade{--pin-fade-top:min(120px, 25%)}
+.pin__steps.has-bottom-fade{--pin-fade-bottom:min(120px, 25%)}
+.pin__list{display:flex;flex-direction:column;gap:var(--gap);padding-block:0 var(--gap);will-change:transform}
+.pin__intro{max-width:none;text-align:left;padding:0 4px 12px}
 .step{display:flex;flex-direction:column;justify-content:center;gap:14px;padding:32px;min-height:280px;border-radius:44px;background:rgba(255,255,255,.7);box-shadow:var(--shadow-frame);opacity:.4;transition:opacity .5s var(--ease-link)}
 .step.is-on{opacity:1}
 .step p{color:var(--muted);font-size:16px}
@@ -529,7 +535,7 @@ b,strong{font-weight:600}
   .pinstage__in{height:auto;padding-block:0}
   .pin__grid{display:flex;flex-direction:column}
   .pin__panel{display:none}
-  .pin__steps{overflow:visible;height:auto}
+  .pin__steps{overflow:visible;height:auto;-webkit-mask-image:none;mask-image:none}
   .pin__list{padding-block:0}
   .step{min-height:0;opacity:1}
 
@@ -925,7 +931,9 @@ body.lb-open{overflow:hidden}
 @media(max-width:900px){.cv__head{grid-template-columns:1fr 120px;gap:24px}.cv__portrait{width:120px;height:120px}.cv__head-actions{grid-column:1/-1}}
 @media(max-width:600px){.cv__head{padding:24px 0;gap:20px;grid-template-columns:minmax(0,1fr) 88px}.cv__head .h1{font-size:clamp(36px,10vw,56px)}.cv__portrait{width:88px;height:88px}.cv__section{gap:16px;padding:24px 0}.cv__content{padding-inline:0}}
 
-/* Интерактивное приглашение встроено в секцию без рамки. */
-.invitation-showcase{min-height:0;gap:clamp(24px,4vw,52px);overflow:hidden}
-.invitation-showcase__stage{display:block;width:100%;min-height:470px}
-@media(max-width:600px){.invitation-showcase__stage{min-height:480px}}
+/* Заголовок и анимация располагаются в пределах одного экрана. */
+.invitation-showcase{height:var(--vh,100vh);min-height:0;gap:0;padding-block:clamp(24px,4vh,48px);overflow:visible;justify-content:flex-start}
+.invitation-showcase > .tb{margin-bottom:12px;gap:12px}
+.invitation-showcase__stage{display:block;width:100%;flex:1 1 0;min-height:180px}
+@media(max-width:860px){.invitation-showcase{display:flex}.invitation-showcase > .tb{gap:10px}.invitation-showcase .lead{font-size:14px;line-height:1.45}}
+@media(max-height:550px){.invitation-showcase{height:auto;min-height:var(--vh,100vh)}.invitation-showcase__stage{height:220px;flex:none}}
