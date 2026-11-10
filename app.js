@@ -671,15 +671,21 @@
       const range = Math.max(1, wrap.offsetHeight - stage.offsetHeight);
       const p = clamp((-wrap.getBoundingClientRect().top / z) / range, 0, 1);
       const ch = box.clientHeight;
-      const travel = Math.max(0, list.scrollHeight - ch);
-      const offset = p * travel;
+      const centers = steps.map(step => step.offsetTop + step.offsetHeight / 2);
+      if (!centers.length) return;
+      // Keep an introductory paragraph visible, if present, before the first card
+      // reaches the centre. Otherwise the first card starts centred immediately.
+      const firstOffset = centers[0] - ch / 2;
+      const start = $('.pin__intro', list) ? Math.min(0, firstOffset) : firstOffset;
+      const end = Math.max(start, centers[centers.length - 1] - ch / 2);
+      const offset = start + p * (end - start);
       list.style.transform = `translateY(${-offset.toFixed(1)}px)`;
       box.classList.toggle('has-top-fade', offset > 1);
-      box.classList.toggle('has-bottom-fade', travel - offset > 1);
+      box.classList.toggle('has-bottom-fade', list.scrollHeight - offset - ch > 1);
       const mid = offset + ch / 2;
       let best = 0, bd = Infinity;
-      steps.forEach((step, k) => {
-        const d = Math.abs(step.offsetTop + step.offsetHeight / 2 - mid);
+      centers.forEach((center, k) => {
+        const d = Math.abs(center - mid);
         if (d < bd) { bd = d; best = k; }
       });
       set(best);
