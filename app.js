@@ -938,10 +938,36 @@
       if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       if (a.classList.contains('is-open')) { close(); return; }
       e.preventDefault();
+      const txt = $('.nav__back-txt', a);
+      if (txt) a.style.setProperty('--back-w', (txt.scrollWidth + 1) + 'px');   /* точная ширина подписи – для плавной анимации */
       a.classList.add('is-open');
       clearTimeout(timer); timer = setTimeout(close, 3000);
     });
     addEventListener('pageshow', close);
+  });
+
+  /* ---------- карусель клиентов: пауза при наведении ----------
+     дублирует правило .clients:hover из styles.css: класс + прямое управление анимацией,
+     чтобы лента останавливалась и там, где :hover на ней не срабатывает */
+  $$('.clients').forEach(c => {
+    const track = $('.clients__track', c);
+    if (!track) return;
+    const set = paused => {
+      c.classList.toggle('is-paused', paused);
+      if (track.getAnimations) track.getAnimations().forEach(an => { try { paused ? an.pause() : an.play(); } catch (e) {} });
+    };
+    c.addEventListener('mouseenter', () => set(true));
+    c.addEventListener('mouseleave', () => set(false));
+  });
+
+  /* ---------- логотип: при нажатии плавно увеличивается на 10 % (кривая --ease-back) ----------
+     класс держится не меньше 350 мс, чтобы анимация была видна и при коротком тапе */
+  $$('.logo').forEach(l => {
+    let t0 = 0, timer = 0;
+    const release = () => { clearTimeout(timer); timer = setTimeout(() => l.classList.remove('is-press'), Math.max(0, 350 - (performance.now() - t0))); };
+    l.addEventListener('pointerdown', () => { clearTimeout(timer); t0 = performance.now(); l.classList.add('is-press'); });
+    ['pointerup', 'pointercancel', 'pointerleave', 'blur'].forEach(ev => l.addEventListener(ev, release));
+    addEventListener('pageshow', () => l.classList.remove('is-press'));
   });
 
   /* ---------- мобильная главная: ряды кнопок в герое – всегда в одну строку ----------

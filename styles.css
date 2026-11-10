@@ -14,7 +14,7 @@
   --ease-link:cubic-bezier(.38,0,0,1);
   --cs:superellipse(2.3);   /* «как у Apple»: squircle со сглаживанием 60 % */
   --shadow-frame:0 4px 4px rgba(0,0,0,.25),1px 0 1px rgba(0,0,0,.3),-1px 0 0 rgba(0,0,0,.3);
-  --shadow-btn:0 6px 10px rgba(0,0,0,.1),1px 0 1px rgba(0,0,0,.3),-1px 0 1px rgba(0,0,0,.3);
+  --shadow-btn:0 6px 10px rgba(0,0,0,.1),2px 0 1px rgba(0,0,0,.3),-2px 0 1px rgba(0,0,0,.3);
   --act-bg:linear-gradient(180deg,rgba(255,255,255,.98),rgba(255,255,255,.72));
   /* стеклянный стиль контейнеров и кнопок – семь эффектов из Figma:
      inner shadow 0/1/0.5  #fff 45 % · inner shadow 0/0.5/0.5 #fff 60 % · inner shadow 0/-1/1 #fff 30 %
@@ -41,7 +41,8 @@
   /* белые внутренние тени кнопки – значения из макета Figma */
   --btn-glow:rgba(255,255,255,.6);     /* inset 0 8px 6px -5px */
   --btn-rim:rgba(255,255,255,.35);     /* inset 0 8px .5px -5px */
-  --btn-foot:rgba(255,255,255,.3);     /* inset 0 -8px 1px -5px */
+  --btn-foot:rgba(255,255,255,.35);    /* inset 0 -8px 1px -5px – той же яркости, что верхняя кромка */
+  --btn-foot-glass:rgba(255,255,255,.35); /* нижний блик полупрозрачных («стеклянных») кнопок, см. HDR-блок */
   --glass-fill:rgba(255,255,255,.42);  /* беловатая заливка неактивных пунктов меню/заявок */
   --off-fill:rgba(0,0,0,.5);           /* неактивные кнопки вне меню */
   --press-fill:#4d4d4d;                /* «прожатые» пункты меню и заявки – тёмно-серые */
@@ -50,8 +51,8 @@
            inset 0 8px 6px -5px var(--btn-glow),
            inset 0 8px .5px -5px var(--btn-rim);
   --btn-fx:0 6px 10px rgba(0,0,0,.1),      /* внешняя тень вниз – 10 % */
-           1px 0 1px rgba(0,0,0,.3),       /* боковые: сдвиг 1 px, размытие 1 px */
-           -1px 0 1px rgba(0,0,0,.3),
+           2px 0 1px rgba(0,0,0,.3),       /* боковые: сдвиг 2 px, размытие 1 px */
+           -2px 0 1px rgba(0,0,0,.3),
            inset 0 6px 20px -4px rgba(0,0,0,.3),
            inset 0 4px 20px rgba(0,0,0,.3);
 }
@@ -62,8 +63,13 @@
       --hdr-white:color(display-p3 1.8 1.8 1.8);
       --hdr-white-soft:color(display-p3 1.5 1.5 1.5 / .6);
       --btn-glow:color(display-p3 1.8 1.8 1.8 / .6);
-      --btn-rim:var(--hdr-white);          /* кромка с размытием .5 px – полный HDR-белый */
-      --btn-foot:var(--hdr-white-soft);    /* нижний блик – как раньше, виден и на белых кнопках */
+      /* верхняя кромка (размытие .5 px): середина между прежними 35 % и 100 % HDR-белого */
+      --btn-rim:color(display-p3 1.8 1.8 1.8 / .675);
+      /* нижний блик – той же яркости, что верхняя кромка */
+      --btn-foot:color(display-p3 1.8 1.8 1.8 / .675);
+      /* у полупрозрачных кнопок plus-lighter складывается только с их собственной (слабой) заливкой,
+         поэтому тот же блик выходит тусклее, чем на зелёных и белых непрозрачных – добираем яркостью */
+      --btn-foot-glass:var(--hdr-white);
     }
   }
 }
@@ -978,7 +984,8 @@ body.lb-open{overflow:hidden}
      круглые кнопки – размер 36 × 36.
    Блок стоит последним и перекрывает все прежние размеры и тени кнопок.
    ========================================================================== */
-.btn.btn,.opt.opt,.row input[type=date]{font-weight:700;letter-spacing:.025em}
+.btn.btn{font-weight:700;letter-spacing:.025em}
+.opt.opt,.row input[type=date]{font-weight:600;letter-spacing:.025em}   /* пункты заявки – прежнее начертание */
 [dir="rtl"] .btn.btn,[dir="rtl"] .opt.opt,[dir="rtl"] .row input[type=date]{letter-spacing:0}
 .btn.btn{gap:10px;text-transform:uppercase;box-shadow:var(--btn-fx)}
 .btn.btn::after{content:"";display:block;position:absolute;inset:0;border-radius:inherit;
@@ -986,6 +993,11 @@ body.lb-open{overflow:hidden}
 .btn:not(.btn--round){height:36px;min-height:0;padding:8px 15px;font-size:12px;line-height:16px}
 .lang__menu button{padding:8px 15px}
 .opt,.row input[type=date]{font-size:12px}
+/* полупрозрачные кнопки (неактивные пункты меню и заявки): нижний блик – --btn-foot-glass */
+.btn--nav:not(.is-active)::after,.opt:not(.is-on)::after{
+  box-shadow:inset 0 -8px 1px -5px var(--btn-foot-glass),
+             inset 0 8px 6px -5px var(--btn-glow),
+             inset 0 8px .5px -5px var(--btn-rim)}
 
 /* свечение текста кнопок */
 .btn.btn,.btn.btn span,.opt.opt,.opt.opt span,.row input[type=date],
@@ -1002,15 +1014,26 @@ body.lb-open{overflow:hidden}
 .nav__back{position:relative;display:inline-flex;align-items:center;justify-content:flex-start;flex:none;
   width:auto;min-width:36px;height:36px;padding:0;border:0;border-radius:36px;overflow:hidden;white-space:nowrap;
   font:700 12px/16px var(--font-b);letter-spacing:.025em;text-transform:uppercase;
-  box-shadow:var(--btn-fx)!important}
+  background:var(--glass-fill);box-shadow:var(--btn-fx)!important}
+.nav.is-over-dark .nav__back{background:rgba(0,0,0,.42)}   /* на тёмных секциях – как неактивные пункты меню */
 .nav__back::after{content:"";display:block;position:absolute;inset:0;border-radius:inherit;pointer-events:none;
-  z-index:2;mix-blend-mode:plus-lighter;box-shadow:var(--btn-light)}
+  z-index:2;mix-blend-mode:plus-lighter;
+  box-shadow:inset 0 -8px 1px -5px var(--btn-foot-glass),inset 0 8px 6px -5px var(--btn-glow),inset 0 8px .5px -5px var(--btn-rim)}
 .nav__back-ico{flex:none;width:36px;text-align:center;font-size:16px;line-height:1}
-.nav__back-txt{max-width:0;opacity:0;overflow:hidden;
-  transition:max-width .35s var(--ease-link),opacity .25s var(--ease-link),padding .35s var(--ease-link)}
-.nav__back.is-open .nav__back-txt{max-width:240px;opacity:1;padding-right:15px}
+/* раскрытие и сворачивание: ширина подписи идёт до её точного размера (--back-w задаёт app.js)
+   по кривой in-out (--ease-link); текст проявляется и подъезжает к стрелке */
+.nav__back-txt{display:block;width:0;margin-inline-end:0;overflow:hidden;opacity:0;transform:translateX(-10px);
+  transition:width .6s var(--ease-link),margin .6s var(--ease-link),transform .6s var(--ease-link),opacity .3s var(--ease-link)}
+.nav__back.is-open .nav__back-txt{width:var(--back-w,auto);margin-inline-end:15px;opacity:1;transform:none;
+  transition:width .6s var(--ease-link),margin .6s var(--ease-link),transform .6s var(--ease-link),opacity .45s var(--ease-link) .12s}
 [dir="rtl"] .nav__back{letter-spacing:0}
-[dir="rtl"] .nav__back.is-open .nav__back-txt{padding-right:0;padding-left:15px}
+[dir="rtl"] .nav__back-txt{transform:translateX(10px)}
+@media (prefers-reduced-motion:reduce){.nav__back-txt,.nav__back.is-open .nav__back-txt{transition:none}}
+
+/* ---------- логотип: без подсветки тапа; при нажатии плавно увеличивается на 10 % ---------- */
+.logo{-webkit-tap-highlight-color:transparent}
+.logo img{transition:transform .45s var(--ease-link);-webkit-user-drag:none;user-select:none}
+.logo.is-press img,.logo:active img{transform:scale(1.1);transition:transform .35s var(--ease-back)}
 
 /* ---------- главная: «Скачать резюме» + «Обсудить проект» (вторая – только на мобильной) ---------- */
 .home-hero__actions{order:4;align-self:flex-start;display:flex;flex-wrap:wrap;gap:10px}
@@ -1037,3 +1060,17 @@ body.lb-open{overflow:hidden}
    класс is-active у неё только ради заливки */
 .lang__btn.is-active{background:#caf865;color:#0a0a0a}
 .lang__btn.is-active span{text-shadow:0 0 10px rgba(255,255,255,.5)}
+
+/* ---------- «А также можно связаться»: на компьютере три контакта в одну линию ---------- */
+@media (min-width:1101px){
+  .contacts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .contacts .crow{grid-template-columns:auto minmax(0,1fr) auto;gap:12px;padding:18px 22px}
+  .contacts .crow b{min-width:0;overflow-wrap:anywhere}
+  .contacts .btn{grid-column:1/-1;justify-self:start}
+
+  /* страница AR-эффектов: блок описания рядом с видео – на 20 px правее */
+  .hero--arvid .aboutglass{left:calc((100% - 1280px)/2 - 60px)}
+}
+
+/* карусель клиентов: пауза при наведении (класс ставит app.js – на случай, если :hover не срабатывает) */
+.clients.is-paused .clients__track{animation-play-state:paused}
