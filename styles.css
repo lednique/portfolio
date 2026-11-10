@@ -938,3 +938,17 @@ body.lb-open{overflow:hidden}
 @media(min-width:861px){.invitation-showcase{height:calc(var(--vh,100vh) - 40px);padding-top:calc(clamp(24px,4vh,48px) + 40px)}}
 @media(max-width:860px){.invitation-showcase{display:flex}.invitation-showcase > .tb{gap:10px}.invitation-showcase .lead{font-size:14px;line-height:1.45}}
 @media(max-height:550px){.invitation-showcase{height:auto;min-height:var(--vh,100vh)}.invitation-showcase__stage{height:220px;flex:none}}
+
+/* Резюме: единый интервал между разделами и контакты внизу. */
+.cv__head{grid-template-columns:minmax(0,1fr) 225px minmax(200px,260px);margin-bottom:20px}
+.cv__brand{display:flex;align-items:center;gap:12px}
+.cv__brand .eyebrow::before{display:none}
+.cv__logo{width:75px;flex:none}
+.cv__portrait{width:225px;height:225px}
+.cv__section{padding:10px 0}
+.cv__section:first-child{padding-top:0}
+.cv__cta{margin-top:20px}
+.cv__cta .cv__btns{gap:8px;flex:0 1 480px}
+@media(max-width:900px){.cv__cta .cv__btns{flex:none}.cv__head{grid-template-columns:minmax(0,1fr) 180px}.cv__portrait{width:180px;height:180px}}
+@media(max-width:600px){.cv__head{grid-template-columns:minmax(0,1fr) 132px}.cv__portrait{width:132px;height:132px}.cv__section{padding:10px 0}.cv__cta .cv__btns{gap:8px}}
+@media(max-width:380px){.cv__head{grid-template-columns:minmax(0,1fr) 112px}.cv__portrait{width:112px;height:112px}}

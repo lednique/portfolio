@@ -20,7 +20,7 @@ pdfmetrics.registerFont(TTFont("Montserrat-SemiBold", str(FONT_DIR / "Montserrat
 pdfmetrics.registerFont(TTFont("RobotoCondensed", str(FONT_DIR / "RobotoCondensed-500.ttf")))
 
 PAGE_W, PAGE_H = A4
-MARGIN = 42
+MARGIN = 30
 TEXT_W = PAGE_W - 2 * MARGIN
 INK = (0.04, 0.04, 0.04)
 BODY = (0.19, 0.19, 0.19)
@@ -53,20 +53,21 @@ class Resume:
         self.canvas.setAuthor("LEDNIQUE")
         self.y = PAGE_H - MARGIN
         self.page = 1
+        self.first_section = True
         self.draw_header(first=True)
 
     def draw_header(self, first=False):
         c = self.canvas
         if first:
             top = PAGE_H - MARGIN
-            header_h = 165
+            header_h = 140
+            c.drawImage(str(ROOT / "assets" / "logo.png"), MARGIN, top - 24, width=40, height=28, preserveAspectRatio=True, mask="auto")
             c.setFillColorRGB(*INK)
             c.setFont("Montserrat-SemiBold", 8)
-            c.drawString(MARGIN, top - 10, "@lednique")
-            c.drawImage(str(ROOT / "assets" / "logo.png"), MARGIN + 100, top - 24, width=46, height=32, preserveAspectRatio=True, mask="auto")
+            c.drawString(MARGIN + 48, top - 10, "@lednique")
             c.setFillColorRGB(*MUTED)
             c.setFont("Montserrat", 8)
-            c.drawString(MARGIN + 160, top - 10, self.data["cv_label"])
+            c.drawString(MARGIN + 130, top - 10, self.data["cv_label"])
             c.setFillColorRGB(*INK)
             c.setFont("RobotoCondensed", 30)
             c.drawString(MARGIN, top - 56, self.data["name"])
@@ -74,15 +75,7 @@ class Resume:
             c.drawString(MARGIN, top - 77, self.data["title"])
             c.setFont("Montserrat", 8)
             c.drawString(MARGIN, top - 94, self.data["location"])
-            c.drawImage(str(ROOT / "assets" / "profile.jpg"), PAGE_W - MARGIN - 86, top - 105, width=86, height=86, preserveAspectRatio=True, anchor='c')
-            c.setStrokeColorRGB(0.82, 0.88, 0.75)
-            c.roundRect(MARGIN, top - 151, TEXT_W, 32, 10, stroke=1, fill=0)
-            c.setFillColorRGB(*INK)
-            c.setFont("Montserrat", 8)
-            for label, url, x in [(self.data["email"], "mailto:" + self.data["email"], MARGIN + 12), ("Telegram", "https://t.me/lednique", MARGIN + 165), ("Behance", "https://www.behance.net/lednique", MARGIN + 245), ("lednique.ru", "https://lednique.ru", MARGIN + 325)]:
-                c.drawString(x, top - 138, label)
-                width = pdfmetrics.stringWidth(label, "Montserrat", 8)
-                c.linkURL(url, (x, top - 141, x + width, top - 129), relative=0, thickness=0)
+            c.drawImage(str(ROOT / "assets" / "profile.jpg"), PAGE_W - MARGIN - 129, top - 139, width=129, height=129, preserveAspectRatio=True, anchor='c')
             self.y = top - header_h - 12
         else:
             c.setFillColorRGB(*INK)
@@ -103,14 +96,17 @@ class Resume:
             self.new_page()
 
     def section_heading(self, title):
-        self.ensure(27)
+        if not self.first_section:
+            self.y -= 15  # 20 CSS pixels at 96 dpi
+        self.first_section = False
+        self.ensure(38)
         c = self.canvas
         c.setFillColorRGB(*INK)
         c.setFont("RobotoCondensed", 13)
         c.drawString(MARGIN, self.y, title.upper())
         c.setFillColorRGB(*LIME)
         c.roundRect(MARGIN, self.y - 7, 28, 2.5, 1.2, stroke=0, fill=1)
-        self.y -= 20
+        self.y -= 16
 
     def paragraph(self, text, size=8.9, leading=12.2):
         lines = wrap(text, "Montserrat", size, TEXT_W)
@@ -185,24 +181,24 @@ class Resume:
         self.paragraph(self.data["languages"], size=8.2, leading=11)
         self.paragraph(self.data["work_format"], size=8.2, leading=11)
 
+        # Contact links form one island at the bottom, with uniform gaps.
+        self.ensure(48)
         c = self.canvas
-        footer_y = MARGIN - 14
-        c.setStrokeColorRGB(0.89, 0.89, 0.87)
-        c.setLineWidth(0.5)
-        c.line(MARGIN, footer_y + 10, PAGE_W - MARGIN, footer_y + 10)
-        c.setFillColorRGB(*MUTED)
-        c.setFont("Montserrat", 7.2)
-        email_x = MARGIN
-        email_w = pdfmetrics.stringWidth(self.data["email"], "Montserrat", 7.2)
-        c.drawString(email_x, footer_y, self.data["email"])
-        c.linkURL("mailto:" + self.data["email"], (email_x, footer_y - 2, email_x + email_w, footer_y + 8), relative=0, thickness=0)
-        separator_x = email_x + email_w + 5
-        c.drawString(separator_x, footer_y, "·")
-        telegram_x = separator_x + 9
-        telegram_w = pdfmetrics.stringWidth(self.data["telegram"], "Montserrat", 7.2)
-        c.drawString(telegram_x, footer_y, self.data["telegram"])
-        c.linkURL("https://t.me/lednique", (telegram_x, footer_y - 2, telegram_x + telegram_w, footer_y + 8), relative=0, thickness=0)
-        c.drawRightString(PAGE_W - MARGIN, footer_y, f"{self.page}")
+        footer_y = MARGIN
+        c.setStrokeColorRGB(0.82, 0.88, 0.75)
+        c.roundRect(MARGIN, footer_y, TEXT_W, 32, 10, stroke=1, fill=0)
+        c.setFillColorRGB(*INK)
+        c.setFont("Montserrat", 8)
+        x = MARGIN + 12
+        links = [(self.data["email"], "mailto:" + self.data["email"]),
+                 ("Telegram", "https://t.me/lednique"),
+                 ("Behance", "https://www.behance.net/lednique"),
+                 ("lednique.ru", "https://lednique.ru")]
+        for label, url in links:
+            width = pdfmetrics.stringWidth(label, "Montserrat", 8)
+            c.drawString(x, footer_y + 12, label)
+            c.linkURL(url, (x, footer_y + 9, x + width, footer_y + 21), relative=0, thickness=0)
+            x += width + 16
         c.save()
         print(f"{self.path.relative_to(ROOT)}: {self.page} page(s), content bottom {self.y:.1f} pt")
 
@@ -239,7 +235,7 @@ RU = {
     "tools": [
         ("Дизайн", "Figma, Photoshop, Illustrator, InDesign."),
         ("3D и видео", "Blender, After Effects, Premiere Pro."),
-        ("AR и AI", "Lens Studio, Effect House, Spark AR, Midjourney, Nano Banana, ChatGPT, Claude."),
+        ("AR и AI", "Lens Studio, Effect House, Midjourney, Nano Banana, ChatGPT, Claude."),
     ],
     "additional_title": "Образование и условия",
     "education": "ИжГТУ им. М.Т. Калашникова, специальность «Технология художественной и промышленной обработки материалов».",
@@ -279,7 +275,7 @@ EN = {
     "tools": [
         ("Design", "Figma, Photoshop, Illustrator, InDesign."),
         ("3D and video", "Blender, After Effects, Premiere Pro."),
-        ("AR and AI", "Lens Studio, Effect House, Spark AR, Midjourney, Nano Banana, ChatGPT, Claude."),
+        ("AR and AI", "Lens Studio, Effect House, Midjourney, Nano Banana, ChatGPT, Claude."),
     ],
     "additional_title": "Education and availability",
     "education": "Kalashnikov Izhevsk State Technical University – Technology of Artistic and Industrial Materials Processing.",
