@@ -38,19 +38,24 @@
      на HDR-экране – реальный белый выше 100 % (display-p3 с компонентами >1) */
   --hdr-white:#fff;
   --hdr-white-soft:rgba(255,255,255,.5);
-  --btn-glow:rgba(255,255,255,.4);     /* белая внутренняя тень кнопок с размытием 6 px – 40 % */
+  /* белые внутренние тени кнопки – значения из макета Figma */
+  --btn-glow:rgba(255,255,255,.6);     /* inset 0 8px 6px -5px */
+  --btn-rim:rgba(255,255,255,.35);     /* inset 0 8px .5px -5px */
+  --btn-foot:rgba(255,255,255,.3);     /* inset 0 -8px 1px -5px */
   --glass-fill:rgba(255,255,255,.42);  /* беловатая заливка неактивных пунктов меню/заявок */
   --off-fill:rgba(0,0,0,.5);           /* неактивные кнопки вне меню */
   --press-fill:#4d4d4d;                /* «прожатые» пункты меню и заявки – тёмно-серые */
   /* «кнопочный» стеклянный стиль (не путать с --fx у контейнеров) */
-  --btn-light:inset 0 8px .5px -5px rgba(255,255,255,.75),
+  --btn-light:inset 0 -8px 1px -5px var(--btn-foot),
            inset 0 8px 6px -5px var(--btn-glow),
-           inset 0 -8px 1px -5px rgba(255,255,255,.3);
-  --btn-fx:-2px 0 2px rgba(0,0,0,.3),
+           inset 0 8px .5px -5px var(--btn-rim);
+  --btn-fx:0 6px 10px rgba(0,0,0,.1),      /* внешняя тень вниз – 10 % */
            2px 0 2px rgba(0,0,0,.3),
-           0 6px 10px rgba(0,0,0,.1),      /* внешняя тень вниз – 10 % */
-           inset 0 4px 20px rgba(0,0,0,.3),
-           inset 0 6px 20px -4px rgba(0,0,0,.3);
+           -2px 0 2px rgba(0,0,0,.3),
+           inset 0 6px 20px -4px rgba(0,0,0,.3),
+           inset 0 4px 20px rgba(0,0,0,.3);
+  /* заливка кнопки поверх её цвета: градиент 360° в режиме overlay */
+  --btn-grad:linear-gradient(360deg,rgba(255,255,255,.2) 0%,rgba(0,0,0,.05) 32%,rgba(255,255,255,.1) 100%);
 }
 /* HDR-дисплеи: блики выводятся за пределы обычного белого (extended display-p3) */
 @supports (color:color(display-p3 1 1 1)){
@@ -58,7 +63,9 @@
     :root{
       --hdr-white:color(display-p3 1.8 1.8 1.8);
       --hdr-white-soft:color(display-p3 1.5 1.5 1.5 / .6);
-      --btn-glow:color(display-p3 1.8 1.8 1.8 / .4);
+      --btn-glow:color(display-p3 1.8 1.8 1.8 / .6);
+      --btn-rim:color(display-p3 1.8 1.8 1.8 / .35);
+      --btn-foot:color(display-p3 1.5 1.5 1.5 / .3);
     }
   }
 }
@@ -124,12 +131,12 @@ b,strong{font-weight:600}
 .btn--nav::before,.btn--nav::after,.opt::before,.opt::after{display:none}
 .btn--nav:hover,.opt:hover{transform:none}
 .btn--nav span,.opt span,.car__tag span{display:block;text-align:center}
-.btn--nav span{text-shadow:0 0 10px rgba(255,255,255,.55)}
+.btn--nav span{text-shadow:0 0 10px rgba(255,255,255,.5)}
 /* активный пункт меню – тёмно-серый (--press-fill) */
 .btn--nav.is-active{background:var(--press-fill);color:#fff;box-shadow:var(--btn-fx)}
 .btn--nav.is-active span{text-shadow:0 0 10px rgba(0,0,0,.55)}
 .opt{background:var(--glass-fill);color:#0a0a0a;box-shadow:var(--btn-fx);height:36px;padding:6px 12px;border-radius:36px;font:600 14px/17.6px var(--font-b);letter-spacing:.66px;text-transform:none}
-.opt span{text-shadow:0 0 10px rgba(255,255,255,.55)}
+.opt span{text-shadow:0 0 10px rgba(255,255,255,.5)}
 .opt.is-on{background:var(--press-fill);color:#fff;box-shadow:var(--btn-fx)}
 .opt.is-on span{text-shadow:0 0 10px rgba(0,0,0,.55)}
 .car__tag{background:rgba(255,255,255,.22);color:#fff;box-shadow:var(--fx)}
@@ -426,7 +433,7 @@ b,strong{font-weight:600}
 .opts{display:flex;flex-wrap:wrap;gap:8px}
 .opt{height:36px;padding:6px 14px;border:0;border-radius:36px;font:600 14px/17.6px var(--font-b);letter-spacing:.66px;text-transform:none;cursor:pointer;transition:transform .15s var(--ease-back)}
 .opt:active{transform:scale(.97)}
-.row input[type=date]{width:auto;height:36px;min-width:196px;padding:6px 14px;border-radius:36px;background:var(--glass-fill);color:#0a0a0a;font:600 14px/17.6px var(--font-b);letter-spacing:.66px;box-shadow:var(--btn-fx);cursor:pointer;text-shadow:0 0 10px rgba(255,255,255,.55);-webkit-appearance:none;appearance:none}
+.row input[type=date]{width:auto;height:36px;min-width:196px;padding:6px 14px;border-radius:36px;background:var(--glass-fill);color:#0a0a0a;font:600 14px/17.6px var(--font-b);letter-spacing:.66px;box-shadow:var(--btn-fx);cursor:pointer;text-shadow:0 0 10px rgba(255,255,255,.5);-webkit-appearance:none;appearance:none}
 .row input[type=date]::-webkit-calendar-picker-indicator{opacity:.75;cursor:pointer}
 /* цифры в поле даты – как текст кнопок: чёрные с мягкой тенью */
 .row input[type=date]::-webkit-datetime-edit,
@@ -434,7 +441,7 @@ b,strong{font-weight:600}
 .row input[type=date]::-webkit-datetime-edit-text,
 .row input[type=date]::-webkit-datetime-edit-day-field,
 .row input[type=date]::-webkit-datetime-edit-month-field,
-.row input[type=date]::-webkit-datetime-edit-year-field{color:#0a0a0a;text-shadow:0 0 10px rgba(255,255,255,.55)}
+.row input[type=date]::-webkit-datetime-edit-year-field{color:#0a0a0a;text-shadow:0 0 10px rgba(255,255,255,.5)}
 .row input[type=date]:invalid::-webkit-datetime-edit{color:#0a0a0a}
 .row input[type=date]:hover{box-shadow:var(--btn-fx)}
 /* выбранная дата – «прожатый» пункт заявки: тёмно-серый, цифры и значок календаря белые */
@@ -789,11 +796,7 @@ body.lb-open{overflow:hidden}
    то есть максимально плотный, без серой полупрозрачности */
 .nav .btn--nav::after,.nav__links a::after,.nav .opt::after{
   mix-blend-mode:plus-lighter;
-  box-shadow:
-    inset 0 1px .5px var(--hdr-white),
-    inset 0 .5px .5px var(--hdr-white),
-    inset 0 8px 6px -5px var(--btn-glow),
-    inset 0 -8px 1px -5px var(--hdr-white-soft)}
+  box-shadow:var(--btn-light)}
 
 /* контейнеры и круглые кнопки (стек из Figma) */
 .svc,.svc__arrow,.feat__card,.pin__panel,.step,.cmp__card,.glass,.crow,
@@ -870,11 +873,7 @@ body.lb-open{overflow:hidden}
 .btn--lg::after,.btn--sm::after{
   content:"";display:block;position:absolute;inset:0;border-radius:inherit;
   pointer-events:none;z-index:2;mix-blend-mode:plus-lighter;
-  box-shadow:
-    inset 0 1px .5px var(--hdr-white),
-    inset 0 .5px .5px var(--hdr-white),
-    inset 0 8px 6px -5px var(--btn-glow),
-    inset 0 -8px 1px -5px var(--hdr-white-soft)}
+  box-shadow:var(--btn-light)}
 
 /* мобильная шапка: у тонких пилюль аддитивный блик убираем */
 @media (max-width:1100px){
@@ -968,20 +967,29 @@ body.lb-open{overflow:hidden}
 .cv__contacts{display:flex;flex-wrap:wrap;gap:8px;padding:16px;margin:10px 0;border:1px solid #d9e4cb;border-radius:18px;background:#fff;scroll-margin-top:120px}
 
 /* ==========================================================================
-   ЕДИНЫЙ СТАНДАРТ КНОПОК
-   • кегль текста во всех кнопках – 12 px;
-   • поля от текста – 8 px сверху и снизу, 15 px слева и справа,
-     высота пилюли = 12 + 8 + 8 = 28 px на любом экране;
-   • пункты формы заявки (.opt и поле даты) сохраняют свои размеры,
-     у них меняется только кегль; «Отправить заявку» – как все кнопки;
-   • круглые кнопки со стрелками и крестиком не меняются.
-   Блок стоит последним и перекрывает все прежние размеры кнопок.
+   БАЗОВЫЙ СТИЛЬ КНОПКИ (макет Figma) И ЕДИНЫЙ РАЗМЕР
+   • текстовые кнопки: высота 36 px на любом экране, поля 8 px / 15 px,
+     текст 12 px / 16 px;
+   • шрифт Montserrat Bold, прописные, трекинг .025em, свечение текста 50 %;
+   • заливка: цвет кнопки + градиент --btn-grad в режиме overlay;
+   • тени: тёмные --btn-fx на самой кнопке, белые --btn-light слоем ::after;
+   • пункты формы заявки (.opt и поле даты) сохраняют размер и регистр,
+     круглые кнопки – размер 36 × 36.
+   Блок стоит последним и перекрывает все прежние размеры и тени кнопок.
    ========================================================================== */
-.btn:not(.btn--round){height:auto;min-height:0;padding:8px 15px;font-size:12px;line-height:1}
+.btn.btn,.opt.opt,.row input[type=date]{
+  font-weight:700;letter-spacing:.025em;
+  background-image:var(--btn-grad)!important;background-blend-mode:overlay!important}
+[dir="rtl"] .btn.btn,[dir="rtl"] .opt.opt,[dir="rtl"] .row input[type=date]{letter-spacing:0}
+.btn.btn{gap:10px;text-transform:uppercase;box-shadow:var(--btn-fx)}
+.btn.btn::after{content:"";display:block;position:absolute;inset:0;border-radius:inherit;
+  pointer-events:none;z-index:2;mix-blend-mode:plus-lighter;box-shadow:var(--btn-light)}
+.btn:not(.btn--round){height:36px;min-height:0;padding:8px 15px;font-size:12px;line-height:16px}
+.btn:not(.btn--ink){text-shadow:0 0 10px rgba(255,255,255,.5)}
 .lang__menu button{padding:8px 15px}
 .opt,.row input[type=date]{font-size:12px}
 
 /* кнопка языка в футере остаётся акцентной (лайм): это не «прожатый» пункт меню,
    класс is-active у неё только ради заливки */
 .lang__btn.is-active{background:#caf865;color:#0a0a0a}
-.lang__btn.is-active span{text-shadow:0 0 10px rgba(255,255,255,.6)}
+.lang__btn.is-active span{text-shadow:0 0 10px rgba(255,255,255,.5)}
