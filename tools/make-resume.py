@@ -171,20 +171,10 @@ class Resume:
     def build(self):
         self.section_heading(self.data["profile_title"])
         self.paragraph(self.data["profile"], size=8.8, leading=12)
-        self.skill_rows(self.data["skills_title"], self.data["skills"])
-        self.skill_rows(self.data["tools_title"], self.data["tools"])
-        self.experience()
-        self.section_heading(self.data["clients_title"])
-        self.paragraph(self.data["clients"], size=8.4, leading=11.4)
-        self.section_heading(self.data["additional_title"])
-        self.paragraph(self.data["education"], size=8.2, leading=11)
-        self.paragraph(self.data["languages"], size=8.2, leading=11)
-        self.paragraph(self.data["work_format"], size=8.2, leading=11)
-
-        # Contact links form one island at the bottom, with uniform gaps.
+        # Contact links follow the profile with uniform spacing.
         self.ensure(48)
         c = self.canvas
-        footer_y = MARGIN
+        footer_y = self.y - 42
         c.setStrokeColorRGB(0.82, 0.88, 0.75)
         c.roundRect(MARGIN, footer_y, TEXT_W, 32, 10, stroke=1, fill=0)
         c.setFillColorRGB(*INK)
@@ -199,6 +189,17 @@ class Resume:
             c.drawString(x, footer_y + 12, label)
             c.linkURL(url, (x, footer_y + 9, x + width, footer_y + 21), relative=0, thickness=0)
             x += width + 16
+        self.y = footer_y - 3
+        self.skill_rows(self.data["skills_title"], self.data["skills"])
+        self.skill_rows(self.data["tools_title"], self.data["tools"])
+        self.experience()
+        self.section_heading(self.data["clients_title"])
+        self.paragraph(self.data["clients"], size=8.4, leading=11.4)
+        self.section_heading(self.data["additional_title"])
+        self.paragraph(self.data["education"], size=8.2, leading=11)
+        self.paragraph(self.data["languages"], size=8.2, leading=11)
+        self.paragraph(self.data["work_format"], size=8.2, leading=11)
+
         c.save()
         print(f"{self.path.relative_to(ROOT)}: {self.page} page(s), content bottom {self.y:.1f} pt")
 

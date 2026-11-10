@@ -952,3 +952,5 @@ body.lb-open{overflow:hidden}
 @media(max-width:900px){.cv__cta .cv__btns{flex:none}.cv__head{grid-template-columns:minmax(0,1fr) 180px}.cv__portrait{width:180px;height:180px}}
 @media(max-width:600px){.cv__head{grid-template-columns:minmax(0,1fr) 132px}.cv__portrait{width:132px;height:132px}.cv__section{padding:10px 0}.cv__cta .cv__btns{gap:8px}}
 @media(max-width:380px){.cv__head{grid-template-columns:minmax(0,1fr) 112px}.cv__portrait{width:112px;height:112px}}
+
+.cv__contacts{display:flex;flex-wrap:wrap;gap:8px;padding:16px;margin:10px 0;border:1px solid #d9e4cb;border-radius:18px;background:#fff;scroll-margin-top:120px}
