@@ -14,7 +14,7 @@
   --ease-link:cubic-bezier(.38,0,0,1);
   --cs:superellipse(2.3);   /* «как у Apple»: squircle со сглаживанием 60 % */
   --shadow-frame:0 4px 4px rgba(0,0,0,.25),1px 0 1px rgba(0,0,0,.3),-1px 0 0 rgba(0,0,0,.3);
-  --shadow-btn:0 6px 10px rgba(0,0,0,.2),2px 0 2px rgba(0,0,0,.3),-2px 0 2px rgba(0,0,0,.3);
+  --shadow-btn:0 6px 10px rgba(0,0,0,.1),2px 0 1px rgba(0,0,0,.3),-2px 0 1px rgba(0,0,0,.3);
   --act-bg:linear-gradient(180deg,rgba(255,255,255,.98),rgba(255,255,255,.72));
   /* стеклянный стиль контейнеров и кнопок – семь эффектов из Figma:
      inner shadow 0/1/0.5  #fff 45 % · inner shadow 0/0.5/0.5 #fff 60 % · inner shadow 0/-1/1 #fff 30 %
@@ -29,21 +29,32 @@
        1px 0 1px rgba(0,0,0,.3),
        inset 0 2px 3px rgba(0,0,0,.3),
        0 4px 4px rgba(0,0,0,.25);
+  /* тот же стек для круглых кнопок-стрелок: внешняя тень вниз – 10 % */
+  --fx-btn:-1px 0 1px rgba(0,0,0,.3),
+       1px 0 1px rgba(0,0,0,.3),
+       inset 0 2px 3px rgba(0,0,0,.3),
+       0 4px 4px rgba(0,0,0,.1);
   /* белый блик: на SDR-экране это обычный #fff (браузер обрежет),
      на HDR-экране – реальный белый выше 100 % (display-p3 с компонентами >1) */
   --hdr-white:#fff;
   --hdr-white-soft:rgba(255,255,255,.5);
+  /* белые внутренние тени кнопки – значения из макета Figma */
+  --btn-glow:rgba(255,255,255,.6);     /* inset 0 8px 6px -5px */
+  --btn-rim:rgba(255,255,255,.35);     /* inset 0 6px 1px -4px */
+  --btn-foot:rgba(255,255,255,.35);    /* inset 0 -6px 1px -4px – той же яркости, что верхняя кромка */
+  --btn-foot-glass:rgba(255,255,255,.35); /* нижний блик полупрозрачных («стеклянных») кнопок, см. HDR-блок */
   --glass-fill:rgba(255,255,255,.42);  /* беловатая заливка неактивных пунктов меню/заявок */
   --off-fill:rgba(0,0,0,.5);           /* неактивные кнопки вне меню */
+  --press-fill:#4d4d4d;                /* «прожатые» пункты меню и заявки – тёмно-серые */
   /* «кнопочный» стеклянный стиль (не путать с --fx у контейнеров) */
-  --btn-light:inset 0 8px .5px -5px rgba(255,255,255,.75),
-           inset 0 8px 6px -5px #fff,
-           inset 0 -8px 1px -5px rgba(255,255,255,.3);
-  --btn-fx:-2px 0 2px rgba(0,0,0,.3),
-           2px 0 2px rgba(0,0,0,.3),
-           0 6px 10px rgba(0,0,0,.2),
-           inset 0 4px 20px rgba(0,0,0,.3),
-           inset 0 6px 20px -4px rgba(0,0,0,.3);
+  --btn-light:inset 0 -6px 1px -4px var(--btn-foot),
+           inset 0 8px 6px -5px var(--btn-glow),
+           inset 0 6px 1px -4px var(--btn-rim);
+  --btn-fx:0 6px 10px rgba(0,0,0,.1),      /* внешняя тень вниз – 10 % */
+           2px 0 1px rgba(0,0,0,.3),       /* боковые: сдвиг 2 px, размытие 1 px */
+           -2px 0 1px rgba(0,0,0,.3),
+           inset 0 6px 20px -4px rgba(0,0,0,.3),
+           inset 0 4px 20px rgba(0,0,0,.3);
 }
 /* HDR-дисплеи: блики выводятся за пределы обычного белого (extended display-p3) */
 @supports (color:color(display-p3 1 1 1)){
@@ -51,6 +62,14 @@
     :root{
       --hdr-white:color(display-p3 1.8 1.8 1.8);
       --hdr-white-soft:color(display-p3 1.5 1.5 1.5 / .6);
+      --btn-glow:color(display-p3 1.8 1.8 1.8 / .6);
+      /* верхняя кромка (размытие .5 px): середина между прежними 35 % и 100 % HDR-белого */
+      --btn-rim:color(display-p3 1.8 1.8 1.8 / .675);
+      /* нижний блик – той же яркости, что верхняя кромка */
+      --btn-foot:color(display-p3 1.8 1.8 1.8 / .675);
+      /* у полупрозрачных кнопок plus-lighter складывается только с их собственной (слабой) заливкой,
+         поэтому тот же блик выходит тусклее, чем на зелёных и белых непрозрачных – добираем яркостью */
+      --btn-foot-glass:var(--hdr-white);
     }
   }
 }
@@ -111,19 +130,19 @@ b,strong{font-weight:600}
 .btn--round{width:36px;padding:0;font-size:14px}
 
 /* меню и пункты заявок: прежний кнопочный стиль, меняется только цвет –
-   активная зелёная, неактивная беловатая */
+   активная («прожатая») тёмно-серая с белым текстом, неактивная беловатая */
 .btn--nav{background:var(--glass-fill);color:#0a0a0a;box-shadow:var(--btn-fx);height:36px;padding:6px 14px;border-radius:36px;font:600 14px/17.6px var(--font-b);letter-spacing:.66px;text-transform:none}
 .btn--nav::before,.btn--nav::after,.opt::before,.opt::after{display:none}
 .btn--nav:hover,.opt:hover{transform:none}
 .btn--nav span,.opt span,.car__tag span{display:block;text-align:center}
-.btn--nav span{text-shadow:0 0 10px rgba(255,255,255,.55)}
-/* активный пункт меню – #CAF865 */
-.btn--nav.is-active{background:#caf865;color:#0a0a0a;box-shadow:var(--btn-fx)}
-.btn--nav.is-active span{text-shadow:0 0 10px rgba(255,255,255,.6)}
+.btn--nav span{text-shadow:0 0 10px rgba(255,255,255,.5)}
+/* активный пункт меню – тёмно-серый (--press-fill) */
+.btn--nav.is-active{background:var(--press-fill);color:#fff;box-shadow:var(--btn-fx)}
+.btn--nav.is-active span{text-shadow:0 0 10px rgba(0,0,0,.5)}
 .opt{background:var(--glass-fill);color:#0a0a0a;box-shadow:var(--btn-fx);height:36px;padding:6px 12px;border-radius:36px;font:600 14px/17.6px var(--font-b);letter-spacing:.66px;text-transform:none}
-.opt span{text-shadow:0 0 10px rgba(255,255,255,.55)}
-.opt.is-on{background:#caf865;color:#0a0a0a;box-shadow:var(--btn-fx)}
-.opt.is-on span{text-shadow:0 0 10px rgba(255,255,255,.6)}
+.opt span{text-shadow:0 0 10px rgba(255,255,255,.5)}
+.opt.is-on{background:var(--press-fill);color:#fff;box-shadow:var(--btn-fx)}
+.opt.is-on span{text-shadow:0 0 10px rgba(0,0,0,.5)}
 .car__tag{background:rgba(255,255,255,.22);color:#fff;box-shadow:var(--fx)}
 .car__tag span{text-shadow:0 0 10px rgba(0,0,0,.5)}
 
@@ -131,7 +150,7 @@ b,strong{font-weight:600}
   height:36px;padding:6px 16px;border-radius:36px;font:600 14px/17.6px var(--font-b);letter-spacing:.4px}
 .btn--lime::before,.btn--lime::after{display:none}
 .btn--lime:hover{transform:none}
-.btn--ink{background:var(--off-fill);color:#fff;box-shadow:0 3px 6px rgba(0,0,0,.3);text-shadow:0 0 10px rgba(0,0,0,.35)}
+.btn--ink{background:var(--off-fill);color:#fff;box-shadow:0 3px 6px rgba(0,0,0,.1);text-shadow:0 0 10px rgba(0,0,0,.5)}
 .btn--ink::before{background:linear-gradient(90deg,#ffffff26,#ffffff59)}
 .btn--blue{background:#caf865;color:#0a0a0a;box-shadow:var(--shadow-frame);text-transform:none}
 
@@ -149,13 +168,13 @@ b,strong{font-weight:600}
 /* …и неактивные кнопки меню перекрашиваются: чёрное стекло, белый текст, чёрная тень */
 .nav .btn--nav,.nav .btn--nav span,.nav .nav__back,.nav .nav__back span{transition:background .15s var(--ease-link),color .15s var(--ease-link),text-shadow .15s var(--ease-link),transform .15s var(--ease-back),box-shadow .15s var(--ease-back)}
 .nav.is-over-dark .btn--nav:not(.is-active){background:rgba(0,0,0,.42);color:#fff}
-.nav.is-over-dark .btn--nav:not(.is-active) span{text-shadow:0 0 10px rgba(0,0,0,.55)}
+.nav.is-over-dark .btn--nav:not(.is-active) span{text-shadow:0 0 10px rgba(0,0,0,.5)}
 /* стрелка возврата на lednique.ru – в инверсии: чёрная кнопка, белая стрелка */
 .nav.is-over-dark .nav__back{background:#0a0a0a;color:#fff}
-.nav.is-over-dark .nav__back span{text-shadow:0 0 10px rgba(0,0,0,.55)}
+.nav.is-over-dark .nav__back span{text-shadow:0 0 10px rgba(0,0,0,.5)}
 .nav.is-away{transform:translateY(-130%)}
-.nav__back{position:relative;flex:none;width:36px;height:36px;border-radius:50%;background:#fff;color:#0a0a0a;display:grid;place-items:center;text-decoration:none;font:600 16px/1 var(--font-b);border:1px solid var(--glass-b);box-shadow:inset 0 1px .5px rgba(255,255,255,.75),0 2px 6px rgba(0,0,0,.12),0 8px 18px rgba(0,0,0,.06);transition:transform .15s var(--ease-back)}
-.nav__back span{text-shadow:0 0 10px rgba(255,255,255,.55)}
+.nav__back{position:relative;flex:none;width:36px;height:36px;border-radius:50%;background:#fff;color:#0a0a0a;display:grid;place-items:center;text-decoration:none;font:600 16px/1 var(--font-b);border:1px solid var(--glass-b);box-shadow:inset 0 1px .5px rgba(255,255,255,.75),0 2px 6px rgba(0,0,0,.1),0 8px 18px rgba(0,0,0,.06);transition:transform .15s var(--ease-back)}
+.nav__back span{text-shadow:0 0 10px rgba(255,255,255,.5)}
 .nav__back:hover{transform:scale(1.06)}
 .nav__in{max-width:var(--wrap);margin:auto;padding:12px var(--pad);display:flex;align-items:center;gap:20px;position:relative}
 .logo{display:block;flex:none;width:105px;position:relative;top:4px;transform:none;transition:none;animation:none}
@@ -240,7 +259,7 @@ b,strong{font-weight:600}
 .svc__body p{color:var(--muted);font-size:16px}
 .svc__body .btn{align-self:flex-start;margin-top:6px}
 .svc .h3 a{text-decoration:none}
-.svc__arrow{position:absolute;left:20px;right:auto;bottom:20px;width:48px;height:48px;border-radius:48px;display:grid;place-items:center;background:rgba(255,255,255,.8);box-shadow:var(--fx);text-decoration:none;font-size:20px;transition:transform .15s var(--ease-back)}
+.svc__arrow{position:absolute;left:20px;right:auto;bottom:20px;width:48px;height:48px;border-radius:48px;display:grid;place-items:center;background:rgba(255,255,255,.8);box-shadow:var(--fx-btn);text-decoration:none;font-size:20px;transition:transform .15s var(--ease-back)}
 .svc__arrow:hover{transform:scale(1.1)}
 .feat{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap)}
 .feat__card{display:flex;flex-direction:column;gap:14px;padding:36px;border-radius:44px;background:var(--gray-sec);box-shadow:var(--fx);min-height:290px}
@@ -288,7 +307,7 @@ b,strong{font-weight:600}
 .car--photo .car__item img{width:auto;height:100%}
 .car__nav{display:flex;align-items:center;justify-content:space-between;gap:20px}
 .car__ctl{display:flex;align-items:center;gap:10px}
-.car__btn{width:44px;height:44px;border-radius:44px;border:0;display:grid;place-items:center;cursor:pointer;font-size:18px;line-height:1;background:rgba(255,255,255,.8);box-shadow:var(--fx);transition:transform .15s var(--ease-back),opacity .2s}
+.car__btn{width:44px;height:44px;border-radius:44px;border:0;display:grid;place-items:center;cursor:pointer;font-size:18px;line-height:1;background:rgba(255,255,255,.8);box-shadow:var(--fx-btn);transition:transform .15s var(--ease-back),opacity .2s}
 .car__btn:hover{transform:scale(1.1)}
 .car__btn:disabled{opacity:.35;cursor:default;transform:none}
 .car__count{font:600 11px/1 var(--font-b);letter-spacing:.14em;color:#8a8a8a;margin-left:10px}
@@ -310,7 +329,7 @@ b,strong{font-weight:600}
   background:var(--glass-fill);color:#0a0a0a;box-shadow:var(--btn-fx);
   font:600 14px/17.6px var(--font-b);letter-spacing:.66px;text-transform:none;
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-.car__tag span{text-shadow:0 0 10px rgba(255,255,255,.55)}
+.car__tag span{text-shadow:0 0 10px rgba(255,255,255,.5)}
 .car__cap{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:60px 18px 20px;color:#fff;background:linear-gradient(180deg,transparent,rgba(0,0,0,.72));display:flex;flex-direction:column;gap:4px;border-radius:0 0 24px 24px}
 .car__cap b{font:500 26px/1 var(--font-d);letter-spacing:-.02em;text-transform:uppercase}
 .car__cap span{font:600 10px/1.3 var(--font-b);letter-spacing:.12em;text-transform:uppercase;opacity:.85}
@@ -418,7 +437,7 @@ b,strong{font-weight:600}
 .opts{display:flex;flex-wrap:wrap;gap:8px}
 .opt{height:36px;padding:6px 14px;border:0;border-radius:36px;font:600 14px/17.6px var(--font-b);letter-spacing:.66px;text-transform:none;cursor:pointer;transition:transform .15s var(--ease-back)}
 .opt:active{transform:scale(.97)}
-.row input[type=date]{width:auto;height:36px;min-width:196px;padding:6px 14px;border-radius:36px;background:var(--glass-fill);color:#0a0a0a;font:600 14px/17.6px var(--font-b);letter-spacing:.66px;box-shadow:var(--btn-fx);cursor:pointer;text-shadow:0 0 10px rgba(255,255,255,.55);-webkit-appearance:none;appearance:none}
+.row input[type=date]{width:auto;height:36px;min-width:196px;padding:6px 14px;border-radius:36px;background:var(--glass-fill);color:#0a0a0a;font:600 14px/17.6px var(--font-b);letter-spacing:.66px;box-shadow:var(--btn-fx);cursor:pointer;text-shadow:0 0 10px rgba(255,255,255,.5);-webkit-appearance:none;appearance:none}
 .row input[type=date]::-webkit-calendar-picker-indicator{opacity:.75;cursor:pointer}
 /* цифры в поле даты – как текст кнопок: чёрные с мягкой тенью */
 .row input[type=date]::-webkit-datetime-edit,
@@ -426,10 +445,19 @@ b,strong{font-weight:600}
 .row input[type=date]::-webkit-datetime-edit-text,
 .row input[type=date]::-webkit-datetime-edit-day-field,
 .row input[type=date]::-webkit-datetime-edit-month-field,
-.row input[type=date]::-webkit-datetime-edit-year-field{color:#0a0a0a;text-shadow:0 0 10px rgba(255,255,255,.55)}
+.row input[type=date]::-webkit-datetime-edit-year-field{color:#0a0a0a;text-shadow:0 0 10px rgba(255,255,255,.5)}
 .row input[type=date]:invalid::-webkit-datetime-edit{color:#0a0a0a}
 .row input[type=date]:hover{box-shadow:var(--btn-fx)}
-.row input[type=date].is-on{background:#caf865;color:#0a0a0a;text-shadow:0 0 10px rgba(255,255,255,.6)}
+/* выбранная дата – «прожатый» пункт заявки: тёмно-серый, цифры и значок календаря белые */
+.row input[type=date].is-on{background:var(--press-fill);color:#fff;text-shadow:0 0 10px rgba(0,0,0,.5)}
+.row input[type=date].is-on::-webkit-datetime-edit,
+.row input[type=date].is-on::-webkit-datetime-edit-fields-wrapper,
+.row input[type=date].is-on::-webkit-datetime-edit-text,
+.row input[type=date].is-on::-webkit-datetime-edit-day-field,
+.row input[type=date].is-on::-webkit-datetime-edit-month-field,
+.row input[type=date].is-on::-webkit-datetime-edit-year-field{color:#fff;text-shadow:0 0 10px rgba(0,0,0,.5)}
+.row input[type=date].is-on:invalid::-webkit-datetime-edit{color:#fff}
+.row input[type=date].is-on::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.9}
 
 .lform__actions{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
 .consent{font-size:11px;opacity:.7;max-width:420px}
@@ -772,11 +800,7 @@ body.lb-open{overflow:hidden}
    то есть максимально плотный, без серой полупрозрачности */
 .nav .btn--nav::after,.nav__links a::after,.nav .opt::after{
   mix-blend-mode:plus-lighter;
-  box-shadow:
-    inset 0 1px .5px var(--hdr-white),
-    inset 0 .5px .5px var(--hdr-white),
-    inset 0 8px 6px -5px var(--hdr-white),
-    inset 0 -8px 1px -5px var(--hdr-white-soft)}
+  box-shadow:var(--btn-light)}
 
 /* контейнеры и круглые кнопки (стек из Figma) */
 .svc,.svc__arrow,.feat__card,.pin__panel,.step,.cmp__card,.glass,.crow,
@@ -792,7 +816,7 @@ body.lb-open{overflow:hidden}
 .nav__back::after{
   content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
   box-shadow:inset 0 1px .5px rgba(255,255,255,.75);mix-blend-mode:plus-lighter}
-.nav__back{box-shadow:0 2px 6px rgba(0,0,0,.12),0 8px 18px rgba(0,0,0,.06)!important}
+.nav__back{box-shadow:0 2px 6px rgba(0,0,0,.1)!important}   /* внешняя тень вниз – 10 % */
 
 /* поля ввода – псевдоэлементы не рендерятся, поэтому белый блик остаётся в тени */
 .row input[type=date],.row input[type=date]:hover{box-shadow:var(--btn-fx),var(--btn-light)}
@@ -853,11 +877,7 @@ body.lb-open{overflow:hidden}
 .btn--lg::after,.btn--sm::after{
   content:"";display:block;position:absolute;inset:0;border-radius:inherit;
   pointer-events:none;z-index:2;mix-blend-mode:plus-lighter;
-  box-shadow:
-    inset 0 1px .5px var(--hdr-white),
-    inset 0 .5px .5px var(--hdr-white),
-    inset 0 8px 6px -5px var(--hdr-white),
-    inset 0 -8px 1px -5px var(--hdr-white-soft)}
+  box-shadow:var(--btn-light)}
 
 /* мобильная шапка: у тонких пилюль аддитивный блик убираем */
 @media (max-width:1100px){
@@ -949,3 +969,108 @@ body.lb-open{overflow:hidden}
 @media(max-width:380px){.cv__head{grid-template-columns:minmax(0,1fr) 112px}.cv__portrait{width:112px;height:112px}}
 
 .cv__contacts{display:flex;flex-wrap:wrap;gap:8px;padding:16px;margin:10px 0;border:1px solid #d9e4cb;border-radius:18px;background:#fff;scroll-margin-top:120px}
+
+/* ==========================================================================
+   БАЗОВЫЙ СТИЛЬ КНОПКИ (макет Figma) И ЕДИНЫЙ РАЗМЕР
+   • текстовые кнопки: высота 36 px на любом экране, поля 8 px / 15 px,
+     текст 12 px / 16 px;
+   • шрифт Montserrat Bold, прописные, трекинг .025em;
+   • заливка – собственный цвет кнопки, без градиента;
+   • тени: тёмные --btn-fx на самой кнопке, белые --btn-light слоем ::after
+     с наложением plus-lighter (на HDR-экранах белый ярче обычного);
+   • свечение текста: у чёрного – белое 50 %, у белого – чёрное 50 %,
+     размытие 10 px, без сдвига и без HDR;
+   • пункты формы заявки (.opt и поле даты) сохраняют размер и регистр,
+     круглые кнопки – размер 36 × 36.
+   Блок стоит последним и перекрывает все прежние размеры и тени кнопок.
+   ========================================================================== */
+.btn.btn{font-weight:700;letter-spacing:.025em}
+.opt.opt,.row input[type=date]{font-weight:600;letter-spacing:.025em}   /* пункты заявки – прежнее начертание */
+[dir="rtl"] .btn.btn,[dir="rtl"] .opt.opt,[dir="rtl"] .row input[type=date]{letter-spacing:0}
+.btn.btn{gap:10px;text-transform:uppercase;box-shadow:var(--btn-fx)}
+.btn.btn::after{content:"";display:block;position:absolute;inset:0;border-radius:inherit;
+  pointer-events:none;z-index:2;mix-blend-mode:plus-lighter;box-shadow:var(--btn-light)}
+.btn:not(.btn--round){height:36px;min-height:0;padding:8px 15px;font-size:12px;line-height:16px}
+.lang__menu button{padding:8px 15px}
+.opt,.row input[type=date]{font-size:12px}
+/* полупрозрачные кнопки (неактивные пункты меню и заявки): нижний блик – --btn-foot-glass */
+.btn--nav:not(.is-active)::after,.opt:not(.is-on)::after{
+  box-shadow:inset 0 -6px 1px -4px var(--btn-foot-glass),
+             inset 0 8px 6px -5px var(--btn-glow),
+             inset 0 6px 1px -4px var(--btn-rim)}
+
+/* свечение текста кнопок */
+.btn.btn,.btn.btn span,.opt.opt,.opt.opt span,.row input[type=date],
+.nav__back,.nav__back span{text-shadow:0 0 10px rgba(255,255,255,.5)}
+.btn--ink.btn--ink,.btn--ink.btn--ink span,
+.btn--nav.is-active:not(.lang__btn),.btn--nav.is-active:not(.lang__btn) span,
+.opt.is-on,.opt.is-on span,.row input[type=date].is-on,
+.nav.is-over-dark .btn--nav:not(.is-active),.nav.is-over-dark .btn--nav:not(.is-active) span,
+.nav.is-over-dark .nav__back,.nav.is-over-dark .nav__back span{text-shadow:0 0 10px rgba(0,0,0,.5)}
+
+/* ---------- возврат на lednique.ru – пилюля в общем стиле кнопок ----------
+   первое нажатие раскрывает подпись «Основной сайт» (кнопка растёт вправо),
+   второе в течение 3 с – переход на сайт; логика – в app.js */
+.nav__back{position:relative;display:inline-flex;align-items:center;justify-content:flex-start;flex:none;
+  width:auto;min-width:36px;height:36px;padding:0;border:0;border-radius:36px;overflow:hidden;white-space:nowrap;
+  font:700 12px/16px var(--font-b);letter-spacing:.025em;text-transform:uppercase;
+  background:var(--glass-fill);box-shadow:var(--btn-fx)!important}
+.nav.is-over-dark .nav__back{background:rgba(0,0,0,.42)}   /* на тёмных секциях – как неактивные пункты меню */
+.nav__back::after{content:"";display:block;position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  z-index:2;mix-blend-mode:plus-lighter;
+  box-shadow:inset 0 -6px 1px -4px var(--btn-foot-glass),inset 0 8px 6px -5px var(--btn-glow),inset 0 6px 1px -4px var(--btn-rim)}
+.nav__back-ico{flex:none;width:36px;text-align:center;font-size:16px;line-height:1}
+/* раскрытие и сворачивание: ширина подписи идёт до её точного размера (--back-w задаёт app.js)
+   по кривой in-out (--ease-link); текст проявляется и подъезжает к стрелке */
+.nav .nav__back .nav__back-txt{display:block;width:0;margin-inline-end:0;overflow:hidden;opacity:0;transform:translateX(-10px);
+  transition:width .6s var(--ease-link),margin .6s var(--ease-link),transform .6s var(--ease-link),opacity .3s var(--ease-link)}
+.nav__back.is-open .nav__back-txt{width:var(--back-w,auto);margin-inline-end:15px;opacity:1;transform:none;
+  transition:width .6s var(--ease-link),margin .6s var(--ease-link),transform .6s var(--ease-link),opacity .45s var(--ease-link) .12s}
+[dir="rtl"] .nav__back{letter-spacing:0}
+[dir="rtl"] .nav .nav__back:not(.is-open) .nav__back-txt{transform:translateX(10px)}
+@media (prefers-reduced-motion:reduce){.nav .nav__back .nav__back-txt,.nav .nav__back.is-open .nav__back-txt{transition:none}}
+
+/* ---------- логотип: без подсветки тапа; при нажатии плавно увеличивается на 10 % ---------- */
+.logo{-webkit-tap-highlight-color:transparent}
+.logo img{transition:transform .45s var(--ease-link);-webkit-user-drag:none;user-select:none}
+.logo.is-press img,.logo:active img{transform:scale(1.1);transition:transform .35s var(--ease-back)}
+
+/* ---------- главная: «Скачать резюме» + «Обсудить проект» (вторая – только на мобильной) ---------- */
+.home-hero__actions{order:4;align-self:flex-start;display:flex;flex-wrap:wrap;gap:10px}
+.home-hero__actions .home-hero__resume{order:0;align-self:auto;margin-top:0}
+.home-hero__discuss{display:none}
+
+@media (max-width:1100px){
+  .home-hero__actions{order:9;align-self:center;justify-content:center;margin-top:4px}
+  .home-hero__discuss{display:inline-flex}
+  /* ряды кнопок в герое – всегда в одну строку: боковые поля, зазор и кегль
+     подгоняет fitHeroRows в app.js (--row-*); значения по умолчанию рассчитаны на русский текст */
+  .home-hero__grid > *{min-width:0}   /* иначе ряд без переноса растягивает колонку и всю страницу */
+  .home-hero__cta,.home-hero__actions{flex-wrap:nowrap;max-width:100%}
+  .home-hero__cta{gap:var(--row-gap,6px)}
+  .home-hero__actions{gap:var(--row-gap,10px)}
+  .home-hero__cta .btn--nav{flex:none;padding-inline:var(--row-pad,clamp(6px,calc((100vw - 320px)/6),15px));font-size:var(--row-fs,12px)}
+  .home-hero__actions .btn{flex:none;padding-inline:var(--row-pad,clamp(8px,calc((100vw - 304px)/4),15px));font-size:var(--row-fs,12px)}
+  /* «Отправить заявку» и «Написать в Telegram» – по ширине текста, по центру */
+  .lform__actions{justify-content:center}
+  .lform__actions .btn,.contacts .btn{width:auto;white-space:nowrap;align-self:center}
+}
+
+/* кнопка языка в футере остаётся акцентной (лайм): это не «прожатый» пункт меню,
+   класс is-active у неё только ради заливки */
+.lang__btn.is-active{background:#caf865;color:#0a0a0a}
+.lang__btn.is-active span{text-shadow:0 0 10px rgba(255,255,255,.5)}
+
+/* ---------- «А также можно связаться»: на компьютере три контакта в одну линию ---------- */
+@media (min-width:1101px){
+  .contacts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .contacts .crow{grid-template-columns:auto minmax(0,1fr) auto;gap:12px;padding:18px 22px}
+  .contacts .crow b{min-width:0;overflow-wrap:anywhere}
+  .contacts .btn{grid-column:1/-1;justify-self:start}
+
+  /* страница AR-эффектов: блок описания рядом с видео – на 20 px правее */
+  .hero--arvid .aboutglass{left:calc((100% - 1280px)/2 - 60px)}
+}
+
+/* карусель клиентов: пауза при наведении (класс ставит app.js – на случай, если :hover не срабатывает) */
+.clients.is-paused .clients__track{animation-play-state:paused}

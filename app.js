@@ -652,7 +652,7 @@
       imgs.forEach((m, k) => m.classList.toggle('is-on', k === i));
       bgs.forEach((m, k) => m.classList.toggle('is-on', k === i));
       const s = steps[i];
-      if (cap && s.dataset.cap != null) cap.innerHTML = s.dataset.cap;
+      if (cap && s.dataset.cap != null) cap.innerHTML = TR(s.dataset.cap);   /* подпись берётся из data-cap – переводим, i18n.js её не видит */
       if (num) num.textContent = '0' + (i + 1);
     };
     bgs.forEach((b, k) => { if (imgs[k]) b.style.backgroundImage = `url("${imgs[k].getAttribute('src')}")`; });
@@ -782,7 +782,7 @@
       let bad = null;
       const data = { project: [], contact: [], comment: '' };
       $$('[data-field]', form).forEach((row) => {
-        const val = read(row), label = row.dataset.label, grp = row.dataset.group || 'project';
+        const val = read(row), label = TR(row.dataset.label), grp = row.dataset.group || 'project';   /* подписи полей – на языке страницы, как и остальное письмо */
         if (row.hasAttribute('data-required') && !val) { row.classList.add('is-err'); bad = bad || row; }
         if (!val) return;
         if (grp === 'comment') data.comment = val;
@@ -790,7 +790,7 @@
       });
       if (bad) { bad.scrollIntoView({ behavior: 'smooth', block: 'center' }); const f = $('input,textarea', bad); f && f.focus({ preventScroll: true }); return; }
 
-      const topic = form.dataset.topic, page = form.dataset.page || document.title;
+      const topic = TR(form.dataset.topic), page = TR(form.dataset.page || document.title);
       const nameRow = $('[data-key=name]', form);
       const name = nameRow ? read(nameRow) : '';
       const subject = TR('Заявка с сайта: {topic} – {name}', { topic, name });
@@ -827,7 +827,7 @@
     const img = $('.lb__img', lb), scroll = $('[data-lb-scroll]', lb);
     const open = (src, alt) => {
       if (src) img.src = src;
-      img.alt = alt || '';
+      img.alt = alt ? TR(alt) : '';
       lb.hidden = false; document.body.classList.add('lb-open');
       if (scroll) scroll.scrollTop = 0;
       const c = $('[data-lb-close]', lb); c && c.focus({ preventScroll: true });
@@ -927,4 +927,74 @@
       });
     }
   }
+
+  /* ---------- возврат на lednique.ru: два нажатия ----------
+     первое раскрывает подпись «Основной сайт» (кнопка растёт вправо) и переход отменяет,
+     второе в течение 2 с – обычный переход по ссылке; через 2 с кнопка сворачивается */
+  $$('.nav__back').forEach(a => {
+    let timer = 0;
+    const close = () => { clearTimeout(timer); a.classList.remove('is-open'); };
+    a.addEventListener('click', e => {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      if (a.classList.contains('is-open')) { close(); return; }
+      e.preventDefault();
+      const txt = $('.nav__back-txt', a);
+      if (txt) a.style.setProperty('--back-w', (txt.scrollWidth + 1) + 'px');   /* точная ширина подписи – для плавной анимации */
+      a.classList.add('is-open');
+      clearTimeout(timer); timer = setTimeout(close, 2000);
+    });
+    addEventListener('pageshow', close);
+  });
+
+  /* ---------- карусель клиентов: пауза при наведении ----------
+     дублирует правило .clients:hover из styles.css: класс + прямое управление анимацией,
+     чтобы лента останавливалась и там, где :hover на ней не срабатывает */
+  $$('.clients').forEach(c => {
+    const track = $('.clients__track', c);
+    if (!track) return;
+    const set = paused => {
+      c.classList.toggle('is-paused', paused);
+      if (track.getAnimations) track.getAnimations().forEach(an => { try { paused ? an.pause() : an.play(); } catch (e) {} });
+    };
+    c.addEventListener('mouseenter', () => set(true));
+    c.addEventListener('mouseleave', () => set(false));
+  });
+
+  /* ---------- логотип: при нажатии плавно увеличивается на 10 % (кривая --ease-back) ----------
+     класс держится не меньше 350 мс, чтобы анимация была видна и при коротком тапе */
+  $$('.logo').forEach(l => {
+    let t0 = 0, timer = 0;
+    const release = () => { clearTimeout(timer); timer = setTimeout(() => l.classList.remove('is-press'), Math.max(0, 350 - (performance.now() - t0))); };
+    l.addEventListener('pointerdown', () => { clearTimeout(timer); t0 = performance.now(); l.classList.add('is-press'); });
+    ['pointerup', 'pointercancel', 'pointerleave', 'blur'].forEach(ev => l.addEventListener(ev, release));
+    addEventListener('pageshow', () => l.classList.remove('is-press'));
+  });
+
+  /* ---------- мобильная главная: ряды кнопок в герое – всегда в одну строку ----------
+     по очереди ужимаем боковые поля, зазор и, в крайнем случае, кегль –
+     под любой язык и ширину экрана (переменные --row-* читает styles.css) */
+  (() => {
+    const rows = $$('.home-hero__cta, .home-hero__actions');
+    if (!rows.length) return;
+    const mq = matchMedia('(max-width:1100px)');
+    const fitRow = row => {
+      const st = row.style;
+      const set = (pad, gap, fs) => { st.setProperty('--row-pad', pad + 'px'); st.setProperty('--row-gap', gap + 'px'); st.setProperty('--row-fs', fs + 'px'); };
+      ['--row-pad', '--row-gap', '--row-fs'].forEach(p => st.removeProperty(p));
+      if (!mq.matches) return;
+      const fits = () => row.scrollWidth <= row.clientWidth + 0.5;
+      let pad = 15, gap = 10, fs = 12;
+      set(pad, gap, fs);
+      while (!fits() && (pad > 8 || gap > 6)) { if (pad > 8) pad -= 1; if (!fits() && gap > 6) gap -= 1; set(pad, gap, fs); }
+      while (!fits() && (pad > 4 || gap > 4)) { if (pad > 4) pad -= 1; if (gap > 4) gap -= 1; set(pad, gap, fs); }
+      while (!fits() && fs > 9) { fs -= 0.5; set(pad, gap, fs); }
+    };
+    const fitAll = () => rows.forEach(fitRow);
+    let raf = 0;
+    const later = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(fitAll); };
+    fitAll();
+    addEventListener('resize', later);
+    addEventListener('load', later);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(later);
+  })();
 })();
