@@ -84,7 +84,7 @@ b,strong{font-weight:600}
 .h2--m{font-size:64px;text-align:center}
 .h3{font-size:26px;line-height:1.1;letter-spacing:-.01em}
 .eyebrow{display:flex;align-items:center;gap:12px;font:600 10px/1 var(--font-b);letter-spacing:.22em;text-transform:uppercase;color:#8a8a8a;text-decoration:none;width:max-content}
-.eyebrow--center{margin-inline:auto}   /* надпись по центру над центрированным заголовком */
+.eyebrow--center{margin-inline:auto;margin-bottom:var(--gap)}   /* надпись по центру над центрированным заголовком; отступ до заголовка – как в .sechead/.tb */
 .eyebrow::before{content:"";width:28px;height:1px;background:currentColor;flex:none}
 .tb{display:flex;flex-direction:column;align-items:center;gap:20px;margin-bottom:var(--gap)}
 .tb .eyebrow{align-self:center}
