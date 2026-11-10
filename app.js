@@ -930,7 +930,7 @@
 
   /* ---------- возврат на lednique.ru: два нажатия ----------
      первое раскрывает подпись «Основной сайт» (кнопка растёт вправо) и переход отменяет,
-     второе в течение 3 с – обычный переход по ссылке; через 3 с кнопка сворачивается */
+     второе в течение 2 с – обычный переход по ссылке; через 2 с кнопка сворачивается */
   $$('.nav__back').forEach(a => {
     let timer = 0;
     const close = () => { clearTimeout(timer); a.classList.remove('is-open'); };
@@ -941,7 +941,7 @@
       const txt = $('.nav__back-txt', a);
       if (txt) a.style.setProperty('--back-w', (txt.scrollWidth + 1) + 'px');   /* точная ширина подписи – для плавной анимации */
       a.classList.add('is-open');
-      clearTimeout(timer); timer = setTimeout(close, 3000);
+      clearTimeout(timer); timer = setTimeout(close, 2000);
     });
     addEventListener('pageshow', close);
   });
