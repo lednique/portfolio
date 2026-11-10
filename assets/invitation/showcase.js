@@ -1,7 +1,7 @@
 (function () {
   const host = document.querySelector('[data-invitation-demo]');
   if (!host) return;
-  fetch('assets/invitation/showcase.html?v=20261110d').then(function (response) {
+  fetch('assets/invitation/showcase.html?v=20261110e').then(function (response) {
     if (!response.ok) throw new Error('Invitation showcase failed to load');
     return response.text();
   }).then(function (html) {
