@@ -189,8 +189,6 @@ b,strong{font-weight:600}
 .hero--ai{background:linear-gradient(180deg,#ffffff 0%,#8da1a9 27%,#ffffff 100%)}
 .hero--design{background:linear-gradient(180deg,#ffffff 0%,#bcd9e4 27%,#ffffff 100%)}
 .hero--ar{background:linear-gradient(180deg,#ffffff 0%,#92c7ff 27%,#ffffff 100%)}
-.hero .eyebrow{margin-bottom:0}
-.hero .eyebrow[href]:hover{color:#000}
 .hero__lines{text-align:center;color:#2a2a2a;font-size:16px;line-height:1.7}
 .hero__lines--b{text-align:justify;color:#202020}
 .hero__meta{display:grid;grid-template-columns:1fr auto;gap:40px;align-items:start;margin-top:10px}
@@ -517,7 +515,7 @@ b,strong{font-weight:600}
   .heroimg__in{height:auto;width:100%}
   .heroimg__pic{height:auto}
   /* «Графический дизайн»: расположение отдельных рыб сохраняет исходный масштаб;
-     слой ниже поднимает всю розовую композицию целиком к подписи направления. */
+     слой ниже поднимает всю розовую композицию целиком к заголовку. */
   .hero--design .hero__fishes{display:none}
   .hero--design .heroimg__in{position:static}
   .hero--design .pfish{opacity:1;z-index:3;left:auto !important;right:auto !important;top:auto !important;bottom:auto !important}
@@ -865,9 +863,6 @@ body.lb-open{overflow:hidden}
 @media (max-width:1100px){
   .nav .opt::after,.nav__back::after{display:none}
 }
-
-/* ---------- заголовок на главной: на 20 px выше ---------- */
-.home-hero .sub{margin-top:-20px}
 
 /* ---------- «островки»: белые тени как в блоке заявок ---------- */
 .aboutglass,.formcard,.pipe__card,.svc,.feat__card,.cmp__card,.step,.glass,.crow{box-shadow:var(--fx)}
