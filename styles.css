@@ -638,7 +638,7 @@ html[lang="ar"] body{font-family:"Montserrat","Noto Sans Arabic",system-ui,"Sego
 /* ==========================================================================
    РЕЗЮМЕ (resume.html)
    ========================================================================== */
-/* ---------- резюме: типографика, акцент и кнопки сайта; контент — в ATS-понятной иерархии ---------- */
+/* ---------- резюме: типографика, акцент и кнопки сайта; контент – в ATS-понятной иерархии ---------- */
 .cv{position:relative;padding:calc(var(--navh,80px) + 56px) 0 90px;background:#fff}
 .cv__head{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,360px);gap:40px;align-items:end;
   margin-bottom:42px;padding:42px 46px;border-radius:44px;background:linear-gradient(160deg,#fff 0%,#f7faef 55%,#eaf7d8 100%);
@@ -912,3 +912,20 @@ body.lb-open{overflow:hidden}
   0%,100%{background-color:var(--glass-fill);color:#0a0a0a}
   30%,70%{background-color:#caf865;color:#0a0a0a}
 }
+
+/* Resume: consistent spacing and a clean, white identity header. */
+.cv__head{background:#fff;box-shadow:none;border:0;border-bottom:1px solid rgba(0,0,0,.12);border-radius:0;padding:32px 0;grid-template-columns:minmax(0,1fr) 150px minmax(240px,300px);gap:32px;align-items:center}
+.cv__head .h1{font-size:clamp(48px,6vw,80px);line-height:1}
+.cv__logo{width:100px;height:auto;object-fit:contain}
+.cv__portrait{width:150px;height:150px;border-radius:50%;object-fit:cover}
+.cv__contact-links{padding:16px;border:1px solid #d9e4cb;border-radius:18px;background:#fff;gap:12px 16px}
+.cv__section{padding:28px 0;gap:32px}
+.cv__section-body,.cv__details{gap:12px}
+.cv__skill-groups{gap:12px}
+@media(max-width:900px){.cv__head{grid-template-columns:1fr 120px;gap:24px}.cv__portrait{width:120px;height:120px}.cv__head-actions{grid-column:1/-1}}
+@media(max-width:600px){.cv__head{padding:24px 0;gap:20px;grid-template-columns:minmax(0,1fr) 88px}.cv__head .h1{font-size:clamp(36px,10vw,56px)}.cv__portrait{width:88px;height:88px}.cv__section{gap:16px;padding:24px 0}.cv__content{padding-inline:0}}
+
+/* Интерактивное приглашение встроено в секцию без рамки. */
+.invitation-showcase{min-height:0;gap:clamp(24px,4vw,52px);overflow:hidden}
+.invitation-showcase__stage{display:block;width:100%;min-height:470px}
+@media(max-width:600px){.invitation-showcase__stage{min-height:480px}}

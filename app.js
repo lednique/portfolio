@@ -165,7 +165,7 @@
 
     // group1.svg has transparent top padding; align the visible pink silhouette, not its SVG canvas.
     const visibleTop = fishBox.top + fishBox.height * .293;
-    const targetTop = labelBox.top + labelBox.height / 2 - 20;
+    const targetTop = labelBox.top + labelBox.height / 2 - 60;
     layer.style.setProperty('--fish-mobile-shift', `${(targetTop - visibleTop).toFixed(2)}px`);
   };
   const fitBoxes = () => {
