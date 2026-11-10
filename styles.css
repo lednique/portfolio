@@ -14,7 +14,7 @@
   --ease-link:cubic-bezier(.38,0,0,1);
   --cs:superellipse(2.3);   /* «как у Apple»: squircle со сглаживанием 60 % */
   --shadow-frame:0 4px 4px rgba(0,0,0,.25),1px 0 1px rgba(0,0,0,.3),-1px 0 0 rgba(0,0,0,.3);
-  --shadow-btn:0 6px 10px rgba(0,0,0,.2),2px 0 2px rgba(0,0,0,.3),-2px 0 2px rgba(0,0,0,.3);
+  --shadow-btn:0 6px 10px rgba(0,0,0,.1),2px 0 2px rgba(0,0,0,.3),-2px 0 2px rgba(0,0,0,.3);
   --act-bg:linear-gradient(180deg,rgba(255,255,255,.98),rgba(255,255,255,.72));
   /* стеклянный стиль контейнеров и кнопок – семь эффектов из Figma:
      inner shadow 0/1/0.5  #fff 45 % · inner shadow 0/0.5/0.5 #fff 60 % · inner shadow 0/-1/1 #fff 30 %
@@ -29,19 +29,26 @@
        1px 0 1px rgba(0,0,0,.3),
        inset 0 2px 3px rgba(0,0,0,.3),
        0 4px 4px rgba(0,0,0,.25);
+  /* тот же стек для круглых кнопок-стрелок: внешняя тень вниз – 10 % */
+  --fx-btn:-1px 0 0 rgba(0,0,0,.3),
+       1px 0 1px rgba(0,0,0,.3),
+       inset 0 2px 3px rgba(0,0,0,.3),
+       0 4px 4px rgba(0,0,0,.1);
   /* белый блик: на SDR-экране это обычный #fff (браузер обрежет),
      на HDR-экране – реальный белый выше 100 % (display-p3 с компонентами >1) */
   --hdr-white:#fff;
   --hdr-white-soft:rgba(255,255,255,.5);
+  --btn-glow:rgba(255,255,255,.4);     /* белая внутренняя тень кнопок с размытием 6 px – 40 % */
   --glass-fill:rgba(255,255,255,.42);  /* беловатая заливка неактивных пунктов меню/заявок */
   --off-fill:rgba(0,0,0,.5);           /* неактивные кнопки вне меню */
+  --press-fill:#4d4d4d;                /* «прожатые» пункты меню и заявки – тёмно-серые */
   /* «кнопочный» стеклянный стиль (не путать с --fx у контейнеров) */
   --btn-light:inset 0 8px .5px -5px rgba(255,255,255,.75),
-           inset 0 8px 6px -5px #fff,
+           inset 0 8px 6px -5px var(--btn-glow),
            inset 0 -8px 1px -5px rgba(255,255,255,.3);
   --btn-fx:-2px 0 2px rgba(0,0,0,.3),
            2px 0 2px rgba(0,0,0,.3),
-           0 6px 10px rgba(0,0,0,.2),
+           0 6px 10px rgba(0,0,0,.1),      /* внешняя тень вниз – 10 % */
            inset 0 4px 20px rgba(0,0,0,.3),
            inset 0 6px 20px -4px rgba(0,0,0,.3);
 }
@@ -51,6 +58,7 @@
     :root{
       --hdr-white:color(display-p3 1.8 1.8 1.8);
       --hdr-white-soft:color(display-p3 1.5 1.5 1.5 / .6);
+      --btn-glow:color(display-p3 1.8 1.8 1.8 / .4);
     }
   }
 }
@@ -111,19 +119,19 @@ b,strong{font-weight:600}
 .btn--round{width:36px;padding:0;font-size:14px}
 
 /* меню и пункты заявок: прежний кнопочный стиль, меняется только цвет –
-   активная зелёная, неактивная беловатая */
+   активная («прожатая») тёмно-серая с белым текстом, неактивная беловатая */
 .btn--nav{background:var(--glass-fill);color:#0a0a0a;box-shadow:var(--btn-fx);height:36px;padding:6px 14px;border-radius:36px;font:600 14px/17.6px var(--font-b);letter-spacing:.66px;text-transform:none}
 .btn--nav::before,.btn--nav::after,.opt::before,.opt::after{display:none}
 .btn--nav:hover,.opt:hover{transform:none}
 .btn--nav span,.opt span,.car__tag span{display:block;text-align:center}
 .btn--nav span{text-shadow:0 0 10px rgba(255,255,255,.55)}
-/* активный пункт меню – #CAF865 */
-.btn--nav.is-active{background:#caf865;color:#0a0a0a;box-shadow:var(--btn-fx)}
-.btn--nav.is-active span{text-shadow:0 0 10px rgba(255,255,255,.6)}
+/* активный пункт меню – тёмно-серый (--press-fill) */
+.btn--nav.is-active{background:var(--press-fill);color:#fff;box-shadow:var(--btn-fx)}
+.btn--nav.is-active span{text-shadow:0 0 10px rgba(0,0,0,.55)}
 .opt{background:var(--glass-fill);color:#0a0a0a;box-shadow:var(--btn-fx);height:36px;padding:6px 12px;border-radius:36px;font:600 14px/17.6px var(--font-b);letter-spacing:.66px;text-transform:none}
 .opt span{text-shadow:0 0 10px rgba(255,255,255,.55)}
-.opt.is-on{background:#caf865;color:#0a0a0a;box-shadow:var(--btn-fx)}
-.opt.is-on span{text-shadow:0 0 10px rgba(255,255,255,.6)}
+.opt.is-on{background:var(--press-fill);color:#fff;box-shadow:var(--btn-fx)}
+.opt.is-on span{text-shadow:0 0 10px rgba(0,0,0,.55)}
 .car__tag{background:rgba(255,255,255,.22);color:#fff;box-shadow:var(--fx)}
 .car__tag span{text-shadow:0 0 10px rgba(0,0,0,.5)}
 
@@ -131,7 +139,7 @@ b,strong{font-weight:600}
   height:36px;padding:6px 16px;border-radius:36px;font:600 14px/17.6px var(--font-b);letter-spacing:.4px}
 .btn--lime::before,.btn--lime::after{display:none}
 .btn--lime:hover{transform:none}
-.btn--ink{background:var(--off-fill);color:#fff;box-shadow:0 3px 6px rgba(0,0,0,.3);text-shadow:0 0 10px rgba(0,0,0,.35)}
+.btn--ink{background:var(--off-fill);color:#fff;box-shadow:0 3px 6px rgba(0,0,0,.1);text-shadow:0 0 10px rgba(0,0,0,.35)}
 .btn--ink::before{background:linear-gradient(90deg,#ffffff26,#ffffff59)}
 .btn--blue{background:#caf865;color:#0a0a0a;box-shadow:var(--shadow-frame);text-transform:none}
 
@@ -154,7 +162,7 @@ b,strong{font-weight:600}
 .nav.is-over-dark .nav__back{background:#0a0a0a;color:#fff}
 .nav.is-over-dark .nav__back span{text-shadow:0 0 10px rgba(0,0,0,.55)}
 .nav.is-away{transform:translateY(-130%)}
-.nav__back{position:relative;flex:none;width:36px;height:36px;border-radius:50%;background:#fff;color:#0a0a0a;display:grid;place-items:center;text-decoration:none;font:600 16px/1 var(--font-b);border:1px solid var(--glass-b);box-shadow:inset 0 1px .5px rgba(255,255,255,.75),0 2px 6px rgba(0,0,0,.12),0 8px 18px rgba(0,0,0,.06);transition:transform .15s var(--ease-back)}
+.nav__back{position:relative;flex:none;width:36px;height:36px;border-radius:50%;background:#fff;color:#0a0a0a;display:grid;place-items:center;text-decoration:none;font:600 16px/1 var(--font-b);border:1px solid var(--glass-b);box-shadow:inset 0 1px .5px rgba(255,255,255,.75),0 2px 6px rgba(0,0,0,.1),0 8px 18px rgba(0,0,0,.06);transition:transform .15s var(--ease-back)}
 .nav__back span{text-shadow:0 0 10px rgba(255,255,255,.55)}
 .nav__back:hover{transform:scale(1.06)}
 .nav__in{max-width:var(--wrap);margin:auto;padding:12px var(--pad);display:flex;align-items:center;gap:20px;position:relative}
@@ -240,7 +248,7 @@ b,strong{font-weight:600}
 .svc__body p{color:var(--muted);font-size:16px}
 .svc__body .btn{align-self:flex-start;margin-top:6px}
 .svc .h3 a{text-decoration:none}
-.svc__arrow{position:absolute;left:20px;right:auto;bottom:20px;width:48px;height:48px;border-radius:48px;display:grid;place-items:center;background:rgba(255,255,255,.8);box-shadow:var(--fx);text-decoration:none;font-size:20px;transition:transform .15s var(--ease-back)}
+.svc__arrow{position:absolute;left:20px;right:auto;bottom:20px;width:48px;height:48px;border-radius:48px;display:grid;place-items:center;background:rgba(255,255,255,.8);box-shadow:var(--fx-btn);text-decoration:none;font-size:20px;transition:transform .15s var(--ease-back)}
 .svc__arrow:hover{transform:scale(1.1)}
 .feat{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap)}
 .feat__card{display:flex;flex-direction:column;gap:14px;padding:36px;border-radius:44px;background:var(--gray-sec);box-shadow:var(--fx);min-height:290px}
@@ -288,7 +296,7 @@ b,strong{font-weight:600}
 .car--photo .car__item img{width:auto;height:100%}
 .car__nav{display:flex;align-items:center;justify-content:space-between;gap:20px}
 .car__ctl{display:flex;align-items:center;gap:10px}
-.car__btn{width:44px;height:44px;border-radius:44px;border:0;display:grid;place-items:center;cursor:pointer;font-size:18px;line-height:1;background:rgba(255,255,255,.8);box-shadow:var(--fx);transition:transform .15s var(--ease-back),opacity .2s}
+.car__btn{width:44px;height:44px;border-radius:44px;border:0;display:grid;place-items:center;cursor:pointer;font-size:18px;line-height:1;background:rgba(255,255,255,.8);box-shadow:var(--fx-btn);transition:transform .15s var(--ease-back),opacity .2s}
 .car__btn:hover{transform:scale(1.1)}
 .car__btn:disabled{opacity:.35;cursor:default;transform:none}
 .car__count{font:600 11px/1 var(--font-b);letter-spacing:.14em;color:#8a8a8a;margin-left:10px}
@@ -429,7 +437,16 @@ b,strong{font-weight:600}
 .row input[type=date]::-webkit-datetime-edit-year-field{color:#0a0a0a;text-shadow:0 0 10px rgba(255,255,255,.55)}
 .row input[type=date]:invalid::-webkit-datetime-edit{color:#0a0a0a}
 .row input[type=date]:hover{box-shadow:var(--btn-fx)}
-.row input[type=date].is-on{background:#caf865;color:#0a0a0a;text-shadow:0 0 10px rgba(255,255,255,.6)}
+/* выбранная дата – «прожатый» пункт заявки: тёмно-серый, цифры и значок календаря белые */
+.row input[type=date].is-on{background:var(--press-fill);color:#fff;text-shadow:0 0 10px rgba(0,0,0,.55)}
+.row input[type=date].is-on::-webkit-datetime-edit,
+.row input[type=date].is-on::-webkit-datetime-edit-fields-wrapper,
+.row input[type=date].is-on::-webkit-datetime-edit-text,
+.row input[type=date].is-on::-webkit-datetime-edit-day-field,
+.row input[type=date].is-on::-webkit-datetime-edit-month-field,
+.row input[type=date].is-on::-webkit-datetime-edit-year-field{color:#fff;text-shadow:0 0 10px rgba(0,0,0,.55)}
+.row input[type=date].is-on:invalid::-webkit-datetime-edit{color:#fff}
+.row input[type=date].is-on::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.9}
 
 .lform__actions{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
 .consent{font-size:11px;opacity:.7;max-width:420px}
@@ -775,7 +792,7 @@ body.lb-open{overflow:hidden}
   box-shadow:
     inset 0 1px .5px var(--hdr-white),
     inset 0 .5px .5px var(--hdr-white),
-    inset 0 8px 6px -5px var(--hdr-white),
+    inset 0 8px 6px -5px var(--btn-glow),
     inset 0 -8px 1px -5px var(--hdr-white-soft)}
 
 /* контейнеры и круглые кнопки (стек из Figma) */
@@ -792,7 +809,7 @@ body.lb-open{overflow:hidden}
 .nav__back::after{
   content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
   box-shadow:inset 0 1px .5px rgba(255,255,255,.75);mix-blend-mode:plus-lighter}
-.nav__back{box-shadow:0 2px 6px rgba(0,0,0,.12),0 8px 18px rgba(0,0,0,.06)!important}
+.nav__back{box-shadow:0 2px 6px rgba(0,0,0,.1)!important}   /* внешняя тень вниз – 10 % */
 
 /* поля ввода – псевдоэлементы не рендерятся, поэтому белый блик остаётся в тени */
 .row input[type=date],.row input[type=date]:hover{box-shadow:var(--btn-fx),var(--btn-light)}
@@ -856,7 +873,7 @@ body.lb-open{overflow:hidden}
   box-shadow:
     inset 0 1px .5px var(--hdr-white),
     inset 0 .5px .5px var(--hdr-white),
-    inset 0 8px 6px -5px var(--hdr-white),
+    inset 0 8px 6px -5px var(--btn-glow),
     inset 0 -8px 1px -5px var(--hdr-white-soft)}
 
 /* мобильная шапка: у тонких пилюль аддитивный блик убираем */
@@ -949,3 +966,22 @@ body.lb-open{overflow:hidden}
 @media(max-width:380px){.cv__head{grid-template-columns:minmax(0,1fr) 112px}.cv__portrait{width:112px;height:112px}}
 
 .cv__contacts{display:flex;flex-wrap:wrap;gap:8px;padding:16px;margin:10px 0;border:1px solid #d9e4cb;border-radius:18px;background:#fff;scroll-margin-top:120px}
+
+/* ==========================================================================
+   ЕДИНЫЙ СТАНДАРТ КНОПОК
+   • кегль текста во всех кнопках – 12 px;
+   • поля от текста – 8 px сверху и снизу, 15 px слева и справа,
+     высота пилюли = 12 + 8 + 8 = 28 px на любом экране;
+   • пункты формы заявки (.opt и поле даты) сохраняют свои размеры,
+     у них меняется только кегль; «Отправить заявку» – как все кнопки;
+   • круглые кнопки со стрелками и крестиком не меняются.
+   Блок стоит последним и перекрывает все прежние размеры кнопок.
+   ========================================================================== */
+.btn:not(.btn--round){height:auto;min-height:0;padding:8px 15px;font-size:12px;line-height:1}
+.lang__menu button{padding:8px 15px}
+.opt,.row input[type=date]{font-size:12px}
+
+/* кнопка языка в футере остаётся акцентной (лайм): это не «прожатый» пункт меню,
+   класс is-active у неё только ради заливки */
+.lang__btn.is-active{background:#caf865;color:#0a0a0a}
+.lang__btn.is-active span{text-shadow:0 0 10px rgba(255,255,255,.6)}

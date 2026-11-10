@@ -652,7 +652,7 @@
       imgs.forEach((m, k) => m.classList.toggle('is-on', k === i));
       bgs.forEach((m, k) => m.classList.toggle('is-on', k === i));
       const s = steps[i];
-      if (cap && s.dataset.cap != null) cap.innerHTML = s.dataset.cap;
+      if (cap && s.dataset.cap != null) cap.innerHTML = TR(s.dataset.cap);   /* подпись берётся из data-cap – переводим, i18n.js её не видит */
       if (num) num.textContent = '0' + (i + 1);
     };
     bgs.forEach((b, k) => { if (imgs[k]) b.style.backgroundImage = `url("${imgs[k].getAttribute('src')}")`; });
@@ -782,7 +782,7 @@
       let bad = null;
       const data = { project: [], contact: [], comment: '' };
       $$('[data-field]', form).forEach((row) => {
-        const val = read(row), label = row.dataset.label, grp = row.dataset.group || 'project';
+        const val = read(row), label = TR(row.dataset.label), grp = row.dataset.group || 'project';   /* подписи полей – на языке страницы, как и остальное письмо */
         if (row.hasAttribute('data-required') && !val) { row.classList.add('is-err'); bad = bad || row; }
         if (!val) return;
         if (grp === 'comment') data.comment = val;
@@ -790,7 +790,7 @@
       });
       if (bad) { bad.scrollIntoView({ behavior: 'smooth', block: 'center' }); const f = $('input,textarea', bad); f && f.focus({ preventScroll: true }); return; }
 
-      const topic = form.dataset.topic, page = form.dataset.page || document.title;
+      const topic = TR(form.dataset.topic), page = TR(form.dataset.page || document.title);
       const nameRow = $('[data-key=name]', form);
       const name = nameRow ? read(nameRow) : '';
       const subject = TR('Заявка с сайта: {topic} – {name}', { topic, name });
@@ -827,7 +827,7 @@
     const img = $('.lb__img', lb), scroll = $('[data-lb-scroll]', lb);
     const open = (src, alt) => {
       if (src) img.src = src;
-      img.alt = alt || '';
+      img.alt = alt ? TR(alt) : '';
       lb.hidden = false; document.body.classList.add('lb-open');
       if (scroll) scroll.scrollTop = 0;
       const c = $('[data-lb-close]', lb); c && c.focus({ preventScroll: true });
