@@ -360,5 +360,6 @@ window.LEDNIQUE_DICT = {
   "Свет и отражения": "Luz e reflexos",
   "Кейс BKA Vertical – превью": "Case BKA Vertical – prévia",
   "Дизайн, AR или AI-продакшн": "Design, AR ou produção com IA",
-  "AR-эффект": "Efeito AR"
+  "AR-эффект": "Efeito AR",
+  "Основной сайт": "Site principal"
 };

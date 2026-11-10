@@ -927,4 +927,48 @@
       });
     }
   }
+
+  /* ---------- возврат на lednique.ru: два нажатия ----------
+     первое раскрывает подпись «Основной сайт» (кнопка растёт вправо) и переход отменяет,
+     второе в течение 3 с – обычный переход по ссылке; через 3 с кнопка сворачивается */
+  $$('.nav__back').forEach(a => {
+    let timer = 0;
+    const close = () => { clearTimeout(timer); a.classList.remove('is-open'); };
+    a.addEventListener('click', e => {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      if (a.classList.contains('is-open')) { close(); return; }
+      e.preventDefault();
+      a.classList.add('is-open');
+      clearTimeout(timer); timer = setTimeout(close, 3000);
+    });
+    addEventListener('pageshow', close);
+  });
+
+  /* ---------- мобильная главная: ряды кнопок в герое – всегда в одну строку ----------
+     по очереди ужимаем боковые поля, зазор и, в крайнем случае, кегль –
+     под любой язык и ширину экрана (переменные --row-* читает styles.css) */
+  (() => {
+    const rows = $$('.home-hero__cta, .home-hero__actions');
+    if (!rows.length) return;
+    const mq = matchMedia('(max-width:1100px)');
+    const fitRow = row => {
+      const st = row.style;
+      const set = (pad, gap, fs) => { st.setProperty('--row-pad', pad + 'px'); st.setProperty('--row-gap', gap + 'px'); st.setProperty('--row-fs', fs + 'px'); };
+      ['--row-pad', '--row-gap', '--row-fs'].forEach(p => st.removeProperty(p));
+      if (!mq.matches) return;
+      const fits = () => row.scrollWidth <= row.clientWidth + 0.5;
+      let pad = 15, gap = 10, fs = 12;
+      set(pad, gap, fs);
+      while (!fits() && (pad > 8 || gap > 6)) { if (pad > 8) pad -= 1; if (!fits() && gap > 6) gap -= 1; set(pad, gap, fs); }
+      while (!fits() && (pad > 4 || gap > 4)) { if (pad > 4) pad -= 1; if (gap > 4) gap -= 1; set(pad, gap, fs); }
+      while (!fits() && fs > 9) { fs -= 0.5; set(pad, gap, fs); }
+    };
+    const fitAll = () => rows.forEach(fitRow);
+    let raf = 0;
+    const later = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(fitAll); };
+    fitAll();
+    addEventListener('resize', later);
+    addEventListener('load', later);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(later);
+  })();
 })();

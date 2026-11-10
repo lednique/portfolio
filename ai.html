@@ -11,17 +11,17 @@
 var n=(navigator.languages||[navigator.language||'ru']).map(function(x){return String(x).toLowerCase().slice(0,2)});
 var l=(s&&L.indexOf(s)>-1)?s:(n.filter(function(x){return L.indexOf(x)>-1})[0]||'ru');
 document.documentElement.lang=l;document.documentElement.dataset.lang=l;document.documentElement.dir=(l==='ar'?'rtl':'ltr');
-if(l!=='ru'){document.write('<script src="lang/'+l+'.js?v=20261110l"><\/script>');}}catch(e){}})();
+if(l!=='ru'){document.write('<script src="lang/'+l+'.js?v=20261110n"><\/script>');}}catch(e){}})();
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Roboto+Condensed:wght@500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20261110m">
+<link rel="stylesheet" href="styles.css?v=20261110n">
 </head>
 <body class="page-ai">
 <header class="nav" id="nav">
   <div class="nav__in">
-    <a class="nav__back" href="https://lednique.ru/" aria-label="Перейти на основной сайт lednique.ru" title="lednique.ru"><span>←</span></a>
+    <a class="nav__back" href="https://lednique.ru/" aria-label="Перейти на основной сайт lednique.ru" title="lednique.ru"><span class="nav__back-ico">←</span><span class="nav__back-txt">Основной сайт</span></a>
     <a class="logo" href="index.html" aria-label="LEDNIQUE – главная"><img src="assets/logo.png?v=20261108n" alt="LEDNIQUE" width="200" height="140"></a>
     <a class="btn btn--lime nav__cta" href="#request">Обсудить проект</a>
     <nav class="nav__links" aria-label="Основное меню">
@@ -183,6 +183,6 @@ if(l!=='ru'){document.write('<script src="lang/'+l+'.js?v=20261110l"><\/script>'
   <div class="wrap"><div class="foot__bar"><span>© LEDNIQUE – 2026. All Rights Reserved.</span><a href="https://www.lednique.ru/privacy" target="_blank" rel="noopener">Политика конфиденциальности</a></div></div>
 </footer>
 <script src="i18n.js?v=20261108n" defer></script>
-<script src="app.js?v=20261110l" defer></script>
+<script src="app.js?v=20261110n" defer></script>
 </body>
 </html>
