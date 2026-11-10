@@ -1,0 +1,603 @@
+<style>
+/* ============================================================
+   Сайт-открытка
+   • фон: белый без градиента → чёрный, когда открытка появилась
+   • Courier New Bold
+   • выделение текста запрещено, кроме поля ввода
+   ============================================================ */
+
+:host{
+  --box-w:  min(84vw, 40vh, 430px);
+  --box-h:  calc(var(--box-w) * 1615 / 1154);
+
+  --wine:      #5c1226;
+  --wine-soft: #7d2338;
+  --ink:       #4a3527;
+  --paper:     #f4efe4;
+
+  --font: "Courier New", "Courier", "Nimbus Mono PS", "Liberation Mono", monospace;
+  --ease-out: cubic-bezier(.22,.9,.24,1);
+}
+
+@media (max-width: 600px){
+  :host{ --box-w: min(82vw, 44vh); }
+}
+@media (max-width: 600px) and (orientation: landscape){
+  :host{ --box-w: min(40vw, 56vh); }
+}
+@media (min-height: 1000px) and (min-width: 900px){
+  :host{ --box-w: min(78vw, 44vh, 470px); }
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+
+:host{
+  min-height:100%;
+  background:#ffffff;
+  scroll-behavior:smooth;
+}
+
+@media (prefers-reduced-motion: reduce){
+  :host{ scroll-behavior:auto; }
+}
+
+.demo-root{
+  margin:0;
+  min-height:0;
+  overflow-x:hidden;
+  overflow-y:hidden;
+  font-family:var(--font);
+  font-weight:700;
+  line-height:normal;
+  color:var(--ink);
+  background:#ffffff;
+  -webkit-tap-highlight-color:transparent;
+  -webkit-font-smoothing:antialiased;
+  touch-action:manipulation;
+  transition:background-color 900ms ease;
+}
+.demo-root.is-open{ overflow-y:auto; }
+.demo-root.is-closing{ overflow-y:hidden; }
+
+/* Первый экран остаётся самостоятельной сценой, а детали открытки
+   располагаются ниже него и появляются при обычной прокрутке. */
+.card-stage{
+  position:relative;
+  z-index:0;
+  width:100%;
+  height:100%;
+  container-type:size;
+  overflow:hidden;
+}
+
+
+/* выделять на сайте нечего, кроме поля ввода */
+.demo-root{
+  -webkit-user-select:none;
+  -moz-user-select:none;
+  -ms-user-select:none;
+  user-select:none;
+  -webkit-touch-callout:none;
+}
+.field__input{
+  -webkit-user-select:text;
+  -moz-user-select:text;
+  -ms-user-select:text;
+  user-select:text;
+}
+
+/* ---------------- сцена с ящиком ---------------- */
+
+.scene{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:3;
+  transition:opacity 700ms ease;
+}
+
+.postbox,
+.postbox-shadow{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:var(--box-w);
+  aspect-ratio:1154 / 1615;
+  transform:translate(-50%, -50%);
+  will-change:transform;
+}
+
+.postbox-shadow{ z-index:1; }
+.postbox{ z-index:3; }
+
+.postbox-shadow img,
+.postbox__body{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  display:block;
+  user-select:none;
+  -webkit-user-drag:none;
+  pointer-events:none;
+}
+
+/* ящик и его тень улетают СРАЗУ и ВМЕСТЕ */
+.postbox,
+.postbox-shadow{
+  transition:transform 760ms cubic-bezier(.45,0,.7,.2);
+}
+
+.is-open .postbox,
+.is-open .postbox-shadow{
+  transform:translate(-50%, calc(-50% - 132vh)) rotate(-2.5deg);
+}
+
+.is-closing .postbox,
+.is-closing .postbox-shadow{
+  transition:transform 720ms cubic-bezier(.2,.8,.3,1) 780ms;
+}
+
+/* ---------------- холст с открыткой ---------------- */
+
+.card-canvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+  z-index:2;
+  outline:none;
+  /* Горизонтальный жест переворачивает открытку, вертикальный – скроллит. */
+  touch-action:pan-y;
+  cursor:default;
+}
+.demo-root.is-open .card-canvas{ cursor:grab; }
+.demo-root.is-open .card-canvas:active{ cursor:grabbing; }
+.card-canvas:focus-visible{ outline:1px dashed rgba(92,18,38,.25); outline-offset:-8px; }
+
+/* ---------------- подсказка ---------------- */
+
+.hint{
+  position:absolute;
+  left:50%;
+  /* Стоит под самой открыткой: --card-bottom считается в JS по геометрии
+     карточки, зазор до текста – ровно 20 px. На низких экранах страхуемся,
+     чтобы подсказка не уехала за нижний край сцены. */
+  top:min(calc(var(--card-bottom, 89vh) + 20px),
+         calc(100% - env(safe-area-inset-bottom, 0px) - 56px));
+  margin:0;
+  transform:translateX(-50%) translateY(6px);
+  font-size:clamp(11px, 1.55vh, 13px);
+  letter-spacing:.2em;
+  text-transform:lowercase;
+  color:rgba(92,18,38,.28);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 480ms ease, transform 520ms var(--ease-out);
+  z-index:5;
+}
+.demo-root.is-open .hint{
+  opacity:.8;
+  transform:translateX(-50%);
+  transition-delay:1400ms;
+}
+.hint--off{ opacity:0 !important; transition-delay:0s !important; }
+
+.hint__arrow{
+  display:inline-block;
+  margin-left:.7em;
+  animation:spin 3.6s linear infinite;
+}
+@keyframes spin{ to{ transform:rotate(360deg); } }
+
+/* ---------------- поле ввода ---------------- */
+
+.panel{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  display:flex;
+  justify-content:center;
+  padding:0 20px calc(env(safe-area-inset-bottom, 0px) + clamp(20px, 4vh, 52px));
+  z-index:6;
+  transition:opacity 420ms ease, transform 520ms var(--ease-out);
+}
+
+.demo-root.is-open .panel,
+.demo-root.is-closing .panel{
+  opacity:0;
+  transform:translateY(26px) scale(.98);
+  pointer-events:none;
+}
+
+.field{
+  width:min(310px, 80vw);
+  text-align:center;
+}
+
+.field__label{
+  display:block;
+  font-size:clamp(10px, 1.5vh, 12px);
+  letter-spacing:.26em;
+  text-transform:uppercase;
+  color:rgba(74,53,39,.72);
+  margin-bottom:clamp(8px, 1.4vh, 12px);
+}
+
+.field__row{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  border-bottom:2px solid rgba(92,18,38,.42);
+  transition:border-color 260ms ease;
+}
+.field__row:focus-within{ border-color:var(--wine); }
+
+.field__input{
+  flex:1 1 auto;
+  min-width:0;
+  border:0;
+  background:transparent;
+  padding:6px 2px 8px;
+  font-family:var(--font);
+  font-weight:700;
+  font-size:clamp(20px, 3.2vh, 26px);
+  letter-spacing:.22em;
+  text-align:center;
+  text-transform:uppercase;
+  color:var(--wine);
+  outline:none;
+  caret-color:var(--wine-soft);
+}
+.field__input::placeholder{
+  color:rgba(92,18,38,.22);
+  letter-spacing:.22em;
+  text-transform:uppercase;
+}
+
+.field__go{
+  flex:0 0 auto;
+  display:grid;
+  place-items:center;
+  width:36px;
+  height:36px;
+  padding:0;
+  border:0;
+  border-radius:50%;
+  background:transparent;
+  color:rgba(92,18,38,.62);
+  cursor:pointer;
+  transition:color 220ms ease, transform 220ms ease, background-color 220ms ease;
+}
+.field__go:hover{ color:var(--wine); background:rgba(92,18,38,.07); }
+.field__go:active{ transform:scale(.9); }
+
+.field__hint{
+  margin:10px 0 0;
+  font-size:clamp(10px, 1.45vh, 12px);
+  letter-spacing:.1em;
+  color:rgba(74,53,39,.6);
+  transition:opacity 260ms ease;
+}
+.demo-root.is-error .field__hint{ opacity:0; }
+
+.field__error{
+  margin:0;
+  height:0;
+  overflow:hidden;
+  font-size:clamp(10px, 1.45vh, 12px);
+  letter-spacing:.06em;
+  color:var(--wine);
+  opacity:0;
+  transition:opacity 240ms ease;
+}
+.demo-root.is-error .field__error{
+  margin-top:10px;
+  height:auto;
+  opacity:1;
+}
+
+.demo-root.is-error .field__row{
+  border-color:var(--wine);
+  animation:shake 420ms ease;
+}
+@keyframes shake{
+  0%,100%{ transform:translateX(0); }
+  20%{ transform:translateX(-7px); }
+  40%{ transform:translateX(6px); }
+  60%{ transform:translateX(-4px); }
+  80%{ transform:translateX(2px); }
+}
+
+/* ---------------- «назад» ---------------- */
+
+.back{
+  position:absolute;
+  left:50%;
+  bottom:calc(env(safe-area-inset-bottom, 0px) + clamp(12px, 2.6vh, 28px));
+  transform:translate(-50%, 12px);
+  padding:8px 14px;
+  border:0;
+  background:transparent;
+  font-family:var(--font);
+  font-weight:700;
+  font-size:clamp(10px, 1.5vh, 12px);
+  letter-spacing:.16em;
+  color:rgba(92,18,38,.45);
+  cursor:pointer;
+  z-index:7;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 280ms ease, color 220ms ease, transform 380ms var(--ease-out);
+}
+.demo-root.is-open .back{
+  opacity:1;
+  pointer-events:auto;
+  transform:translate(-50%, 0);
+  transition-delay:1600ms, 0s, 1600ms;
+}
+.back:hover{ color:var(--wine); }
+
+/* ---------------- переход к деталям приглашения ---------------- */
+
+.details-link{
+  position:absolute;
+  left:50%;
+  bottom:calc(env(safe-area-inset-bottom, 0px) + clamp(58px, 8vh, 76px));
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:7px;
+  transform:translate(-50%, 8px);
+  padding:0 12px;
+  border:0;
+  background:transparent;
+  color:rgba(92,18,38,.64);
+  font:inherit;
+  text-decoration:none;
+  z-index:8;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity 320ms ease, transform 380ms var(--ease-out), color 220ms ease, visibility 0s linear 380ms;
+}
+.demo-root.is-open .details-link{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  transform:translate(-50%, 0);
+  transition-delay:1350ms, 1350ms, 0s, 0s;
+}
+.details-link:hover,
+.details-link:focus-visible{ color:var(--wine); }
+.details-link:focus-visible{ outline:2px solid rgba(92,18,38,.24); outline-offset:5px; }
+.details-link__icon{
+  display:grid;
+  place-items:center;
+  width:40px;
+  height:40px;
+  border:1px solid currentColor;
+  border-radius:50%;
+  transition:transform 220ms ease, background-color 220ms ease;
+}
+.details-link:hover .details-link__icon{ transform:translateY(3px); background:rgba(92,18,38,.05); }
+.details-link__label{
+  font-size:clamp(9px, 1.3vh, 11px);
+  letter-spacing:.13em;
+  text-transform:lowercase;
+  white-space:nowrap;
+}
+
+/* ---------------- текст приглашения и календарь ---------------- */
+
+.event-details{
+  display:none;
+  position:relative;
+  z-index:10;
+  min-height:0;
+  padding:clamp(56px, 9vh, 104px) 24px calc(env(safe-area-inset-bottom, 0px) + clamp(48px, 8vh, 88px));
+  background:#ffffff;
+}
+.demo-root.is-open .event-details{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.event-details__inner{
+  width:min(100%, 570px);
+}
+
+.event-details__title{
+  margin:0 0 clamp(24px, 4vh, 40px);
+  font-size:clamp(11px, 1.6vh, 14px);
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  color:rgba(92,18,38,.58);
+}
+
+.event-details__list{
+  margin:0;
+  font-size:clamp(15px, 2.1vh, 19px);
+  line-height:1.55;
+}
+.event-details__row{
+  display:grid;
+  grid-template-columns:minmax(92px, .75fr) 1.25fr;
+  gap:18px;
+  padding:12px 0;
+  border-bottom:1px solid rgba(92,18,38,.12);
+}
+.event-details__row:first-child{ padding-top:0; }
+.event-details__row dt{ color:rgba(74,53,39,.58); }
+.event-details__row dd{ margin:0; color:var(--ink); }
+
+.calendar-button{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:11px;
+  width:min(100%, 360px);
+  min-height:52px;
+  margin:clamp(30px, 5vh, 48px) auto 0;
+  padding:13px 22px;
+  border:1px solid rgba(92,18,38,.55);
+  border-radius:0;
+  background:transparent;
+  font-family:var(--font);
+  font-weight:700;
+  font-size:clamp(12px, 1.7vh, 15px);
+  letter-spacing:.06em;
+  color:var(--wine);
+  cursor:pointer;
+  transition:background-color 220ms ease, color 220ms ease, transform 220ms ease;
+}
+.calendar-button:hover,
+.calendar-button:focus-visible{
+  background:var(--wine);
+  color:#ffffff;
+}
+.calendar-button:active{ transform:scale(.98); }
+.calendar-button:focus-visible{ outline:2px solid rgba(92,18,38,.28); outline-offset:4px; }
+.calendar-button svg{ flex:0 0 auto; }
+
+.calendar-status{
+  min-height:1.5em;
+  margin:14px auto 0;
+  text-align:center;
+  font-size:11px;
+  line-height:1.5;
+  color:rgba(74,53,39,.62);
+}
+
+@media (max-width:420px){
+  .event-details{ padding-right:20px; padding-left:20px; }
+  .event-details__row{ grid-template-columns:86px 1fr; gap:14px; }
+}
+
+/* ---------------- старт ---------------- */
+
+.preload .scene,
+.preload .panel,
+.preload .card-canvas{ opacity:0; }
+
+/* ---------------- доступность ---------------- */
+
+@media (prefers-reduced-motion: reduce){
+  .postbox, .postbox-shadow{ transition-duration:260ms; }
+  .hint__arrow{ animation:none; }
+  .demo-root{ transition-duration:200ms; }
+}
+
+/* ---------------- резервный рендер (без WebGL) ---------------- */
+
+.fb{
+  position:absolute;
+  left:0;
+  top:0;
+  z-index:2;
+  pointer-events:none;
+  perspective:1600px;
+  transform:translate(-50%, -50%);
+}
+.fb[hidden]{ display:none; }
+
+.fb__inner{
+  position:relative;
+  width:100%;
+  height:100%;
+  transform-style:preserve-3d;
+}
+
+.fb__face{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+.fb__face--back{ transform:rotateY(180deg); }
+
+
+/* Embedded portfolio preview: the sequence runs without capturing page input. */
+.back, .details-link, .hint, .event-details { display:none !important; }
+.demo-root.is-open { overflow:hidden; }
+
+:host{display:block;height:100%;--box-w:min(70vw, 32vh, 350px);}
+.demo-root{position:relative; height:100%; min-height:0; overflow:hidden; background:transparent;}
+.card-stage{background:transparent;}
+.is-open .postbox,.is-open .postbox-shadow{transform:translate(-50%, calc(-50% - 700px)) rotate(-2.5deg);}
+.back,.details-link,.hint,.event-details{display:none!important;}
+.field__go.demo-pressed{transform:scale(.85);background:rgba(92,18,38,.13);}
+/* All parts use the same stage dimensions, not the browser viewport. */
+.postbox, .postbox-shadow{width:min(100.8cqw, 46.08cqh, 504px)}
+.panel{padding-bottom:clamp(8px, 4cqh, 32px)}
+.field{width:min(248px, 64cqw)}
+.field__label{font-size:clamp(9px, 1.5cqh, 12px);margin-bottom:clamp(5px, 1.4cqh, 10px)}
+.field__input{font-size:clamp(16px, 3.2cqh, 23px)}
+.field__hint{font-size:clamp(9px, 1.45cqh, 11px)}
+@media(max-width:600px){.postbox,.postbox-shadow{width:min(93.6cqw, 46.08cqh, 417.6px)}}
+</style><div class="demo-root preload"><div class="card-stage" id="cardStage">
+  <!-- открытка: canvas на весь первый экран, поэтому её не обрезает по краям -->
+  <canvas id="cardCanvas" class="card-canvas" tabindex="0"
+          aria-label="Открытка: потяните по горизонтали, чтобы перевернуть; прокрутите вниз, чтобы прочитать детали"></canvas>
+
+  <!-- резервный вариант, если WebGL недоступен -->
+  <div class="fb" id="cardFallback" hidden aria-hidden="true">
+    <div class="fb__inner" id="fbInner">
+      <img class="fb__face" id="fbFront" src="assets/invitation/image-01f1d595ce8c.webp" alt="" draggable="false">
+      <img class="fb__face fb__face--back" id="fbBack" src="assets/invitation/image-829c1d479c8f.webp" alt="" draggable="false">
+    </div>
+  </div>
+
+  <div class="scene" id="scene">
+    <!-- тень ящика летит вместе с ящиком -->
+    <div class="postbox-shadow" id="postboxShadow" aria-hidden="true">
+      <img src="assets/invitation/image-f071654277e5.webp" alt="" draggable="false">
+    </div>
+
+    <div class="postbox" id="postbox" aria-hidden="true">
+      <img class="postbox__body" src="assets/invitation/image-2c25ba0c7ef1.webp" alt="Почтовый ящик" draggable="false">
+    </div>
+  </div>
+
+  <p class="hint" id="hint">потяни<span class="hint__arrow">↻</span></p>
+
+  <!-- поле ввода номера ячейки -->
+  <div class="panel" id="panel">
+    <div class="field" id="field">
+      <label class="field__label" for="code">номер ячейки</label>
+      <div class="field__row">
+        <input class="field__input" id="code" type="text" inputmode="text"
+               autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false"
+               maxlength="3" placeholder="A5" aria-describedby="fieldHint">
+        <button class="field__go" id="go" type="button" aria-label="Открыть ячейку">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+            <path d="M4 12h14M12 5.5 18.5 12 12 18.5" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      <p class="field__hint" id="fieldHint">буква и цифра – например A5</p>
+      <p class="field__error" id="fieldError" role="status" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <button class="back" id="back" type="button">← назад к ящику</button>
+  <a class="details-link" href="#eventDetails" aria-label="Прокрутить к деталям приглашения">
+    <span class="details-link__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="21" height="21" focusable="false">
+        <path d="M12 4v15m-6-6 6 6 6-6" fill="none" stroke="currentColor"
+              stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+    <span class="details-link__label">детали приглашения</span>
+  </a>
+  </div><!-- /card-stage -->
+
+  </div>

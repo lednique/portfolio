@@ -20,7 +20,7 @@ pdfmetrics.registerFont(TTFont("Montserrat-SemiBold", str(FONT_DIR / "Montserrat
 pdfmetrics.registerFont(TTFont("RobotoCondensed", str(FONT_DIR / "RobotoCondensed-500.ttf")))
 
 PAGE_W, PAGE_H = A4
-MARGIN = 42
+MARGIN = 30
 TEXT_W = PAGE_W - 2 * MARGIN
 INK = (0.04, 0.04, 0.04)
 BODY = (0.19, 0.19, 0.19)
@@ -49,44 +49,34 @@ class Resume:
         self.path = path
         self.data = data
         self.canvas = canvas.Canvas(str(path), pagesize=A4, pageCompression=1)
-        self.canvas.setTitle(f"{data['name']} — {data['title']}")
+        self.canvas.setTitle(f"{data['name']} – {data['title']}")
         self.canvas.setAuthor("LEDNIQUE")
         self.y = PAGE_H - MARGIN
         self.page = 1
+        self.first_section = True
         self.draw_header(first=True)
 
     def draw_header(self, first=False):
         c = self.canvas
         if first:
             top = PAGE_H - MARGIN
-            header_h = 142
-            c.setFillColorRGB(*PALE)
-            c.roundRect(MARGIN, top - header_h, TEXT_W, header_h, 22, stroke=0, fill=1)
-            c.setStrokeColorRGB(0.88, 0.89, 0.85)
-            c.setLineWidth(0.7)
-            c.roundRect(MARGIN, top - header_h, TEXT_W, header_h, 22, stroke=1, fill=0)
-            c.setFillColorRGB(*LIME)
-            c.roundRect(MARGIN + 18, top - 31, 61, 17, 8, stroke=0, fill=1)
+            header_h = 140
+            c.drawImage(str(ROOT / "assets" / "logo.png"), MARGIN, top - 24, width=40, height=28, preserveAspectRatio=True, mask="auto")
             c.setFillColorRGB(*INK)
-            c.setFont("Montserrat-SemiBold", 7.5)
-            c.drawCentredString(MARGIN + 48.5, top - 25.5, "LEDNIQUE")
+            c.setFont("Montserrat-SemiBold", 8)
+            c.drawString(MARGIN + 48, top - 10, "@lednique")
             c.setFillColorRGB(*MUTED)
             c.setFont("Montserrat", 8)
-            c.drawString(MARGIN + 88, top - 25.5, self.data["cv_label"])
-
+            c.drawString(MARGIN + 130, top - 10, self.data["cv_label"])
             c.setFillColorRGB(*INK)
-            c.setFont("RobotoCondensed", 38)
-            c.drawString(MARGIN + 18, top - 77, self.data["name"])
-            c.setFont("Montserrat-SemiBold", 11)
-            c.drawString(MARGIN + 19, top - 100, self.data["title"])
-            c.setFillColorRGB(*MUTED)
-            c.setFont("Montserrat", 8.2)
-            c.drawString(MARGIN + 19, top - 119, self.data["location"])
-            portfolio_w = pdfmetrics.stringWidth(self.data["portfolio"], "Montserrat", 8)
-            portfolio_x = PAGE_W - MARGIN - 18 - portfolio_w
-            c.drawString(portfolio_x, top - 25.5, self.data["portfolio"])
-            c.linkURL("https://lednique.ru", (portfolio_x, top - 29, portfolio_x + portfolio_w, top - 20), relative=0, thickness=0)
-            self.y = top - header_h - 17
+            c.setFont("RobotoCondensed", 30)
+            c.drawString(MARGIN, top - 56, self.data["name"])
+            c.setFont("Montserrat-SemiBold", 10)
+            c.drawString(MARGIN, top - 77, self.data["title"])
+            c.setFont("Montserrat", 8)
+            c.drawString(MARGIN, top - 94, self.data["location"])
+            c.drawImage(str(ROOT / "assets" / "profile.jpg"), PAGE_W - MARGIN - 129, top - 139, width=129, height=129, preserveAspectRatio=True, anchor='c')
+            self.y = top - header_h - 12
         else:
             c.setFillColorRGB(*INK)
             c.setFont("Montserrat-SemiBold", 8)
@@ -106,14 +96,17 @@ class Resume:
             self.new_page()
 
     def section_heading(self, title):
-        self.ensure(27)
+        if not self.first_section:
+            self.y -= 15  # 20 CSS pixels at 96 dpi
+        self.first_section = False
+        self.ensure(38)
         c = self.canvas
         c.setFillColorRGB(*INK)
         c.setFont("RobotoCondensed", 13)
         c.drawString(MARGIN, self.y, title.upper())
         c.setFillColorRGB(*LIME)
         c.roundRect(MARGIN, self.y - 7, 28, 2.5, 1.2, stroke=0, fill=1)
-        self.y -= 20
+        self.y -= 16
 
     def paragraph(self, text, size=8.9, leading=12.2):
         lines = wrap(text, "Montserrat", size, TEXT_W)
@@ -178,40 +171,41 @@ class Resume:
     def build(self):
         self.section_heading(self.data["profile_title"])
         self.paragraph(self.data["profile"], size=8.8, leading=12)
+        # Contact links follow the profile with uniform spacing.
+        self.ensure(48)
+        c = self.canvas
+        footer_y = self.y - 42
+        c.setStrokeColorRGB(0.82, 0.88, 0.75)
+        c.roundRect(MARGIN, footer_y, TEXT_W, 32, 10, stroke=1, fill=0)
+        c.setFillColorRGB(*INK)
+        c.setFont("Montserrat", 8)
+        x = MARGIN + 12
+        links = [(self.data["email"], "mailto:" + self.data["email"]),
+                 ("Telegram", "https://t.me/lednique"),
+                 ("Behance", "https://www.behance.net/lednique"),
+                 ("lednique.ru", "https://lednique.ru")]
+        for label, url in links:
+            width = pdfmetrics.stringWidth(label, "Montserrat", 8)
+            c.drawString(x, footer_y + 12, label)
+            c.linkURL(url, (x, footer_y + 9, x + width, footer_y + 21), relative=0, thickness=0)
+            x += width + 16
+        self.y = footer_y - 3
+        self.skill_rows(self.data["skills_title"], self.data["skills"])
+        self.skill_rows(self.data["tools_title"], self.data["tools"])
         self.experience()
         self.section_heading(self.data["clients_title"])
         self.paragraph(self.data["clients"], size=8.4, leading=11.4)
-        self.skill_rows(self.data["skills_title"], self.data["skills"])
-        self.skill_rows(self.data["tools_title"], self.data["tools"])
         self.section_heading(self.data["additional_title"])
         self.paragraph(self.data["education"], size=8.2, leading=11)
         self.paragraph(self.data["languages"], size=8.2, leading=11)
         self.paragraph(self.data["work_format"], size=8.2, leading=11)
 
-        c = self.canvas
-        footer_y = MARGIN - 14
-        c.setStrokeColorRGB(0.89, 0.89, 0.87)
-        c.setLineWidth(0.5)
-        c.line(MARGIN, footer_y + 10, PAGE_W - MARGIN, footer_y + 10)
-        c.setFillColorRGB(*MUTED)
-        c.setFont("Montserrat", 7.2)
-        email_x = MARGIN
-        email_w = pdfmetrics.stringWidth(self.data["email"], "Montserrat", 7.2)
-        c.drawString(email_x, footer_y, self.data["email"])
-        c.linkURL("mailto:" + self.data["email"], (email_x, footer_y - 2, email_x + email_w, footer_y + 8), relative=0, thickness=0)
-        separator_x = email_x + email_w + 5
-        c.drawString(separator_x, footer_y, "·")
-        telegram_x = separator_x + 9
-        telegram_w = pdfmetrics.stringWidth(self.data["telegram"], "Montserrat", 7.2)
-        c.drawString(telegram_x, footer_y, self.data["telegram"])
-        c.linkURL("https://t.me/lednique", (telegram_x, footer_y - 2, telegram_x + telegram_w, footer_y + 8), relative=0, thickness=0)
-        c.drawRightString(PAGE_W - MARGIN, footer_y, f"{self.page}")
         c.save()
         print(f"{self.path.relative_to(ROOT)}: {self.page} page(s), content bottom {self.y:.1f} pt")
 
 
 RU = {
-    "name": "ВИКТОР",
+    "name": "ВИКТОР ВЛАСОВ",
     "title": "Графический дизайнер · AI / AR-продакшн",
     "location": "Ижевск · удалённо или гибридно",
     "portfolio": "lednique.ru",
@@ -219,19 +213,19 @@ RU = {
     "email": "lednique1@ya.ru",
     "telegram": "t.me/lednique",
     "profile_title": "Профиль",
-    "profile": "Графический дизайнер с 12-летним опытом. С 2019 года — AR/XR-проекты, с 2023 года — AI-продакшн. Специализация: айдентика, digital- и печатные материалы, маркетплейс-инфографика, сайты, UI/UX и презентации. Создание AR-эффектов, AI-фото и видео; ведение проекта от брифа и визуальной концепции до файлов, готовых к публикации или печати. Портфолио включает проекты для более чем 20 брендов и компаний.",
+    "profile": "Графический дизайнер с 12-летним опытом. С 2019 года – AR/XR-проекты, с 2023 года – AI-продакшн. Специализация: айдентика, digital- и печатные материалы, маркетплейс-инфографика, сайты, UI/UX и презентации. Создание AR-эффектов, AI-фото и видео; ведение проекта от брифа и визуальной концепции до файлов, готовых к публикации или печати. Портфолио включает проекты для более чем 20 брендов и компаний.",
     "experience_title": "Опыт работы",
     "experience_role": "Независимый дизайнер · LEDNIQUE",
-    "experience_dates": "2014 — НАСТОЯЩЕЕ ВРЕМЯ",
+    "experience_dates": "2014 – НАСТОЯЩЕЕ ВРЕМЯ",
     "experience": [
         "Разрабатываю айдентику и визуальные системы; создаю материалы для цифровых и печатных носителей, готовлю файлы к печати.",
         "Проектирую карточки товаров и инфографику для маркетплейсов, сайты, презентации и материалы для социальных сетей.",
         "С 2019 года создаю AR/XR-проекты: face/body tracking, virtual try-on, digital make-up, target tracking, 3D-маски и AR-игры.",
         "С 2023 года создаю AI-фото товаров и моделей, AI-видео и прототипы UGC-контента; контролирую сходство товара, фактуры, свет и отражения.",
-        "Выполняю 3D-моделирование и motion: модели и текстуры в Blender, rigging, анимация и промо-ролики.",
+        "Выполняю 3D-моделирование и motion: модели и текстуры в Blender, rigging и анимация.",
     ],
     "clients_title": "Выбранные бренды",
-    "clients": "Glamnetic · OSCAR&FRANK · SLA Paris · H&M Beauty · Atomic Heart · NewJeans. Также — локальные компании и проекты под NDA.",
+    "clients": "Glamnetic · OSCAR&FRANK · SLA Paris · H&M Beauty. Также – локальные компании и проекты под NDA.",
     "skills_title": "Ключевые компетенции",
     "skills": [
         ("Графический дизайн", "Айдентика, digital-дизайн, UI/UX, сайты, маркетплейс-инфографика, полиграфия и препресс, презентации, соцсети."),
@@ -242,16 +236,16 @@ RU = {
     "tools": [
         ("Дизайн", "Figma, Photoshop, Illustrator, InDesign."),
         ("3D и видео", "Blender, After Effects, Premiere Pro."),
-        ("AR и AI", "Lens Studio, Effect House, Spark AR, Midjourney, Nano Banana, ChatGPT, Claude."),
+        ("AR и AI", "Lens Studio, Effect House, Midjourney, Nano Banana, ChatGPT, Claude."),
     ],
     "additional_title": "Образование и условия",
-    "education": "Высшее образование — технология обработки материалов.",
-    "languages": "Русский — родной. Английский — рабочее общение: брифы, переписка и созвоны.",
+    "education": "ИжГТУ им. М.Т. Калашникова, специальность «Технология художественной и промышленной обработки материалов».",
+    "languages": "Русский – родной. Английский – рабочее общение: брифы, переписка и созвоны.",
     "work_format": "Проектная работа, фриланс или частичная занятость; удалённо или гибридно в Ижевске.",
 }
 
 EN = {
-    "name": "VIKTOR",
+    "name": "VIKTOR VLASOV",
     "title": "Graphic Designer · AI / AR Production",
     "location": "Izhevsk, Russia · remote or hybrid",
     "portfolio": "lednique.ru",
@@ -262,16 +256,16 @@ EN = {
     "profile": "Graphic designer with 12 years of experience. AR/XR practice since 2019 and AI production since 2023. Focus areas include brand identity, digital and print assets, marketplace graphics, websites, UI/UX, and presentations. Produces AR experiences, AI imagery, and video, taking projects from brief and concept through to production-ready assets. Portfolio includes work for 20+ brands and companies.",
     "experience_title": "Experience",
     "experience_role": "Independent Designer · LEDNIQUE",
-    "experience_dates": "2014 — PRESENT",
+    "experience_dates": "2014 – PRESENT",
     "experience": [
         "Develops brand identities and visual systems; creates digital and print assets and prepares production-ready files.",
         "Designs marketplace product cards and infographics, websites, presentations, and social media assets.",
         "Since 2019, creates AR/XR projects: face and body tracking, virtual try-on, digital make-up, target tracking, 3D masks, and AR games.",
         "Since 2023, produces AI product and model imagery, AI video, and UGC prototypes, with close control of product likeness, materials, lighting, and reflections.",
-        "Creates 3D and motion work, including Blender models and textures, rigging, animation, and product promos.",
+        "Creates 3D and motion work, including Blender models and textures, rigging and animation.",
     ],
     "clients_title": "Selected brands",
-    "clients": "Glamnetic · OSCAR&FRANK · SLA Paris · H&M Beauty · Atomic Heart · NewJeans. Also works with local businesses and confidential clients.",
+    "clients": "Glamnetic · OSCAR&FRANK · SLA Paris · H&M Beauty. Also works with local businesses and confidential clients.",
     "skills_title": "Core skills",
     "skills": [
         ("Graphic design", "Brand identity, digital design, UI/UX, websites, marketplace infographics, print and prepress, presentations, social media."),
@@ -282,11 +276,11 @@ EN = {
     "tools": [
         ("Design", "Figma, Photoshop, Illustrator, InDesign."),
         ("3D and video", "Blender, After Effects, Premiere Pro."),
-        ("AR and AI", "Lens Studio, Effect House, Spark AR, Midjourney, Nano Banana, ChatGPT, Claude."),
+        ("AR and AI", "Lens Studio, Effect House, Midjourney, Nano Banana, ChatGPT, Claude."),
     ],
     "additional_title": "Education and availability",
-    "education": "Higher education — Materials Processing Technology.",
-    "languages": "Russian — native. English — working communication for briefs, correspondence, and calls.",
+    "education": "Kalashnikov Izhevsk State Technical University – Technology of Artistic and Industrial Materials Processing.",
+    "languages": "Russian – native. English – working communication for briefs, correspondence, and calls.",
     "work_format": "Project, freelance, or part-time work; remote or hybrid in Izhevsk.",
 }
 

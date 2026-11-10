@@ -165,7 +165,7 @@
 
     // group1.svg has transparent top padding; align the visible pink silhouette, not its SVG canvas.
     const visibleTop = fishBox.top + fishBox.height * .293;
-    const targetTop = labelBox.top + labelBox.height / 2 - 20;
+    const targetTop = labelBox.top + labelBox.height / 2 - 60;
     layer.style.setProperty('--fish-mobile-shift', `${(targetTop - visibleTop).toFixed(2)}px`);
   };
   const fitBoxes = () => {
@@ -662,16 +662,26 @@
     }
     /* десктоп: сцена закреплена, двигаются только карточки-пункты, пока не выделится последний */
     const update = () => {
-      if (small() || !wrap) { list.style.transform = ''; return; }
+      if (small() || !wrap) {
+        list.style.transform = '';
+        box.classList.remove('has-top-fade', 'has-bottom-fade');
+        return;
+      }
       const z = getZ(), stage = wrap.firstElementChild;
       const range = Math.max(1, wrap.offsetHeight - stage.offsetHeight);
       const p = clamp((-wrap.getBoundingClientRect().top / z) / range, 0, 1);
       const ch = box.clientHeight;
-      const c = steps.map(s => s.offsetTop + s.offsetHeight / 2);
-      const mid = c[0] + p * (c[c.length - 1] - c[0]);
-      list.style.transform = `translateY(${(ch / 2 - mid).toFixed(1)}px)`;
-      let best = 0, bd = 1e9;
-      c.forEach((v, k) => { const d = Math.abs(v - mid); if (d < bd) { bd = d; best = k; } });
+      const travel = Math.max(0, list.scrollHeight - ch);
+      const offset = p * travel;
+      list.style.transform = `translateY(${-offset.toFixed(1)}px)`;
+      box.classList.toggle('has-top-fade', offset > 1);
+      box.classList.toggle('has-bottom-fade', travel - offset > 1);
+      const mid = offset + ch / 2;
+      let best = 0, bd = Infinity;
+      steps.forEach((step, k) => {
+        const d = Math.abs(step.offsetTop + step.offsetHeight / 2 - mid);
+        if (d < bd) { bd = d; best = k; }
+      });
       set(best);
     };
     addEventListener('scroll', update, { passive: true }); addEventListener('resize', update);
