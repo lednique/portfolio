@@ -145,8 +145,8 @@
     const hero = $('.hero--design[data-hero]');
     const layer = $('.heroimg__fish-layer', hero || document);
     const fish = $('.pfish--1 img', layer || document);
-    const label = $('.eyebrow', hero || document);
-    if (!hero || !layer || !fish || !label) return;
+    const title = $('.h1', hero || document);
+    if (!hero || !layer || !fish || !title) return;
     if (!small()) { layer.style.removeProperty('--fish-mobile-shift'); return; }
     if (!fish.complete || !fish.naturalHeight) return;
 
@@ -158,14 +158,17 @@
     fish.parentElement.style.translate = 'none';
     fish.parentElement.style.rotate = 'none';
     const fishBox = fish.getBoundingClientRect();
-    const labelBox = label.getBoundingClientRect();
+    const titleBox = title.getBoundingClientRect();
     fish.parentElement.style.translate = previousTranslate;
     fish.parentElement.style.rotate = previousRotate;
     if (previousShift) layer.style.setProperty('--fish-mobile-shift', previousShift);
 
     // group1.svg has transparent top padding; align the visible pink silhouette, not its SVG canvas.
     const visibleTop = fishBox.top + fishBox.height * .293;
-    const targetTop = labelBox.top + labelBox.height / 2 - 60;
+    // The silhouette starts 55px above the top of the hero content, i.e. above the heading.
+    // Same on-screen spot as before: the removed «Все направления» label used to be the first
+    // content element and the anchor was its centre - 60px (the label was 10px tall).
+    const targetTop = titleBox.top - 55;
     layer.style.setProperty('--fish-mobile-shift', `${(targetTop - visibleTop).toFixed(2)}px`);
   };
   const fitBoxes = () => {
