@@ -1,7 +1,7 @@
 (function () {
   const host = document.querySelector('[data-invitation-demo]');
   if (!host) return;
-  fetch('assets/invitation/showcase.html?v=20261110b').then(function (response) {
+  fetch('assets/invitation/showcase.html?v=20261110d').then(function (response) {
     if (!response.ok) throw new Error('Invitation showcase failed to load');
     return response.text();
   }).then(function (html) {
@@ -267,7 +267,7 @@
     const bodyBottom = (1317 - 1615 / 2) / 1615;
     L.downCy = L.idleCy + boxH * bodyBottom + (L.idleW * AR) / 2 + boxH * 0.02;
 
-    L.fullW  = Math.min(vw * 0.72, (vh * 0.58) / AR, 520);
+    L.fullW  = Math.min(vw * 0.864, (vh * 0.696) / AR, 624);
     L.fullCx = vw / 2;
     L.fullCy = vh / 2;
 
@@ -697,6 +697,57 @@
       }, 500, run);
     }, 500, run);
   }
+  // Once opened, users can turn the card themselves without blocking vertical scrolling.
+  let pointer = null;
+  canvas.addEventListener('pointerdown', function (event) {
+    if (S.phase !== 'open' || (event.pointerType === 'mouse' && event.button !== 0)) return;
+    const rect = canvas.getBoundingClientRect();
+    const scale = rect.width / stage.clientWidth || 1;
+    const x = (event.clientX - rect.left) / scale;
+    const y = (event.clientY - rect.top) / scale;
+    if (Math.abs(x - G.cx) > G.w / 2 || Math.abs(y - G.cy) > G.w * AR / 2) return;
+    clearTimeout(demoTimer); // User input takes precedence over the automatic flip.
+    pointer = { id: event.pointerId, x: event.clientX, y: event.clientY, angle: S.angle, horizontal: false };
+  });
+  canvas.addEventListener('pointermove', function (event) {
+    if (!pointer || pointer.id !== event.pointerId) return;
+    const dx = event.clientX - pointer.x, dy = event.clientY - pointer.y;
+    if (!pointer.horizontal && Math.abs(dy) > 8 && Math.abs(dy) > Math.abs(dx)) { pointer = null; return; }
+    if (!pointer.horizontal && Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)) {
+      pointer.horizontal = true;
+      S.dragging = true;
+      canvas.setPointerCapture(event.pointerId);
+    }
+    if (pointer.horizontal) {
+      S.dragTarget = pointer.angle + dx * 0.8;
+      kick();
+    }
+  });
+  function finishPointer(event) {
+    if (!pointer || pointer.id !== event.pointerId) return;
+    const dragged = pointer.horizontal;
+    const distance = event.clientX - pointer.x;
+    const startingFace = Math.round(pointer.angle / 180) * 180;
+    pointer = null;
+    S.dragging = false;
+    S.angleTarget = dragged && Math.abs(distance) > 35
+      ? startingFace + (distance > 0 ? 180 : -180)
+      : dragged ? Math.round(S.dragTarget / 180) * 180 : startingFace + 180;
+    kick();
+  }
+  canvas.addEventListener('pointerup', finishPointer);
+  canvas.addEventListener('pointercancel', function (event) {
+    if (!pointer || pointer.id !== event.pointerId) return;
+    pointer = null; S.dragging = false;
+    S.angleTarget = Math.round(S.angle / 180) * 180; kick();
+  });
+  canvas.addEventListener('keydown', function (event) {
+    if (S.phase !== 'open' || !['ArrowLeft', 'ArrowRight', 'Enter', ' '].includes(event.key)) return;
+    event.preventDefault();
+    clearTimeout(demoTimer);
+    S.angleTarget = Math.round(S.angle / 180) * 180 + (event.key === 'ArrowLeft' ? -180 : 180);
+    kick();
+  });
   function checkVisibility() {
     const rect = stage.getBoundingClientRect();
     const centre = rect.top + rect.height / 2;
@@ -707,6 +758,7 @@
       ++generation; played = false;
       clearTimeout(demoTimer); clearTimeout(openTimer); clearTimeout(closeTimer);
       clearBackZoomTimer();
+      pointer = null; S.dragging = false;
       S.open = false; S.phase = 'idle'; S.t = 0;
       S.angle = 0; S.angleVel = 0; S.angleTarget = 0; S.dragTarget = 0;
       S.tilt = 0; S.tiltTarget = 0; S.zoom = 1; S.zoomTarget = 1;
